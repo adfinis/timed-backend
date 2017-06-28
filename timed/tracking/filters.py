@@ -71,17 +71,33 @@ class ActivityActiveFilter(Filter):
         ).distinct()
 
 
+class RecentActivityFilter(Filter):
+    """Filter to get recent activities"""
+
+    @boolean_filter
+    def filter(self, qs, value):
+        """Filter the queryset.
+
+        :param QuerySet qs: The queryset to filter
+        :param bool  value: Whether to get only recent activities
+        :return:            The filtered queryset
+        :rtype:             QuerySet
+        """
+        return qs.order_by('task', '-start_datetime').distinct('task')[:10]
+
+
 class ActivityFilterSet(FilterSet):
     """Filter set for the activities endpoint."""
 
     active = ActivityActiveFilter()
+    recent = RecentActivityFilter()
     day    = DayFilter(name='start_datetime')
 
     class Meta:
         """Meta information for the activity filter set."""
 
         model  = models.Activity
-        fields = ['active', 'day']
+        fields = ['active', 'recent', 'day']
 
 
 class ActivityBlockFilterSet(FilterSet):
@@ -106,17 +122,33 @@ class AttendanceFilterSet(FilterSet):
         fields = ['day']
 
 
+class RecentReportFilter(Filter):
+    """Filter to get recent reports"""
+
+    @boolean_filter
+    def filter(self, qs, value):
+        """Filter the queryset.
+
+        :param QuerySet qs: The queryset to filter
+        :param bool  value: Whether to get only recent reports
+        :return:            The filtered queryset
+        :rtype:             QuerySet
+        """
+        return qs.order_by('task', '-date').distinct('task')[:10]
+
+
 class ReportFilterSet(FilterSet):
     """Filter set for the reports endpoint."""
 
     from_date = DateFilter(name='date', lookup_expr='gte')
     to_date   = DateFilter(name='date', lookup_expr='lte')
+    recent    = RecentReportFilter()
 
     class Meta:
         """Meta information for the report filter set."""
 
         model  = models.Report
-        fields = ['date', 'from_date', 'to_date']
+        fields = ['date', 'from_date', 'to_date', 'recent']
 
 
 class AbsenceFilterSet(FilterSet):
