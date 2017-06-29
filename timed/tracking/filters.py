@@ -72,7 +72,7 @@ class ActivityActiveFilter(Filter):
 
 
 class RecentActivityFilter(Filter):
-    """Filter to get recent activities"""
+    """Filter to get recent activities."""
 
     @boolean_filter
     def filter(self, qs, value):
@@ -123,7 +123,7 @@ class AttendanceFilterSet(FilterSet):
 
 
 class RecentReportFilter(Filter):
-    """Filter to get recent reports"""
+    """Filter to get recent reports."""
 
     @boolean_filter
     def filter(self, qs, value):
