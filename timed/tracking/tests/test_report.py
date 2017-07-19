@@ -45,6 +45,24 @@ class ReportTests(JSONAPITestCase):
 
         assert len(result['data']) == len(self.reports)
 
+    def test_report_list_filter_recent(self):
+        """Should respond with a list of recent reports."""
+        url = reverse('report-list')
+
+        res = self.client.get('{0}?recent=true'.format(url))
+        result = self.result(res)
+
+        assert len(result['data']) >= 1
+        assert len(result['data']) <= 10
+
+        def get_task(entry):
+            return entry['relationships']['task']['data']['id']
+
+        # Each task should be unique
+        tasks = list(map(get_task, result['data']))
+
+        assert len(tasks) == len(set(tasks))
+
     def test_report_detail(self):
         """Should respond with a single report."""
         report = self.reports[0]

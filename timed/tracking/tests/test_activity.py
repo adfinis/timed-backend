@@ -25,7 +25,7 @@ class ActivityTests(JSONAPITestCase):
         )
 
         self.activities = ActivityFactory.create_batch(
-            10,
+            20,
             user=self.user
         )
 
@@ -189,6 +189,24 @@ class ActivityTests(JSONAPITestCase):
             for data
             in result['data']
         ])
+
+    def test_activity_list_filter_recent(self):
+        """Should respond with a list of recent activities."""
+        url = reverse('activity-list')
+
+        res = self.client.get('{0}?recent=true'.format(url))
+        result = self.result(res)
+
+        assert len(result['data']) >= 1
+        assert len(result['data']) <= 10
+
+        def get_task(entry):
+            return entry['relationships']['task']['data']['id']
+
+        # Each task should be unique
+        tasks = list(map(get_task, result['data']))
+
+        assert len(tasks) == len(set(tasks))
 
     def test_activity_create_no_task(self):
         """Should create a new activity without a task."""
