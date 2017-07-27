@@ -3,7 +3,7 @@
 import datetime
 
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -52,10 +52,24 @@ class Location(models.Model):
         return self.name
 
 
+class UserManager(UserManager):
+    def all_supervisors(self):
+        objects = self.model.objects.annotate(
+            supervisees_count=models.Count('supervisees'))
+        return objects.filter(supervisees_count__gt=0)
+
+    def all_supervisees(self):
+        objects = self.model.objects.annotate(
+            supervisors_count=models.Count('supervisors'))
+        return objects.filter(supervisors_count__gt=0)
+
+
 class User(AbstractUser):
     """Timed specific user."""
 
-    pass
+    supervisors = models.ManyToManyField('self', symmetrical=False,
+                                         related_name='supervisees')
+    objects = UserManager()
 
 
 class Employment(models.Model):
