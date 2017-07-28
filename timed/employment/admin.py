@@ -4,10 +4,35 @@ import datetime
 
 from django import forms
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from timed.employment import models
+
+
+class SupervisorInline(admin.TabularInline):
+    model = models.User.supervisors.through
+    extra = 0
+    fk_name = 'from_user'
+    verbose_name = _('Supervisor')
+    verbose_name_plural = _('Supervisors')
+
+
+@admin.register(models.User)
+class UserAdmin(UserAdmin):
+    """Timed specific user admin."""
+
+    inlines = [SupervisorInline]
+    exclude = ('supervisors', )
+
+
+@admin.register(models.Location)
+class LocationAdmin(admin.ModelAdmin):
+    """Location admin view."""
+
+    list_display  = ['name']
+    search_fields = ['name']
 
 
 class EmploymentForm(forms.ModelForm):
@@ -68,14 +93,6 @@ class EmploymentForm(forms.ModelForm):
 
         fields = '__all__'
         model = models.Employment
-
-
-@admin.register(models.Location)
-class LocationAdmin(admin.ModelAdmin):
-    """Location admin view."""
-
-    list_display  = ['name']
-    search_fields = ['name']
 
 
 @admin.register(models.Employment)
