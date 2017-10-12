@@ -23,3 +23,20 @@ def auth_client(db):
     client.user = user
     client.login('user', '123qweasd')
     return client
+
+
+@pytest.fixture
+def admin_client(db):
+    """Return json api client logged in as admin user."""
+    user = get_user_model().objects.create_user(
+        username='admin',
+        password='123qweasd',
+        first_name='Test',
+        last_name='User',
+        is_staff=True
+    )
+
+    client = JSONAPIClient()
+    client.user = user
+    client.login('admin', '123qweasd')
+    return client
