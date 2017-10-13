@@ -20,7 +20,7 @@ ENV = env.str('ENV', 'prod')
 
 def default(default_dev=env.NOTSET, default_prod=env.NOTSET):
     """Environment aware default."""
-    return ENV == 'prod' and default_prod or default_dev
+    return default_prod if ENV == 'prod' else default_dev
 
 
 # Database definition
