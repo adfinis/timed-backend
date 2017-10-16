@@ -8,6 +8,7 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum, functions
+from django.utils.translation import ugettext_lazy as _
 
 from timed.models import WeekdaysField
 
@@ -396,6 +397,12 @@ class User(AbstractUser):
     tour_done = models.BooleanField(default=False)
     """
     Indicate whether user has finished tour through Timed in frontend.
+    """
+
+    last_name = models.CharField(_('last name'), max_length=30, blank=False)
+    """
+    Overwrite last name to make it required as interface relies on it.
+    May also be name of organization if need to.
     """
 
     objects = UserManager()

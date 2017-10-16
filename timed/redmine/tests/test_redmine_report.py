@@ -2,6 +2,7 @@ import pytest
 from django.core.management import call_command
 from redminelib.exceptions import ResourceNotFoundError
 
+from timed.projects.factories import ProjectFactory, TaskFactory
 from timed.redmine.models import RedmineProject
 from timed.tracking.factories import ReportFactory
 
@@ -43,6 +44,27 @@ def test_redmine_report(db, freezer, mocker):
     assert '{0}\n\n'.format(report.comment) not in issue.notes, (
         'Only one new line after report line'
     )
+    issue.save.assert_called_once_with()
+
+
+@pytest.mark.freeze_time
+def test_redmine_report_no_estimated_time(db, freezer, mocker):
+    redmine_instance = mocker.MagicMock()
+    issue = mocker.MagicMock()
+    redmine_instance.issue.get.return_value = issue
+    redmine_class = mocker.patch('redminelib.Redmine')
+    redmine_class.return_value = redmine_instance
+
+    freezer.move_to('2017-07-28')
+    project = ProjectFactory.create(estimated_time=None)
+    task = TaskFactory.create(project=project)
+    report = ReportFactory.create(comment='ADSY <=> Other', task=task)
+    RedmineProject.objects.create(project=report.task.project, issue_id=1000)
+
+    freezer.move_to('2017-07-31')
+    call_command('redmine_report', options={'--last-days': '7'})
+
+    redmine_instance.issue.get.assert_called_once_with(1000)
     issue.save.assert_called_once_with()
 
 
