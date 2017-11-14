@@ -10,7 +10,7 @@ pytz==2017.2
 pyexcel-webio==0.1.2
 pyexcel-io==0.5.1
 django-excel==0.0.9
-pyexcel-ods3==0.5.0
+pyexcel-ods3==0.5.2
 pyexcel-xlsx==0.5.0.1
 pyexcel-ezodf==0.3.3
 django-environ==0.4.3
