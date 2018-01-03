@@ -128,13 +128,24 @@ class Report(models.Model):
 
 class AbsenceManager(models.Manager):
     def get_queryset(self):
-        from timed.employment.models import PublicHoliday
+        """Return only absences which do not overlap with public holidays."""
+        from timed.employment.models import Employment, PublicHoliday
+
+        # location of employment at the date of absence
+        location_qs = Employment.objects.filter(
+            (
+                models.Q(end_date__gte=models.OuterRef("date"))
+                | models.Q(end_date__isnull=True)
+            ),
+            start_date__lte=models.OuterRef("date"),
+            user_id=models.OuterRef(models.OuterRef("user")),
+        ).values("location")[:1]
 
         queryset = super().get_queryset()
         queryset = queryset.exclude(
             date__in=models.Subquery(
                 PublicHoliday.objects.filter(
-                    location__employments__user=models.OuterRef("user")
+                    location=models.Subquery(location_qs)
                 ).values("date")
             )
         )

@@ -13,14 +13,25 @@ from timed.tracking.factories import AbsenceFactory, ReportFactory
 
 
 def test_absence_list_authenticated(auth_client):
-    absence = AbsenceFactory.create(user=auth_client.user)
+    # public holidays of previous location may not be hidden
+    absence = AbsenceFactory.create(
+        user=auth_client.user, date=datetime.date(2018, 1, 2)
+    )
+    previous_employment = EmploymentFactory.create(
+        user=absence.user,
+        start_date=datetime.date(2017, 1, 1),
+        end_date=datetime.date(2017, 12, 31),
+    )
+    PublicHolidayFactory.create(
+        date=absence.date, location=previous_employment.location
+    )
 
     # overlapping absence with public holidays need to be hidden
     overlap_absence = AbsenceFactory.create(
         user=auth_client.user, date=datetime.date(2018, 1, 1)
     )
     employment = EmploymentFactory.create(
-        user=overlap_absence.user, start_date=datetime.date(2017, 12, 31)
+        user=overlap_absence.user, start_date=datetime.date(2018, 1, 1)
     )
     PublicHolidayFactory.create(date=overlap_absence.date, location=employment.location)
     url = reverse("absence-list")
