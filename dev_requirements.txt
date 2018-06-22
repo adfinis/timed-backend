@@ -15,7 +15,5 @@ pytest==3.6.2
 pytest-cov==2.5.1
 pytest-env==0.6.2
 pytest-mock==1.10.0
-# once newer version than 3.1.2 has been released
-# pytest-django can be imported through pypi again
-git+https://github.com/pytest-dev/pytest-django@21492af
+pytest-django==3.3.2
 pytest-freezegun==0.2.0
