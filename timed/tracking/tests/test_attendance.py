@@ -60,6 +60,14 @@ def test_attendance_update(auth_client):
             'id': attendance.id,
             'attributes': {
                 'to-time': '15:00:00'
+            },
+            'relationships': {
+                'user': {
+                    'data': {
+                        'id': auth_client.user.id,
+                        'type': 'users'
+                    }
+                },
             }
         }
     }

@@ -5,7 +5,9 @@ django-filter==1.1.0
 django-multiselectfield==0.1.8
 djangorestframework==3.8.2
 djangorestframework-jwt==1.11.0
-djangorestframework-jsonapi==2.4.0
+# use pyup version when following PR is released:
+# https://github.com/django-json-api/django-rest-framework-json-api/pull/415
+git+https://github.com/django-json-api/django-rest-framework-json-api@ad3dd293ac40f08d3ad5dfb85914977f98186ab0
 psycopg2-binary==2.7.5
 pytz==2018.4
 pyexcel-webio==0.1.4
