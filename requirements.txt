@@ -16,7 +16,7 @@ django-excel==0.0.10
 pyexcel-ods3==0.5.2
 pyexcel-xlsx==0.5.6
 pyexcel-ezodf==0.3.4
-django-environ==0.4.4
+django-environ==0.4.5
 rest_condition==1.0.3
 django-money==0.14
 python-redmine==2.1.1
