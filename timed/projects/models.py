@@ -66,22 +66,25 @@ class Project(models.Model):
     belongs to a customer.
     """
 
-    name            = models.CharField(max_length=255, db_index=True)
-    reference       = models.CharField(max_length=255, db_index=True,
-                                       blank=True, null=True)
-    comment         = models.TextField(blank=True)
-    archived        = models.BooleanField(default=False)
-    estimated_time  = models.DurationField(blank=True, null=True)
-    customer        = models.ForeignKey('projects.Customer',
-                                        related_name='projects')
-    billing_type    = models.ForeignKey(BillingType, on_delete=models.SET_NULL,
-                                        blank=True, null=True,
-                                        related_name='projects')
-    cost_center     = models.ForeignKey(CostCenter, on_delete=models.SET_NULL,
-                                        blank=True, null=True,
-                                        related_name='projects')
-    reviewers       = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                                             related_name='reviews')
+    name                = models.CharField(max_length=255, db_index=True)
+    reference           = models.CharField(max_length=255, db_index=True,
+                                           blank=True, null=True)
+    comment             = models.TextField(blank=True)
+    archived            = models.BooleanField(default=False)
+    estimated_time      = models.DurationField(blank=True, null=True)
+    customer            = models.ForeignKey('projects.Customer',
+                                            related_name='projects')
+    billing_type        = models.ForeignKey(BillingType,
+                                            on_delete=models.SET_NULL,
+                                            blank=True, null=True,
+                                            related_name='projects')
+    cost_center         = models.ForeignKey(CostCenter,
+                                            on_delete=models.SET_NULL,
+                                            blank=True, null=True,
+                                            related_name='projects')
+    reviewers           = models.ManyToManyField(settings.AUTH_USER_MODEL,
+                                                 related_name='reviews')
+    customer_visible    = models.BooleanField(default=False)
 
     def __str__(self):
         """Represent the model as a string.
