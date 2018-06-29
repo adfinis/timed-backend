@@ -9,7 +9,7 @@ djangorestframework-jwt==1.11.0
 # https://github.com/django-json-api/django-rest-framework-json-api/pull/415
 git+https://github.com/django-json-api/django-rest-framework-json-api@ad3dd293ac40f08d3ad5dfb85914977f98186ab0
 psycopg2-binary==2.7.5
-pytz==2018.4
+pytz==2018.5
 pyexcel-webio==0.1.4
 pyexcel-io==0.5.7
 django-excel==0.0.10
