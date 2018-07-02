@@ -26,7 +26,7 @@ def test_subscription_project_list(auth_client):
     # not billable reports should not be included in spent hours
     ReportFactory.create(not_billable=True, task=task,
                          duration=timedelta(hours=4))
-    # project of same customer but without customer_visible=True with packages
+    # project of same customer but without customer_visible set
     # should not appear
     ProjectFactory.create(customer=customer)
 
