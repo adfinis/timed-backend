@@ -24,7 +24,9 @@ class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Project.objects.filter(
-            archived=False, customer_visible=True)
+            archived=False,
+            customer_visible=True
+        )
 
 
 class PackageViewSet(viewsets.ReadOnlyModelViewSet):
