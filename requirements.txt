@@ -1,13 +1,11 @@
 python-dateutil==2.7.3
 django==1.11.14 # pyup: >=1.11,<1.12
-django-auth-ldap==1.6.1
+django-auth-ldap==1.7.0
 django-filter==1.1.0
 django-multiselectfield==0.1.8
 djangorestframework==3.8.2
 djangorestframework-jwt==1.11.0
-# use pyup version when following PR is released:
-# https://github.com/django-json-api/django-rest-framework-json-api/pull/415
-git+https://github.com/django-json-api/django-rest-framework-json-api@ad3dd293ac40f08d3ad5dfb85914977f98186ab0
+djangorestframework-jsonapi==2.5.0
 psycopg2-binary==2.7.5
 pytz==2018.5
 pyexcel-webio==0.1.4
