@@ -36,7 +36,7 @@ DATABASES = {
         'PASSWORD': env.str(
             'DJANGO_DATABASE_PASSWORD', default=default('timed')
         ),
-        'HOST': env.str('DJANGO_DATABASE_HOST', default='db'),
+        'HOST': env.str('DJANGO_DATABASE_HOST', default='localhost'),
         'PORT': env.str('DJANGO_DATABASE_PORT', default='')
     }
 }
