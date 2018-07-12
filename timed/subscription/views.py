@@ -1,4 +1,3 @@
-from django.db.models import Count
 from rest_framework import (decorators, exceptions, mixins, permissions,
                             response, status, viewsets)
 
@@ -24,10 +23,10 @@ class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
     )
 
     def get_queryset(self):
-        queryset = Project.objects.annotate(
-            count_packages=Count('billing_type__packages')
+        return Project.objects.filter(
+            archived=False,
+            customer_visible=True
         )
-        return queryset.filter(archived=False, count_packages__gt=0)
 
 
 class PackageViewSet(viewsets.ReadOnlyModelViewSet):

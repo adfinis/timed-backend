@@ -14,7 +14,8 @@ def test_subscription_project_list(auth_client):
     billing_type = BillingTypeFactory()
     project = ProjectFactory.create(
         billing_type=billing_type,
-        customer=customer
+        customer=customer,
+        customer_visible=True
     )
     PackageFactory.create_batch(2, billing_type=billing_type)
     # create spent hours
@@ -25,7 +26,7 @@ def test_subscription_project_list(auth_client):
     # not billable reports should not be included in spent hours
     ReportFactory.create(not_billable=True, task=task,
                          duration=timedelta(hours=4))
-    # project of same customer but without a billing type with packages
+    # project of same customer but without customer_visible set
     # should not appear
     ProjectFactory.create(customer=customer)
 
@@ -70,7 +71,8 @@ def test_subscription_project_list(auth_client):
 def test_subscription_project_detail(auth_client):
     billing_type = BillingTypeFactory()
     project = ProjectFactory.create(
-        billing_type=billing_type
+        billing_type=billing_type,
+        customer_visible=True
     )
     PackageFactory.create_batch(2, billing_type=billing_type)
 
