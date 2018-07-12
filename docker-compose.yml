@@ -16,6 +16,6 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=psql://timed:timed@db:5432/timed
+      - DJANGO_DATABASE_HOST=db
       - ENV=docker
       - STATIC_ROOT=/var/www/static
