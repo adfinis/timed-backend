@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.db.models import Value, Exists, OuterRef
+from django.db.models import Exists, OuterRef, Value
 from django.db.models.functions import Coalesce
 from django_filters.rest_framework import (DateFilter, Filter, FilterSet,
                                            NumberFilter)

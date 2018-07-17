@@ -7,8 +7,8 @@ from rest_framework import status
 
 from timed.employment.factories import (AbsenceTypeFactory, EmploymentFactory,
                                         UserFactory)
-from timed.tracking.factories import AbsenceFactory, ReportFactory
 from timed.projects.factories import ProjectFactory
+from timed.tracking.factories import AbsenceFactory, ReportFactory
 
 
 def test_user_list_unauthenticated(client):
