@@ -1,11 +1,12 @@
 from datetime import date
 
-from django.db.models import Value
+from django.db.models import Value, Exists, OuterRef
 from django.db.models.functions import Coalesce
 from django_filters.rest_framework import (DateFilter, Filter, FilterSet,
                                            NumberFilter)
 
 from timed.employment import models
+from timed.projects.models import Project
 
 
 class YearFilter(Filter):
@@ -49,12 +50,19 @@ class AbsenceTypeFilterSet(FilterSet):
 
 
 class UserFilterSet(FilterSet):
-    active = NumberFilter(field_name='is_active')
-    supervisor = NumberFilter(field_name='supervisors')
+    active      = NumberFilter(field_name='is_active')
+    supervisor  = NumberFilter(field_name='supervisors')
+    is_reviewer = NumberFilter(method='filter_reviewers')
+
+    def filter_reviewers(self, queryset, name, value):
+        reviewer = Project.objects.filter(reviewers=OuterRef('pk'))
+        return queryset.annotate(
+            is_reviewer=Exists(reviewer)
+        ).filter(is_reviewer=value)
 
     class Meta:
         model  = models.User
-        fields = ['active', 'supervisor']
+        fields = ['active', 'supervisor', 'is_reviewer']
 
 
 class EmploymentFilterSet(FilterSet):
