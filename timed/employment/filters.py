@@ -6,6 +6,7 @@ from django_filters.rest_framework import (DateFilter, Filter, FilterSet,
                                            NumberFilter)
 
 from timed.employment import models
+from timed.employment.models import User
 from timed.projects.models import Project
 
 
@@ -53,12 +54,19 @@ class UserFilterSet(FilterSet):
     active      = NumberFilter(field_name='is_active')
     supervisor  = NumberFilter(field_name='supervisors')
     is_reviewer = NumberFilter(method='filter_reviewers')
+    is_supervisor = NumberFilter(method='filter_supervisors')
 
     def filter_reviewers(self, queryset, name, value):
         reviewer = Project.objects.filter(reviewers=OuterRef('pk'))
         return queryset.annotate(
             is_reviewer=Exists(reviewer)
         ).filter(is_reviewer=value)
+
+    def filter_supervisors(self, queryset, name, value):
+        supervisor = User.objects.filter(supervisors=OuterRef('pk'))
+        return queryset.annotate(
+            is_supervisor=Exists(supervisor)
+        ).filter(is_supervisor=value)
 
     class Meta:
         model  = models.User

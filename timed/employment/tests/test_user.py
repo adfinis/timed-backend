@@ -211,3 +211,15 @@ def test_user_is_reviewer_filter(auth_client, value, expected):
 
     res = auth_client.get(reverse('user-list'), {'is_reviewer': value})
     assert len(res.json()['data']) == expected
+
+
+@pytest.mark.parametrize('value,expected', [(1, 1), (0, 4)])
+def test_user_is_supervisor_filter(auth_client, value, expected):
+    """Should filter useres if they are a supervisor."""
+    user = UserFactory.create()
+    UserFactory.create_batch(3)
+
+    auth_client.user.supervisees.add(user)
+
+    res = auth_client.get(reverse('user-list'), {'is_supervisor': value})
+    assert len(res.json()['data']) == expected
