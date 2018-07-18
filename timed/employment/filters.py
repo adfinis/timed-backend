@@ -52,14 +52,20 @@ class AbsenceTypeFilterSet(FilterSet):
 class UserFilterSet(FilterSet):
     active      = NumberFilter(field_name='is_active')
     supervisor  = NumberFilter(field_name='supervisors')
-    is_reviewer = NumberFilter(method='filter_is_reviewers')
-    is_supervisor = NumberFilter(method='filter_is_supervisors')
+    is_reviewer = NumberFilter(method='filter_is_reviewer')
+    is_supervisor = NumberFilter(method='filter_is_supervisor')
 
-    def filter_is_reviewers(self, queryset, name, value):
-        return queryset.filter(pk__in=User.objects.all_reviewers())
+    def filter_is_reviewer(self, queryset, name, value):
+        if value:
+            return queryset.filter(pk__in=User.objects.all_reviewers())
+        else:
+            return queryset.exclude(pk__in=User.objects.all_reviewers())
 
-    def filter_is_supervisors(self, queryset, name, value):
-        return queryset.filter(pk__in=User.objects.all_supervisors())
+    def filter_is_supervisor(self, queryset, name, value):
+        if value:
+            return queryset.filter(pk__in=User.objects.all_supervisors())
+        else:
+            return queryset.exclude(pk__in=User.objects.all_supervisors())
 
     class Meta:
         model  = models.User

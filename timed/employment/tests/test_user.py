@@ -200,7 +200,7 @@ def test_user_transfer(superadmin_client):
     assert absence_credit.comment == 'Transfer 2017'
 
 
-@pytest.mark.parametrize('value,expected', [(1, 1), (0, 1)])
+@pytest.mark.parametrize('value,expected', [(1, 1), (0, 4)])
 def test_user_is_reviewer_filter(auth_client, value, expected):
     """Should filter users if they are a reviewer."""
     user = UserFactory.create()
@@ -213,7 +213,7 @@ def test_user_is_reviewer_filter(auth_client, value, expected):
     assert len(res.json()['data']) == expected
 
 
-@pytest.mark.parametrize('value,expected', [(1, 1), (0, 1)])
+@pytest.mark.parametrize('value,expected', [(1, 1), (0, 5)])
 def test_user_is_supervisor_filter(auth_client, value, expected):
     """Should filter useres if they are a supervisor."""
     users = UserFactory.create_batch(2)
