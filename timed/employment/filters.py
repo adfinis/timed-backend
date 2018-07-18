@@ -58,14 +58,12 @@ class UserFilterSet(FilterSet):
     def filter_is_reviewer(self, queryset, name, value):
         if value:
             return queryset.filter(pk__in=User.objects.all_reviewers())
-        else:
-            return queryset.exclude(pk__in=User.objects.all_reviewers())
+        return queryset.exclude(pk__in=User.objects.all_reviewers())
 
     def filter_is_supervisor(self, queryset, name, value):
         if value:
             return queryset.filter(pk__in=User.objects.all_supervisors())
-        else:
-            return queryset.exclude(pk__in=User.objects.all_supervisors())
+        return queryset.exclude(pk__in=User.objects.all_supervisors())
 
     class Meta:
         model  = models.User
