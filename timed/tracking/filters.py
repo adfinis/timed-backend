@@ -21,13 +21,6 @@ def boolean_filter(func):
     def wrapper(self, qs, value):
         if value in EMPTY_VALUES:
             return qs
-        """Wrap the initial function.
-
-        :param QuerySet qs: The queryset to filter
-        :param str   value: The value to cast
-        :return:            The original function
-        :rtype:             function
-        """
 
         value = value.lower() not in ('1', 'true', 'yes')
 

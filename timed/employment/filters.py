@@ -16,13 +16,7 @@ class YearFilter(Filter):
     def filter(self, qs, value):
         if value in EMPTY_VALUES:
             return qs
-        """Filter the queryset.
 
-        :param QuerySet qs: The queryset to filter
-        :param str   value: The year to filter to
-        :return:            The filtered queryset
-        :rtype:             QuerySet
-        """
         return qs.filter(**{
             '%s__year' % self.field_name: value
         })

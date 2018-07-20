@@ -52,8 +52,6 @@ class MyMostFrequentTaskFilter(Filter):
     """
 
     def filter(self, qs, value):
-        if value in EMPTY_VALUES:
-            return qs
         """Filter for given most frequently used tasks.
 
         Most frequently used tasks are only counted within last
@@ -65,6 +63,9 @@ class MyMostFrequentTaskFilter(Filter):
         :return:            The filtered queryset
         :rtype:             QuerySet
         """
+        if value in EMPTY_VALUES:
+            return qs
+
         user = self.parent.request.user
         from_date = date.today() - timedelta(days=60)
 
