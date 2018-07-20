@@ -7,6 +7,7 @@ from rest_framework import status
 
 from timed.employment.factories import (AbsenceTypeFactory, EmploymentFactory,
                                         UserFactory)
+from timed.projects.factories import ProjectFactory
 from timed.tracking.factories import AbsenceFactory, ReportFactory
 
 
@@ -197,3 +198,28 @@ def test_user_transfer(superadmin_client):
     assert absence_credit.date == date(2018, 1, 1)
     assert absence_credit.days == -1
     assert absence_credit.comment == 'Transfer 2017'
+
+
+@pytest.mark.parametrize('value,expected', [(1, 1), (0, 4)])
+def test_user_is_reviewer_filter(auth_client, value, expected):
+    """Should filter users if they are a reviewer."""
+    user = UserFactory.create()
+    project = ProjectFactory.create()
+    UserFactory.create_batch(3)
+
+    project.reviewers.add(user)
+
+    res = auth_client.get(reverse('user-list'), {'is_reviewer': value})
+    assert len(res.json()['data']) == expected
+
+
+@pytest.mark.parametrize('value,expected', [(1, 1), (0, 5)])
+def test_user_is_supervisor_filter(auth_client, value, expected):
+    """Should filter useres if they are a supervisor."""
+    users = UserFactory.create_batch(2)
+    UserFactory.create_batch(3)
+
+    auth_client.user.supervisees.add(*users)
+
+    res = auth_client.get(reverse('user-list'), {'is_supervisor': value})
+    assert len(res.json()['data']) == expected

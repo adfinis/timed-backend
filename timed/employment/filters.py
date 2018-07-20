@@ -7,6 +7,7 @@ from django_filters.rest_framework import (DateFilter, Filter, FilterSet,
                                            NumberFilter)
 
 from timed.employment import models
+from timed.employment.models import User
 
 
 # There is a None problem with the year filter
@@ -53,12 +54,24 @@ class AbsenceTypeFilterSet(FilterSet):
 
 
 class UserFilterSet(FilterSet):
-    active = NumberFilter(field_name='is_active')
-    supervisor = NumberFilter(field_name='supervisors')
+    active      = NumberFilter(field_name='is_active')
+    supervisor  = NumberFilter(field_name='supervisors')
+    is_reviewer = NumberFilter(method='filter_is_reviewer')
+    is_supervisor = NumberFilter(method='filter_is_supervisor')
+
+    def filter_is_reviewer(self, queryset, name, value):
+        if value:
+            return queryset.filter(pk__in=User.objects.all_reviewers())
+        return queryset.exclude(pk__in=User.objects.all_reviewers())
+
+    def filter_is_supervisor(self, queryset, name, value):
+        if value:
+            return queryset.filter(pk__in=User.objects.all_supervisors())
+        return queryset.exclude(pk__in=User.objects.all_supervisors())
 
     class Meta:
         model  = models.User
-        fields = ['active', 'supervisor']
+        fields = ['active', 'supervisor', 'is_reviewer', 'is_supervisor']
 
 
 class EmploymentFilterSet(FilterSet):
