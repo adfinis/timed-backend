@@ -25,7 +25,7 @@ class PackageFilter(FilterSet):
 
 
 class OrderFilter(FilterSet):
-    customer = NumberFilter(name='project__customer')
+    customer = NumberFilter(field_name='project__customer')
     acknowledged = NumberFilter(field_name='acknowledged')
 
     class Meta:

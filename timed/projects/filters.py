@@ -2,6 +2,7 @@
 from datetime import date, timedelta
 
 from django.db.models import Count
+from django_filters.constants import EMPTY_VALUES
 from django_filters.rest_framework import Filter, FilterSet, NumberFilter
 
 from timed.projects import models
@@ -51,6 +52,8 @@ class MyMostFrequentTaskFilter(Filter):
     """
 
     def filter(self, qs, value):
+        if value in EMPTY_VALUES:
+            return qs
         """Filter for given most frequently used tasks.
 
         Most frequently used tasks are only counted within last
@@ -73,8 +76,7 @@ class MyMostFrequentTaskFilter(Filter):
         )
         qs = qs.annotate(frequency=Count('reports')).order_by('-frequency')
         # limit number of results to given value
-        if value not None
-            qs = qs[:int(value)]
+        qs = qs[:int(value)]
 
         return qs
 

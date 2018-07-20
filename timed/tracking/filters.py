@@ -25,6 +25,9 @@ def boolean_filter(func):
         :return:            The original function
         :rtype:             function
         """
+        if value is None:
+            return func(self, qs, False)
+
         value = value.lower() not in ('1', 'true', 'yes')
 
         return func(self, qs, value)
@@ -57,7 +60,7 @@ class ActivityActiveFilter(Filter):
 class ActivityFilterSet(FilterSet):
     """Filter set for the activities endpoint."""
 
-    active = ActivityActiveFilter()
+    active = ActivityActiveFilter(field_name='blocks')
     day    = DateFilter(field_name='date')
 
     class Meta:
@@ -99,7 +102,7 @@ class ReportFilterSet(FilterSet):
     editable     = NumberFilter(method='filter_editable')
     not_billable = NumberFilter(field_name='not_billable')
     verified     = NumberFilter(
-        name='verified_by_id', lookup_expr='isnull', exclude=True
+        field_name='verified_by_id', lookup_expr='isnull', exclude=True
     )
     reviewer     = NumberFilter(field_name='task__project__reviewers')
     verifier     = NumberFilter(field_name='verified_by')
