@@ -3,6 +3,7 @@
 from functools import wraps
 
 from django.db.models import Q
+from django_filters.constants import EMPTY_VALUES
 from django_filters.rest_framework import (BaseInFilter, DateFilter, Filter,
                                            FilterSet, NumberFilter)
 
@@ -18,6 +19,8 @@ def boolean_filter(func):
     """
     @wraps(func)
     def wrapper(self, qs, value):
+        if value in EMPTY_VALUES:
+            return qs
         """Wrap the initial function.
 
         :param QuerySet qs: The queryset to filter
@@ -25,8 +28,6 @@ def boolean_filter(func):
         :return:            The original function
         :rtype:             function
         """
-        if value is None:
-            return func(self, qs, False)
 
         value = value.lower() not in ('1', 'true', 'yes')
 
@@ -60,7 +61,7 @@ class ActivityActiveFilter(Filter):
 class ActivityFilterSet(FilterSet):
     """Filter set for the activities endpoint."""
 
-    active = ActivityActiveFilter(field_name='blocks')
+    active = ActivityActiveFilter()
     day    = DateFilter(field_name='date')
 
     class Meta:

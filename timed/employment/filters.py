@@ -10,7 +10,6 @@ from timed.employment import models
 from timed.employment.models import User
 
 
-# There is a None problem with the year filter
 class YearFilter(Filter):
     """Filter to filter a queryset by year."""
 
