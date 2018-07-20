@@ -22,7 +22,7 @@ class ActivityViewSet(ModelViewSet):
     """Activity view set."""
 
     serializer_class = serializers.ActivitySerializer
-    filter_class     = filters.ActivityFilterSet
+    filterset_class     = filters.ActivityFilterSet
 
     def get_queryset(self):
         """Filter the queryset by the user of the request.
@@ -46,7 +46,7 @@ class ActivityBlockViewSet(ModelViewSet):
     """Activity view set."""
 
     serializer_class = serializers.ActivityBlockSerializer
-    filter_class     = filters.ActivityBlockFilterSet
+    filterset_class     = filters.ActivityBlockFilterSet
 
     def get_queryset(self):
         """Filter the queryset by the user of the request.
@@ -65,7 +65,7 @@ class AttendanceViewSet(ModelViewSet):
     """Attendance view set."""
 
     serializer_class = serializers.AttendanceSerializer
-    filter_class     = filters.AttendanceFilterSet
+    filterset_class     = filters.AttendanceFilterSet
 
     def get_queryset(self):
         """Filter the queryset by the user of the request.
@@ -84,7 +84,7 @@ class ReportViewSet(ModelViewSet):
     """Report view set."""
 
     serializer_class = serializers.ReportSerializer
-    filter_class     = filters.ReportFilterSet
+    filterset_class     = filters.ReportFilterSet
     permission_classes = [
         # superuser may edit all reports but not delete
         C(IsSuperUser) & ~C(IsDeleteOnly) |
@@ -277,7 +277,7 @@ class AbsenceViewSet(ModelViewSet):
     """Absence view set."""
 
     serializer_class = serializers.AbsenceSerializer
-    filter_class     = filters.AbsenceFilterSet
+    filterset_class     = filters.AbsenceFilterSet
 
     permission_classes = [
         # superuser can change all but not delete

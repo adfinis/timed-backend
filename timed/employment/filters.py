@@ -8,6 +8,7 @@ from django_filters.rest_framework import (DateFilter, Filter, FilterSet,
 from timed.employment import models
 
 
+# There is a None problem with the year filter
 class YearFilter(Filter):
     """Filter to filter a queryset by year."""
 
@@ -19,6 +20,11 @@ class YearFilter(Filter):
         :return:            The filtered queryset
         :rtype:             QuerySet
         """
+        if value is None:
+            return qs.filter(**{
+                '%s__year__isnull' % self.field_name: False
+            })
+
         return qs.filter(**{
             '%s__year' % self.field_name: value
         })

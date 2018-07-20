@@ -10,7 +10,7 @@ class CustomerViewSet(ReadOnlyModelViewSet):
     """Customer view set."""
 
     serializer_class = serializers.CustomerSerializer
-    filter_class     = filters.CustomerFilterSet
+    filterset_class     = filters.CustomerFilterSet
     ordering         = 'name'
 
     def get_queryset(self):
@@ -44,7 +44,7 @@ class ProjectViewSet(PrefetchForIncludesHelperMixin, ReadOnlyModelViewSet):
     """Project view set."""
 
     serializer_class = serializers.ProjectSerializer
-    filter_class     = filters.ProjectFilterSet
+    filterset_class     = filters.ProjectFilterSet
     ordering_fields  = ('customer__name', 'name',)
     ordering         = 'name'
     queryset         = models.Project.objects.all()
@@ -65,7 +65,7 @@ class TaskViewSet(ReadOnlyModelViewSet):
     """Task view set."""
 
     serializer_class = serializers.TaskSerializer
-    filter_class     = filters.TaskFilterSet
+    filterset_class     = filters.TaskFilterSet
     ordering         = 'name'
 
     def get_queryset(self):

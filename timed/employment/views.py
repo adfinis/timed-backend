@@ -40,7 +40,7 @@ class UserViewSet(ModelViewSet):
     ]
 
     serializer_class = serializers.UserSerializer
-    filter_class = filters.UserFilterSet
+    filterset_class = filters.UserFilterSet
     search_fields = ('username', 'first_name', 'last_name')
 
     def get_queryset(self):
@@ -104,7 +104,7 @@ class WorktimeBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Calculate worktime for different user on different dates."""
 
     serializer_class = serializers.WorktimeBalanceSerializer
-    filter_class = filters.WorktimeBalanceFilterSet
+    filterset_class = filters.WorktimeBalanceFilterSet
 
     def _extract_date(self):
         """
@@ -175,7 +175,7 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Calculate absence balance for different user on different dates."""
 
     serializer_class = serializers.AbsenceBalanceSerializer
-    filter_class = filters.AbsenceBalanceFilterSet
+    filterset_class = filters.AbsenceBalanceFilterSet
 
     def _extract_date(self):
         """
@@ -277,7 +277,7 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 class EmploymentViewSet(ModelViewSet):
     serializer_class = serializers.EmploymentSerializer
     ordering = ('-end_date',)
-    filter_class = filters.EmploymentFilterSet
+    filterset_class = filters.EmploymentFilterSet
     permission_classes = [
         # super user can add/read overtime credits
         C(IsAuthenticated) & C(IsSuperUser) |
@@ -318,7 +318,7 @@ class PublicHolidayViewSet(ReadOnlyModelViewSet):
     """Public holiday view set."""
 
     serializer_class = serializers.PublicHolidaySerializer
-    filter_class     = filters.PublicHolidayFilterSet
+    filterset_class     = filters.PublicHolidayFilterSet
     ordering         = ('date',)
 
     def get_queryset(self):
@@ -337,14 +337,14 @@ class AbsenceTypeViewSet(ReadOnlyModelViewSet):
 
     queryset         = models.AbsenceType.objects.all()
     serializer_class = serializers.AbsenceTypeSerializer
-    filter_class     = filters.AbsenceTypeFilterSet
+    filterset_class     = filters.AbsenceTypeFilterSet
     ordering         = ('name',)
 
 
 class AbsenceCreditViewSet(ModelViewSet):
     """Absence type view set."""
 
-    filter_class = filters.AbsenceCreditFilterSet
+    filterset_class = filters.AbsenceCreditFilterSet
     serializer_class = serializers.AbsenceCreditSerializer
     permission_classes = [
         # super user can add/read absence credits
@@ -377,7 +377,7 @@ class AbsenceCreditViewSet(ModelViewSet):
 class OvertimeCreditViewSet(ModelViewSet):
     """Absence type view set."""
 
-    filter_class = filters.OvertimeCreditFilterSet
+    filterset_class = filters.OvertimeCreditFilterSet
     serializer_class = serializers.OvertimeCreditSerializer
     permission_classes = [
         # super user can add/read overtime credits

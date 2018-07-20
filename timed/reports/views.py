@@ -22,7 +22,7 @@ class YearStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Year statistics calculates total reported time per year."""
 
     serializer_class = serializers.YearStatisticSerializer
-    filter_class = ReportFilterSet
+    filterset_class = ReportFilterSet
     ordering_fields = ('year', 'duration')
     ordering = ('year', )
 
@@ -38,7 +38,7 @@ class MonthStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Month statistics calculates total reported time per month."""
 
     serializer_class = serializers.MonthStatisticSerializer
-    filter_class = ReportFilterSet
+    filterset_class = ReportFilterSet
     ordering_fields = ('year', 'month', 'duration')
     ordering = ('year', 'month')
 
@@ -57,7 +57,7 @@ class CustomerStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Customer statistics calculates total reported time per customer."""
 
     serializer_class = serializers.CustomerStatisticSerializer
-    filter_class = ReportFilterSet
+    filterset_class = ReportFilterSet
     ordering_fields = ('task__project__customer__name', 'duration')
     ordering = ('task__project__customer__name', )
 
@@ -75,7 +75,7 @@ class ProjectStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Project statistics calculates total reported time per project."""
 
     serializer_class = serializers.ProjectStatisticSerializer
-    filter_class = ReportFilterSet
+    filterset_class = ReportFilterSet
     ordering_fields = ('task__project__name', 'duration')
     ordering = ('task__project__name', )
 
@@ -97,7 +97,7 @@ class TaskStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Task statistics calculates total reported time per task."""
 
     serializer_class = serializers.TaskStatisticSerializer
-    filter_class = ReportFilterSet
+    filterset_class = ReportFilterSet
     ordering_fields = ('task__name', 'duration')
     ordering = ('task__name', )
 
@@ -119,7 +119,7 @@ class UserStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """User calculates total reported time per user."""
 
     serializer_class = serializers.UserStatisticSerializer
-    filter_class = ReportFilterSet
+    filterset_class = ReportFilterSet
     ordering_fields = ('user__username', 'duration')
     ordering = ('user__username', )
 
@@ -141,7 +141,7 @@ class WorkReportViewSet(GenericViewSet):
     in several projects work reports will be returned as zip.
     """
 
-    filter_class = ReportFilterSet
+    filterset_class = ReportFilterSet
     ordering = ReportViewSet.ordering
     ordering_fields = ReportViewSet.ordering_fields
 
@@ -158,8 +158,8 @@ class WorkReportViewSet(GenericViewSet):
         )
 
     def _parse_query_params(self, queryset, request):
-        """Parse query params by using filter_class."""
-        fltr = self.filter_class(
+        """Parse query params by using filterset_class."""
+        fltr = self.filterset_class(
             request.query_params,
             queryset=queryset,
             request=request)

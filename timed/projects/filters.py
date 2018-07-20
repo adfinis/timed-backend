@@ -73,7 +73,8 @@ class MyMostFrequentTaskFilter(Filter):
         )
         qs = qs.annotate(frequency=Count('reports')).order_by('-frequency')
         # limit number of results to given value
-        qs = qs[:int(value)]
+        if value not None
+            qs = qs[:int(value)]
 
         return qs
 

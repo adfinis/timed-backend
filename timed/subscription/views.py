@@ -16,7 +16,7 @@ class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
     """
 
     serializer_class = serializers.SubscriptionProjectSerializer
-    filter_class = ProjectFilterSet
+    filterset_class = ProjectFilterSet
     ordering_fields = (
         'name',
         'id'
@@ -31,7 +31,7 @@ class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
 class PackageViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.PackageSerializer
-    filter_class = filters.PackageFilter
+    filterset_class = filters.PackageFilter
 
     def get_queryset(self):
         return models.Package.objects.select_related(
@@ -45,7 +45,7 @@ class OrderViewSet(mixins.CreateModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
     serializer_class = serializers.OrderSerializer
-    filter_class = filters.OrderFilter
+    filterset_class = filters.OrderFilter
 
     @decorators.detail_route(
         methods=['post'],
