@@ -1,11 +1,9 @@
-FROM python:3.5.4
+FROM python:3.6
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   libldap2-dev \
   libsasl2-dev \
-  python-pip \
-&& rm -rf /var/lib/apt/lists/* \
-&& pip install uwsgi==2.0.15
+&& rm -rf /var/lib/apt/lists/*
 
 ENV DJANGO_SETTINGS_MODULE timed.settings
 ENV STATIC_ROOT /var/www/static
