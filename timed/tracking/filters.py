@@ -64,16 +64,6 @@ class ActivityFilterSet(FilterSet):
         fields = ['active', 'day']
 
 
-class ActivityBlockFilterSet(FilterSet):
-    """Filter set for the activity blocks endpoint."""
-
-    class Meta:
-        """Meta information for the activity block filter set."""
-
-        model  = models.ActivityBlock
-        fields = ['activity']
-
-
 class AttendanceFilterSet(FilterSet):
     """Filter set for the attendance endpoint."""
 

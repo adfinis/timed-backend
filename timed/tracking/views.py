@@ -30,34 +30,13 @@ class ActivityViewSet(ModelViewSet):
         :return: The filtered activities
         :rtype:  QuerySet
         """
-        return models.Activity.objects.prefetch_related(
-            'blocks'
-        ).select_related(
+        return models.Activity.objects.select_related(
             'task',
             'user',
             'task__project',
             'task__project__customer'
         ).filter(
             user=self.request.user
-        )
-
-
-class ActivityBlockViewSet(ModelViewSet):
-    """Activity view set."""
-
-    serializer_class = serializers.ActivityBlockSerializer
-    filterset_class     = filters.ActivityBlockFilterSet
-
-    def get_queryset(self):
-        """Filter the queryset by the user of the request.
-
-        :return: The filtered activity blocks
-        :rtype:  QuerySet
-        """
-        return models.ActivityBlock.objects.select_related(
-            'activity'
-        ).filter(
-            activity__user=self.request.user
         )
 
 

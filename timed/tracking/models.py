@@ -4,35 +4,26 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db import models
-from django.db.models import F, Sum
 
 
 class Activity(models.Model):
     """Activity model.
 
-    An activity represents multiple timeblocks in which a user worked on a
+    An activity represents a timeblock in which a user worked on a
     certain task.
     """
 
-    comment  = models.TextField(blank=True)
-    date     = models.DateField()
-    task     = models.ForeignKey('projects.Task',
-                                 null=True,
-                                 blank=True,
-                                 related_name='activities')
-    user     = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                 related_name='activities')
-
-    @property
-    def duration(self):
-        """Calculate the total duration of this activity.
-
-        :return: The total duration
-        :rtype:  datetime.timedelta
-        """
-        return self.blocks.all().aggregate(
-            duration=Sum(F('to_time') - F('from_time'))
-        ).get('duration')
+    from_time   = models.TimeField()
+    to_time     = models.TimeField(blank=True, null=True)
+    comment     = models.TextField(blank=True)
+    date        = models.DateField()
+    transfered  = models.BooleanField(default=False)
+    task        = models.ForeignKey('projects.Task',
+                                    null=True,
+                                    blank=True,
+                                    related_name='activities')
+    user        = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                    related_name='activities')
 
     def __str__(self):
         """Represent the model as a string.
@@ -47,22 +38,6 @@ class Activity(models.Model):
 
         verbose_name_plural = 'activities'
         indexes             = [models.Index(fields=['date'])]
-
-
-class ActivityBlock(models.Model):
-    """Activity block model.
-
-    An activity block is a timeblock of an activity.
-    """
-
-    activity      = models.ForeignKey('tracking.Activity',
-                                      related_name='blocks')
-    from_time = models.TimeField()
-    to_time   = models.TimeField(blank=True, null=True)
-
-    def __str__(self):
-        return '{0} ({1} - {2})'.format(self.activity, self.from_time,
-                                        self.to_time)
 
 
 class Attendance(models.Model):

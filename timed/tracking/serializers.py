@@ -7,8 +7,7 @@ from django.utils.duration import duration_string
 from django.utils.translation import ugettext_lazy as _
 from rest_framework_json_api import relations, serializers
 from rest_framework_json_api.relations import ResourceRelatedField
-from rest_framework_json_api.serializers import (DurationField,
-                                                 ModelSerializer, Serializer,
+from rest_framework_json_api.serializers import (ModelSerializer, Serializer,
                                                  SerializerMethodField,
                                                  ValidationError)
 
@@ -22,40 +21,14 @@ from timed.tracking import models
 class ActivitySerializer(ModelSerializer):
     """Activity serializer."""
 
-    duration = DurationField(read_only=True)
     user     = CurrentUserResourceRelatedField()
     task     = ResourceRelatedField(queryset=Task.objects.all(),
                                     allow_null=True,
                                     required=False)
-    blocks   = ResourceRelatedField(read_only=True, many=True)
 
     included_serializers = {
-        'blocks': 'timed.tracking.serializers.ActivityBlockSerializer',
         'task':   'timed.projects.serializers.TaskSerializer',
         'user': 'timed.employment.serializers.UserSerializer',
-    }
-
-    class Meta:
-        """Meta information for the activity serializer."""
-
-        model  = models.Activity
-        fields = [
-            'comment',
-            'date',
-            'duration',
-            'user',
-            'task',
-            'blocks',
-        ]
-
-
-class ActivityBlockSerializer(ModelSerializer):
-    """Activity block serializer."""
-
-    activity = ResourceRelatedField(queryset=models.Activity.objects.all())
-
-    included_serializers = {
-        'activity': 'timed.tracking.serializers.ActivitySerializer',
     }
 
     def validate(self, data):
@@ -85,13 +58,16 @@ class ActivityBlockSerializer(ModelSerializer):
         return data
 
     class Meta:
-        """Meta information for the activity block serializer."""
+        """Meta information for the activity serializer."""
 
-        model  = models.ActivityBlock
+        model  = models.Activity
         fields = [
-            'activity',
             'from_time',
             'to_time',
+            'comment',
+            'date',
+            'task',
+            'user',
         ]
 
 
