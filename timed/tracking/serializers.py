@@ -34,17 +34,17 @@ class ActivitySerializer(ModelSerializer):
     def validate(self, data):
         """Validate the activity block.
 
-        Ensure that a user can only have one activity with an active block
+        Ensure that a user can only have one activity
         which doesn't end before it started.
         """
         instance = self.instance
         from_time = data.get('from_time', instance and instance.from_time)
         to_time = data.get('to_time', instance and instance.to_time)
-        user = instance and instance.activity.user or data.get('activity').user
+        user = instance and instance.user or data['user']
 
         # validate that there is only one active activity
-        blocks = models.ActivityBlock.objects.filter(activity__user=user)
-        if blocks.filter(to_time__isnull=True) and to_time is None:
+        activity = models.Activity.objects.filter(user=user)
+        if activity.filter(to_time__isnull=True) and to_time is None:
             raise ValidationError(
                 _('A user can only have one active activity')
             )
@@ -61,14 +61,7 @@ class ActivitySerializer(ModelSerializer):
         """Meta information for the activity serializer."""
 
         model  = models.Activity
-        fields = [
-            'from_time',
-            'to_time',
-            'comment',
-            'date',
-            'task',
-            'user',
-        ]
+        fields = '__all__'
 
 
 class AttendanceSerializer(ModelSerializer):

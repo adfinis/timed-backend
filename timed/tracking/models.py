@@ -17,7 +17,7 @@ class Activity(models.Model):
     to_time     = models.TimeField(blank=True, null=True)
     comment     = models.TextField(blank=True)
     date        = models.DateField()
-    transfered  = models.BooleanField(default=False)
+    transferred = models.BooleanField(default=False)
     task        = models.ForeignKey('projects.Task',
                                     null=True,
                                     blank=True,

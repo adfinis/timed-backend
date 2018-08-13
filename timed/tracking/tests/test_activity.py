@@ -1,10 +1,10 @@
-from datetime import date, timedelta
+from datetime import date, time, timedelta
 
 from django.core.urlresolvers import reverse
 from rest_framework import status
 
 from timed.projects.factories import TaskFactory
-from timed.tracking.factories import ActivityBlockFactory, ActivityFactory
+from timed.tracking.factories import ActivityFactory
 
 
 def test_activity_list(auth_client):
@@ -40,6 +40,7 @@ def test_activity_create(auth_client):
             'type': 'activities',
             'id': None,
             'attributes': {
+                'from-time': '08:00',
                 'date': '2017-01-01',
                 'comment': 'Test activity'
             },
@@ -107,8 +108,7 @@ def test_activity_delete(auth_client):
 def test_activity_list_filter_active(auth_client):
     user = auth_client.user
     ActivityFactory.create(user=user)
-    activity = ActivityFactory.create(user=user)
-    ActivityBlockFactory.create(activity=activity, to_time=None)
+    activity = ActivityFactory.create(user=user, to_time=None)
 
     url = reverse('activity-list')
 
@@ -141,6 +141,7 @@ def test_activity_create_no_task(auth_client):
             'type': 'activities',
             'id': None,
             'attributes': {
+                'from-time': '08:00',
                 'date': '2017-01-01',
                 'comment': 'Test activity'
             },
@@ -158,3 +159,57 @@ def test_activity_create_no_task(auth_client):
 
     json = response.json()
     assert json['data']['relationships']['task']['data'] is None
+
+
+def test_activity_active_unique(auth_client):
+    """Should not be able to have two active blocks."""
+    ActivityFactory.create(user=auth_client.user, to_time=None)
+
+    data = {
+        'data': {
+            'type': 'activities',
+            'id': None,
+            'attributes': {
+                'from-time': '08:00',
+                'date': '2017-01-01',
+                'comment': 'Test activity'
+            }
+        }
+    }
+
+    url = reverse('activity-list')
+
+    res = auth_client.post(url, data)
+
+    assert res.status_code == status.HTTP_400_BAD_REQUEST
+    json = res.json()
+    assert json['errors'][0]['detail'] == (
+        'A user can only have one active activity'
+    )
+
+
+def test_activity_to_before_from(auth_client):
+    """Test that to is not before from."""
+    activity = ActivityFactory.create(user=auth_client.user,
+                                      from_time=time(7, 30),
+                                      to_time=None)
+
+    data = {
+        'data': {
+            'type': 'activities',
+            'id': activity.id,
+            'attributes': {
+                'to-time': '07:00',
+            }
+        }
+    }
+
+    url = reverse('activity-detail', args=[activity.id])
+
+    res = auth_client.patch(url, data)
+
+    assert res.status_code == status.HTTP_400_BAD_REQUEST
+    json = res.json()
+    assert json['errors'][0]['detail'] == (
+        'An activity block may not end before it starts.'
+    )

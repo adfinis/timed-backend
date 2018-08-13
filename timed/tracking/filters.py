@@ -46,8 +46,7 @@ class ActivityActiveFilter(Filter):
         :rtype:             QuerySet
         """
         return qs.filter(
-            blocks__isnull=False,
-            blocks__to_time__exact=None
+            to_time__exact=None
         ).distinct()
 
 
