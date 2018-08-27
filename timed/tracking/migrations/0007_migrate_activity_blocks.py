@@ -4,19 +4,20 @@ from django.db import migrations
 def migrate_blocks(apps, schema_editor):
     Activity = apps.get_model('tracking', 'Activity')
     for activity in Activity.objects.all():
-        if activity.blocks.count() == 1:
-            block = activity.blocks.all()[0]
-            activity.from_time = block.from_time
-            activity.to_time = block.to_time
-            activity.save()
-        else:
-            for block in activity.blocks.all():
-                Activity(from_time=block.from_time,
-                         to_time=block.to_time,
-                         comment=activity.comment,
-                         date=activity.date,
-                         task=activity.task,
-                         user=activity.user).save()
+        for i, block in enumerate(activity.blocks.all()):
+            if i != 0:
+                Activity.objects.create(
+                    from_time=block.from_time,
+                    to_time=block.to_time,
+                    comment=activity.comment,
+                    date=activity.date,
+                    task=activity.task,
+                    user=activity.user
+                ).save()
+            else:
+                activity.from_time = block.from_time
+                activity.to_time = block.to_time
+                activity.save()
 
 
 class Migration(migrations.Migration):

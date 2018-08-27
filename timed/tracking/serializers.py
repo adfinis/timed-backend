@@ -22,9 +22,6 @@ class ActivitySerializer(ModelSerializer):
     """Activity serializer."""
 
     user     = CurrentUserResourceRelatedField()
-    task     = ResourceRelatedField(queryset=Task.objects.all(),
-                                    allow_null=True,
-                                    required=False)
 
     included_serializers = {
         'task':   'timed.projects.serializers.TaskSerializer',
