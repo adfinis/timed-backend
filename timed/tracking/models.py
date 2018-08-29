@@ -82,11 +82,6 @@ class Report(models.Model):
     review       = models.BooleanField(default=False)
     not_billable = models.BooleanField(default=False)
     task         = models.ForeignKey('projects.Task', related_name='reports')
-    activity     = models.ForeignKey(Activity,
-                                     null=True,
-                                     blank=True,
-                                     on_delete=models.SET_NULL,
-                                     related_name='reports')
     user         = models.ForeignKey(settings.AUTH_USER_MODEL,
                                      related_name='reports')
     verified_by  = models.ForeignKey(settings.AUTH_USER_MODEL,

@@ -247,8 +247,7 @@ class ReportViewSet(ModelViewSet):
         """
         return models.Report.objects.select_related(
             'task',
-            'user',
-            'activity'
+            'user'
         ).select_related('task__project', 'task__project__customer')
 
 
