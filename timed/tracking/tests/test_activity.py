@@ -237,12 +237,10 @@ def test_activity_not_editable(auth_client):
 def test_activity_retrievable_not_editable(auth_client):
     """Test that transferred activities are still retrievable."""
     activity = ActivityFactory.create(user=auth_client.user, transferred=True)
-    url = reverse('activity-list')
 
-    print('test')
+    url = reverse('activity-detail', args=[
+        activity.id
+    ])
+
     response = auth_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-
-    json = response.json()
-    assert len(json['data']) == 1
-    assert json['data'][0]['id'] == str(activity.id)

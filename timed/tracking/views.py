@@ -25,7 +25,8 @@ class ActivityViewSet(ModelViewSet):
     filterset_class     = filters.ActivityFilterSet
     permission_classes = [
         # users may not change transferred activities
-        C(IsAuthenticated) & C(IsNotTransferred)
+        C(IsAuthenticated) & C(IsNotTransferred) |
+        C(IsAuthenticated) & C(IsReadOnly)
     ]
 
     def get_queryset(self):
