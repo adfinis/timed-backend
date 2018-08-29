@@ -91,3 +91,10 @@ class IsSuperUser(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request, view)
+
+
+class IsNotTransferred(BasePermission):
+    """Allows access only to not transferred objects."""
+
+    def has_object_permission(self, request, view, obj):
+        return not obj.transferred

@@ -11,8 +11,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from timed.permissions import (IsAuthenticated, IsDeleteOnly, IsOwner,
-                               IsReadOnly, IsReviewer, IsSuperUser,
+from timed.permissions import (IsAuthenticated, IsDeleteOnly, IsNotTransferred,
+                               IsOwner, IsReadOnly, IsReviewer, IsSuperUser,
                                IsSupervisor, IsUnverified)
 from timed.serializers import AggregateObject
 from timed.tracking import filters, models, serializers
@@ -23,6 +23,10 @@ class ActivityViewSet(ModelViewSet):
 
     serializer_class = serializers.ActivitySerializer
     filterset_class     = filters.ActivityFilterSet
+    permission_classes = [
+        # users may not change transferred activities
+        C(IsAuthenticated) & C(IsNotTransferred)
+    ]
 
     def get_queryset(self):
         """Filter the queryset by the user of the request.

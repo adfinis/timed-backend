@@ -213,3 +213,36 @@ def test_activity_to_before_from(auth_client):
     assert json['errors'][0]['detail'] == (
         'An activity block may not end before it starts.'
     )
+
+
+def test_activity_not_editable(auth_client):
+    """Test that transferred activities are read only."""
+    activity = ActivityFactory.create(user=auth_client.user, transferred=True)
+
+    data = {
+        'data': {
+            'type': 'activities',
+            'id': activity.id,
+            'attributes': {
+                'comment': 'Changed Comment',
+            }
+        }
+    }
+
+    url = reverse('activity-detail', args=[activity.id])
+    response = auth_client.patch(url, data)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_activity_retrievable_not_editable(auth_client):
+    """Test that transferred activities are still retrievable."""
+    activity = ActivityFactory.create(user=auth_client.user, transferred=True)
+    url = reverse('activity-list')
+
+    print('test')
+    response = auth_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+    json = response.json()
+    assert len(json['data']) == 1
+    assert json['data'][0]['id'] == str(activity.id)
