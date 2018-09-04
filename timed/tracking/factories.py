@@ -54,12 +54,14 @@ class ReportFactory(DjangoModelFactory):
 class ActivityFactory(DjangoModelFactory):
     """Activity factory."""
 
-    comment     = Faker('sentence')
-    task        = SubFactory('timed.projects.factories.TaskFactory')
-    date        = Faker('date')
-    user        = SubFactory('timed.employment.factories.UserFactory')
-    from_time   = Faker('time_object')
-    transferred = False
+    comment      = Faker('sentence')
+    task         = SubFactory('timed.projects.factories.TaskFactory')
+    date         = Faker('date')
+    user         = SubFactory('timed.employment.factories.UserFactory')
+    from_time    = Faker('time_object')
+    transferred  = False
+    review       = False
+    not_billable = False
 
     @lazy_attribute
     def from_time(self):

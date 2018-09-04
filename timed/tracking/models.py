@@ -13,17 +13,19 @@ class Activity(models.Model):
     certain task.
     """
 
-    from_time   = models.TimeField()
-    to_time     = models.TimeField(blank=True, null=True)
-    comment     = models.TextField(blank=True)
-    date        = models.DateField()
-    transferred = models.BooleanField(default=False)
-    task        = models.ForeignKey('projects.Task',
-                                    null=True,
-                                    blank=True,
-                                    related_name='activities')
-    user        = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                    related_name='activities')
+    from_time    = models.TimeField()
+    to_time      = models.TimeField(blank=True, null=True)
+    comment      = models.TextField(blank=True)
+    date         = models.DateField()
+    transferred  = models.BooleanField(default=False)
+    review       = models.BooleanField(default=False)
+    not_billable = models.BooleanField(default=False)
+    task         = models.ForeignKey('projects.Task',
+                                     null=True,
+                                     blank=True,
+                                     related_name='activities')
+    user         = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                     related_name='activities')
 
     def __str__(self):
         """Represent the model as a string.
