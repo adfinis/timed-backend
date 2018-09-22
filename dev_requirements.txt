@@ -11,7 +11,7 @@ flake8-string-format==0.2.3
 ipdb==0.11
 isort==4.3.4
 mockldap==0.3.0
-pytest==3.8.0
+pytest==3.8.1
 pytest-cov==2.6.0
 pytest-env==0.6.2
 pytest-mock==1.10.0
