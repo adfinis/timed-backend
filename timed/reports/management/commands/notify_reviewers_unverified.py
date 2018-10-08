@@ -95,7 +95,7 @@ class Command(BaseCommand):
 
         return queryset
 
-    def _notify_reviewers(self, start, end, reports, message, cc):
+    def _notify_reviewers(self, start, end, reports, optional_message, cc):
         """Notify reviewers on their unverified reports."""
         User = get_user_model()
         reviewers = User.objects.all_reviewers().filter(email__isnull=False)
@@ -111,7 +111,7 @@ class Command(BaseCommand):
                         # we need start and end date in system format
                         'start': str(start),
                         'end': str(end),
-                        'message': message,
+                        'message': optional_message,
                         'reviewer': reviewer,
                         'protocol': settings.HOST_PROTOCOL,
                         'domain': settings.HOST_DOMAIN,
