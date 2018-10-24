@@ -38,15 +38,12 @@ class UserViewSet(ModelViewSet):
     permission_classes = [
         # only owner, superuser and supervisor may update user
         (C(IsOwner) | C(IsSuperUser) | C(IsSupervisor)) & C(IsUpdateOnly)
-        |
         # only superuser may delete users without reports
-        C(IsSuperUser) & C(IsDeleteOnly) & C(NoReports)
-        |
+        | C(IsSuperUser) & C(IsDeleteOnly) & C(NoReports)
         # only superuser may create users
-        C(IsSuperUser) & C(IsCreateOnly)
-        |
+        | C(IsSuperUser) & C(IsCreateOnly)
         # all authenticated users may read
-        C(IsAuthenticated) & C(IsReadOnly)
+        | C(IsAuthenticated) & C(IsReadOnly)
     ]
 
     serializer_class = serializers.UserSerializer
@@ -267,9 +264,8 @@ class EmploymentViewSet(ModelViewSet):
     permission_classes = [
         # super user can add/read overtime credits
         C(IsAuthenticated) & C(IsSuperUser)
-        |
         # user may only read filtered results
-        C(IsAuthenticated) & C(IsReadOnly)
+        | C(IsAuthenticated) & C(IsReadOnly)
     ]
 
     def get_queryset(self):
@@ -332,9 +328,8 @@ class AbsenceCreditViewSet(ModelViewSet):
     permission_classes = [
         # super user can add/read absence credits
         C(IsAuthenticated) & C(IsSuperUser)
-        |
         # user may only read filtered results
-        C(IsAuthenticated) & C(IsReadOnly)
+        | C(IsAuthenticated) & C(IsReadOnly)
     ]
 
     def get_queryset(self):
@@ -364,9 +359,8 @@ class OvertimeCreditViewSet(ModelViewSet):
     permission_classes = [
         # super user can add/read overtime credits
         C(IsAuthenticated) & C(IsSuperUser)
-        |
         # user may only read filtered results
-        C(IsAuthenticated) & C(IsReadOnly)
+        | C(IsAuthenticated) & C(IsReadOnly)
     ]
 
     def get_queryset(self):

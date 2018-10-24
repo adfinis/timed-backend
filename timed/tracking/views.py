@@ -72,16 +72,13 @@ class ReportViewSet(ModelViewSet):
     permission_classes = [
         # superuser may edit all reports but not delete
         C(IsSuperUser) & ~C(IsDeleteOnly)
-        |
         # reviewer and supervisor may change unverified reports
         # but not delete them
-        (C(IsReviewer) | C(IsSupervisor)) & C(IsUnverified) & ~C(IsDeleteOnly)
-        |
+        | (C(IsReviewer) | C(IsSupervisor)) & C(IsUnverified) & ~C(IsDeleteOnly)
         # owner may only change its own unverified reports
-        C(IsAuthenticated) & C(IsOwner) & C(IsUnverified)
-        |
+        | C(IsAuthenticated) & C(IsOwner) & C(IsUnverified)
         # all authenticated users may read all reports
-        C(IsAuthenticated) & C(IsReadOnly)
+        | C(IsAuthenticated) & C(IsReadOnly)
     ]
     ordering = ("date", "id")
     ordering_fields = (
@@ -262,12 +259,10 @@ class AbsenceViewSet(ModelViewSet):
     permission_classes = [
         # superuser can change all but not delete
         C(IsAuthenticated) & C(IsSuperUser) & ~C(IsDeleteOnly)
-        |
         # owner may change all its absences
-        C(IsAuthenticated) & C(IsOwner)
-        |
+        | C(IsAuthenticated) & C(IsOwner)
         # all authenticated users may read filtered result
-        C(IsAuthenticated) & C(IsReadOnly)
+        | C(IsAuthenticated) & C(IsReadOnly)
     ]
 
     def get_queryset(self):
