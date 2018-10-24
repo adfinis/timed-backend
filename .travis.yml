@@ -11,17 +11,22 @@ cache:
   directories:
     - .hypothesis
 
-install:
-  - echo "ENV=travis" > .env
-  - pip install --upgrade -r requirements.txt -r requirements-dev.txt
+jobs:
+  include:
+    - stage: "Linting"
+      install:
+        - pip install --upgrade -r requirements-dev.txt
+      script:
+        - flake8
 
-before_script:
-  - psql -c "CREATE ROLE timed CREATEDB LOGIN PASSWORD 'timed';" -U postgres
-  - psql -c "CREATE DATABASE timed;" -U postgres
-
-script:
-  - flake8
-  - pytest --no-cov-on-fail --cov --create-db
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+    - stage: "Tests"
+      install:
+        - echo "ENV=travis" > .env
+        - pip install --upgrade -r requirements.txt -r requirements-dev.txt
+      before_script:
+        - psql -c "CREATE ROLE timed CREATEDB LOGIN PASSWORD 'timed';" -U postgres
+        - psql -c "CREATE DATABASE timed;" -U postgres
+      script:
+        - pytest --no-cov-on-fail --cov --create-db
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
