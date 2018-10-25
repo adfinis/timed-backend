@@ -1,4 +1,4 @@
-python-dateutil==2.7.3
+python-dateutil==2.7.4
 django==1.11.16 # pyup: >=1.11,<1.12
 django-auth-ldap==1.7.0
 django-filter==2.0.0
