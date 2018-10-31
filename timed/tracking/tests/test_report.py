@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import pyexcel
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.duration import duration_string
 from rest_framework import status
 

@@ -1,6 +1,6 @@
 """Tests for the overtime credits endpoint."""
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 
 from timed.employment.factories import OvertimeCreditFactory, UserFactory

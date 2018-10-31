@@ -174,8 +174,8 @@ class WorkReportViewSet(GenericViewSet):
         To accomplish this it will remove all special chars and
         replace spaces with underscores
         """
-        escaped = re.sub('[^\w\s-]', '', name)
-        return re.sub('\s+', '_', escaped)
+        escaped = re.sub(r'[^\w\s-]', '', name)
+        return re.sub(r'\s+', '_', escaped)
 
     def _generate_workreport_name(self, from_date, today, project):
         """

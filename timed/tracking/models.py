@@ -23,8 +23,10 @@ class Activity(models.Model):
     task         = models.ForeignKey('projects.Task',
                                      null=True,
                                      blank=True,
+                                     on_delete=models.SET_NULL,
                                      related_name='activities')
     user         = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                     on_delete=models.CASCADE,
                                      related_name='activities')
 
     def __str__(self):
@@ -54,6 +56,7 @@ class Attendance(models.Model):
     from_time     = models.TimeField()
     to_time       = models.TimeField()
     user          = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                      on_delete=models.CASCADE,
                                       related_name='attendances')
 
     def __str__(self):
@@ -83,8 +86,11 @@ class Report(models.Model):
     duration     = models.DurationField()
     review       = models.BooleanField(default=False)
     not_billable = models.BooleanField(default=False)
-    task         = models.ForeignKey('projects.Task', related_name='reports')
+    task         = models.ForeignKey('projects.Task',
+                                     on_delete=models.PROTECT,
+                                     related_name='reports')
     user         = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                     on_delete=models.PROTECT,
                                      related_name='reports')
     verified_by  = models.ForeignKey(settings.AUTH_USER_MODEL,
                                      on_delete=models.SET_NULL,
@@ -144,8 +150,10 @@ class Absence(models.Model):
     comment  = models.TextField(blank=True)
     date     = models.DateField()
     type     = models.ForeignKey('employment.AbsenceType',
+                                 on_delete=models.PROTECT,
                                  related_name='absences')
     user     = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                 on_delete=models.CASCADE,
                                  related_name='absences')
     objects = AbsenceManager()
 

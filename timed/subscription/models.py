@@ -8,7 +8,9 @@ from djmoney.models.fields import MoneyField
 class Package(models.Model):
     """Representing a subscription package."""
 
-    billing_type = models.ForeignKey('projects.BillingType', null=True,
+    billing_type = models.ForeignKey('projects.BillingType',
+                                     on_delete=models.CASCADE,
+                                     null=True,
                                      related_name='packages')
     """
     This field has been added later so there might be old entries with null
@@ -44,6 +46,7 @@ class CustomerPassword(models.Model):
     once customer center will go live.
     """
 
-    customer = models.OneToOneField('projects.Customer')
+    customer = models.OneToOneField('projects.Customer',
+                                    on_delete=models.CASCADE)
     password = models.CharField(_('password'), max_length=128,
                                 null=True, blank=True)

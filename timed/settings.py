@@ -77,7 +77,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -177,7 +176,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-JSON_API_FORMAT_KEYS = 'dasherize'
+JSON_API_FORMAT_FIELD_NAMES = 'dasherize'
 JSON_API_FORMAT_TYPES = 'dasherize'
 JSON_API_PLURALIZE_TYPES = True
 
@@ -260,7 +259,7 @@ def parse_admins(admins):
     """
     result = []
     for admin in admins:
-        match = re.search('(.+) \<(.+@.+)\>', admin)
+        match = re.search(r'(.+) \<(.+@.+)\>', admin)
         if not match:
             raise environ.ImproperlyConfigured(
                 'In DJANGO_ADMINS admin "{0}" is not in correct '

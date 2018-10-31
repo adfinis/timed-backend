@@ -28,7 +28,7 @@ def test_redmine_report(db, freezer, mocker):
     ReportFactory.create()
 
     freezer.move_to('2017-07-31')
-    call_command('redmine_report', options={'--last-days': '7'})
+    call_command('redmine_report', last_days=7)
 
     redmine_instance.issue.get.assert_called_once_with(1000)
     assert issue.custom_fields == [{
@@ -59,7 +59,7 @@ def test_redmine_report_no_estimated_time(db, freezer, mocker):
     RedmineProject.objects.create(project=report.task.project, issue_id=1000)
 
     freezer.move_to('2017-07-31')
-    call_command('redmine_report', options={'--last-days': '7'})
+    call_command('redmine_report', last_days=7)
 
     redmine_instance.issue.get.assert_called_once_with(1000)
     issue.save.assert_called_once_with()
@@ -77,7 +77,7 @@ def test_redmine_report_invalid_issue(db, freezer, mocker, capsys):
     RedmineProject.objects.create(project=report.task.project, issue_id=1000)
 
     freezer.move_to('2017-07-31')
-    call_command('redmine_report', options={'--last-days': '7'})
+    call_command('redmine_report', last_days=7)
 
     _, err = capsys.readouterr()
     assert 'issue 1000 assigned' in err

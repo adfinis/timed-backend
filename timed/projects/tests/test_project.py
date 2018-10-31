@@ -1,7 +1,7 @@
 """Tests for the projects endpoint."""
 from datetime import timedelta
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 
 from timed.employment.factories import UserFactory

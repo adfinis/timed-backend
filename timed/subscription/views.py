@@ -47,7 +47,8 @@ class OrderViewSet(mixins.CreateModelMixin,
     serializer_class = serializers.OrderSerializer
     filterset_class = filters.OrderFilter
 
-    @decorators.detail_route(
+    @decorators.action(
+        detail=True,
         methods=['post'],
         permission_classes=[
             permissions.IsAuthenticated,
