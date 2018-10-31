@@ -1,7 +1,7 @@
 """Tests for the tasks endpoint."""
 from datetime import date, timedelta
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 
 from timed.projects.factories import TaskFactory

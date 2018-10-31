@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.duration import duration_string
 from rest_framework import status
 

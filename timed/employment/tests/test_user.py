@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 
 from timed.employment.factories import (AbsenceTypeFactory, EmploymentFactory,

@@ -48,6 +48,7 @@ class PublicHoliday(models.Model):
     name     = models.CharField(max_length=50)
     date     = models.DateField()
     location = models.ForeignKey(Location,
+                                 on_delete=models.CASCADE,
                                  related_name='public_holidays')
 
     def __str__(self):
@@ -132,9 +133,10 @@ class AbsenceCredit(models.Model):
     """
 
     user         = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                     on_delete=models.CASCADE,
                                      related_name='absence_credits')
     comment      = models.CharField(max_length=255, blank=True)
-    absence_type = models.ForeignKey(AbsenceType)
+    absence_type = models.ForeignKey(AbsenceType, on_delete=models.PROTECT)
     date         = models.DateField()
     days         = models.IntegerField(default=0)
     transfer     = models.BooleanField(default=False)
@@ -151,6 +153,7 @@ class OvertimeCredit(models.Model):
     """
 
     user     = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                 on_delete=models.CASCADE,
                                  related_name='overtime_credits')
     comment  = models.CharField(max_length=255, blank=True)
     date     = models.DateField()
@@ -209,8 +212,11 @@ class Employment(models.Model):
     """
 
     user             = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                         on_delete=models.CASCADE,
                                          related_name='employments')
-    location         = models.ForeignKey(Location, related_name='employments')
+    location         = models.ForeignKey(Location,
+                                         on_delete=models.PROTECT,
+                                         related_name='employments')
     percentage       = models.IntegerField(validators=[
                                            MinValueValidator(0),
                                            MaxValueValidator(100)])

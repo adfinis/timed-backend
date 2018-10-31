@@ -73,6 +73,7 @@ class Project(models.Model):
     archived            = models.BooleanField(default=False)
     estimated_time      = models.DurationField(blank=True, null=True)
     customer            = models.ForeignKey('projects.Customer',
+                                            on_delete=models.CASCADE,
                                             related_name='projects')
     billing_type        = models.ForeignKey(BillingType,
                                             on_delete=models.SET_NULL,
@@ -111,6 +112,7 @@ class Task(models.Model):
     estimated_time  = models.DurationField(blank=True, null=True)
     archived        = models.BooleanField(default=False)
     project         = models.ForeignKey('projects.Project',
+                                        on_delete=models.CASCADE,
                                         related_name='tasks')
     cost_center     = models.ForeignKey(CostCenter, on_delete=models.SET_NULL,
                                         blank=True, null=True,
