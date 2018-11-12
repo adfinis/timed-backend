@@ -1,4 +1,4 @@
-coverage==4.5.1
+coverage==4.5.2
 factory-boy==2.11.1
 flake8==3.5.0
 flake8-blind-except==0.1.1
