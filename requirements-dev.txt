@@ -15,5 +15,5 @@ pytest==3.10.1
 pytest-cov==2.6.0
 pytest-env==0.6.2
 pytest-mock==1.10.0
-pytest-django==3.4.3
+pytest-django==3.4.4
 pytest-freezegun==0.2.0
