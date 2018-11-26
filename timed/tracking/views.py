@@ -1,7 +1,6 @@
 """Viewsets for the tracking app."""
 
 import django_excel
-from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy as _
@@ -183,25 +182,21 @@ class ReportViewSet(ModelViewSet):
                 _('Editable filter needs to be set for bulk update')
             )
 
-        with transaction.atomic():
-            verified = serializer.validated_data.get('verified')
-            if verified is not None:
-                # only reviewer or superuser may verify reports
-                # this is enforced when reviewer filter is set to current user
-                reviewer_id = request.query_params.get('reviewer')
-                if not user.is_superuser and str(reviewer_id) != str(user.id):
-                    raise exceptions.ParseError(
-                        _('Reviewer filter needs to be set to verifying user')
-                    )
-
-                verified_by = verified and user or None
-                queryset.filter(verified_by__isnull=verified).update(
-                    verified_by=verified_by
+        verified = serializer.validated_data.get('verified')
+        if verified is not None:
+            # only reviewer or superuser may verify reports
+            # this is enforced when reviewer filter is set to current user
+            reviewer_id = request.query_params.get('reviewer')
+            if not user.is_superuser and str(reviewer_id) != str(user.id):
+                raise exceptions.ParseError(
+                    _('Reviewer filter needs to be set to verifying user')
                 )
 
-            # update all other fields
-            if fields:
-                queryset.update(**fields)
+            verified_by = verified and user or None
+            fields['verified_by'] = verified_by
+
+        if fields:
+            queryset.update(**fields)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

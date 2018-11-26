@@ -433,7 +433,8 @@ def test_report_update_bulk_verify_reviewer(auth_client):
             'type': 'report-bulks',
             'id': None,
             'attributes': {
-                'verified': True
+                'verified': True,
+                'comment': 'some comment'
             }
         }
     }
@@ -445,6 +446,7 @@ def test_report_update_bulk_verify_reviewer(auth_client):
 
     report.refresh_from_db()
     assert report.verified_by == user
+    assert report.comment == 'some comment'
 
 
 def test_report_update_bulk_reset_verify(superadmin_client):
