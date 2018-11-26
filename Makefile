@@ -11,7 +11,7 @@ install-dev: ## Install development environment
 	@docker-compose exec backend pip install --upgrade -r requirements.txt -r requirements-dev.txt
 
 start: ## Start the development server
-	@docker-compose up -d
+	@docker-compose up -d --build
 
 test: ## Test the project
 	@docker-compose exec backend flake8

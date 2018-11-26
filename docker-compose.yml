@@ -1,9 +1,15 @@
 version: "3"
+
+volumes:
+  dbdata:
+
 services:
   db:
     image: postgres:9.4
     ports:
       - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresq
     environment:
       - POSTGRES_USER=timed
       - POSTGRES_PASSWORD=timed
