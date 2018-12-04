@@ -9,7 +9,7 @@ djangorestframework-jsonapi==2.6.0
 psycopg2-binary==2.7.6.1
 pytz==2018.7
 pyexcel-webio==0.1.4
-pyexcel-io==0.5.10
+pyexcel-io==0.5.11
 django-excel==0.0.10
 pyexcel-ods3==0.5.3
 pyexcel-xlsx==0.5.6
