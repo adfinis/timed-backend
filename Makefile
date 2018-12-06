@@ -8,7 +8,7 @@ install: ## Install production environment
 	@docker-compose exec backend pip install --upgrade -r requirements.txt
 
 install-dev: ## Install development environment
-	@docker-compose exec backend pip install --upgrade -r requirements.txt -r requirements-dev.txt
+	@docker-compose exec backend pip install --upgrade -r requirements-dev.txt
 
 start: ## Start the development server
 	@docker-compose up -d --build

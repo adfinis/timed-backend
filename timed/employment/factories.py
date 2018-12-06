@@ -17,7 +17,7 @@ class UserFactory(DjangoModelFactory):
     last_name  = Faker('last_name')
     email      = Faker('email')
     password   = Faker('password', length=12)
-    username   = Faker('uuid4')
+    username   = Faker('user_name')
 
     class Meta:
         """Meta informations for the user factory."""
@@ -28,8 +28,7 @@ class UserFactory(DjangoModelFactory):
 class LocationFactory(DjangoModelFactory):
     """Location factory."""
 
-    name = Faker('uuid4')
-    # cannot use city provider as name needs to be unique
+    name = Faker('city')
 
     class Meta:
         """Meta informations for the location factory."""

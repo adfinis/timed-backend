@@ -5,6 +5,7 @@ from dateutil.rrule import DAILY, FR, MO, rrule
 from django.core.management import call_command
 
 from timed.employment.factories import EmploymentFactory, UserFactory
+from timed.projects.factories import TaskFactory
 from timed.tracking.factories import ReportFactory
 
 
@@ -23,8 +24,9 @@ def test_notify_supervisors(db, mailoutbox):
     workdays = rrule(DAILY, dtstart=start, until=date.today(),
                      # range is excluding last
                      byweekday=range(MO.weekday, FR.weekday + 1))
+    task = TaskFactory.create()
     for dt in workdays:
-        ReportFactory.create(user=supervisee, date=dt,
+        ReportFactory.create(user=supervisee, date=dt, task=task,
                              duration=timedelta(hours=7))
 
     call_command('notify_supervisors_shorttime')
