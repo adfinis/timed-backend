@@ -253,9 +253,10 @@ class WorkReportViewSet(GenericViewSet):
         table['D4'].style_name = ''
         table['D8'].style_name = ''
 
-        pos = 14 + len(reports)
+        pos = 13 + len(reports)
         for task_name, task_total_hours in tasks.items():
             table.insert_rows(pos, 1)
+            table.row_info(pos).style_name = table.row_info(pos - 1).style_name
             table[pos, 0] = Cell(
                 task_name,
                 style_name=table[pos - 1, 0].style_name
@@ -266,7 +267,7 @@ class WorkReportViewSet(GenericViewSet):
             )
 
         # calculate location of total hours as insert rows moved it
-        table[14 + len(reports) + len(tasks), 2].formula = (
+        table[13 + len(reports) + len(tasks), 2].formula = (
             'of:=SUM(B13:B{0})'.format(str(13 + len(reports) - 1))
         )
 
