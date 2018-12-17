@@ -209,6 +209,7 @@ class WorkReportViewSet(GenericViewSet):
         tmpl = settings.WORK_REPORT_PATH
         doc = opendoc(tmpl)
         table = doc.sheets[0]
+        tasks = {}
         date_style = table['C5'].style_name
         # in template cell D3 is empty but styled for float and borders
         float_style = table['D3'].style_name
@@ -229,11 +230,17 @@ class WorkReportViewSet(GenericViewSet):
 
             table['C13'] = Cell(report.user.get_full_name(),
                                 style_name=text_style)
-            table['D13'] = Cell(report.comment, style_name=text_style)
+            table['D13'] = Cell(report.task.name, style_name=text_style)
+            table['E13'] = Cell(report.comment, style_name=text_style)
 
             # when from and to date are None find lowest and biggest date
             from_date = min(report.date, from_date or date.max)
             to_date = max(report.date, to_date or date.min)
+
+            if report.task.name in tasks:
+                tasks[report.task.name] += hours
+            else:
+                tasks[report.task.name] = hours
 
         # header values
         table['C3'] = Cell(customer and customer.name)
@@ -252,6 +259,17 @@ class WorkReportViewSet(GenericViewSet):
         # calculate location of total hours as insert rows moved it
         table[13 + len(reports), 2].formula = 'of:=SUM(B13:B{0})'.format(
             str(13 + len(reports) - 1))
+
+        pos = 18 + len(reports)
+        for task in tasks.items():
+            table.insert_rows(pos, 1)
+            table[pos, 0] = Cell(
+                '{0}:'.format(task[0]),
+                style_name=table[13 + len(reports), 0].style_name
+            )
+            table[pos, 2] = Cell(
+                task[1], style_name=table[13 + len(reports), 2].style_name
+            )
 
         name = self._generate_workreport_name(from_date, today, project)
         return (name, doc)
