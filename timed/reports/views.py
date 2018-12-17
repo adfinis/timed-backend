@@ -209,7 +209,7 @@ class WorkReportViewSet(GenericViewSet):
         tmpl = settings.WORK_REPORT_PATH
         doc = opendoc(tmpl)
         table = doc.sheets[0]
-        tasks = {}
+        tasks = defaultdict(int)
         date_style = table['C5'].style_name
         # in template cell D3 is empty but styled for float and borders
         float_style = table['D3'].style_name
@@ -237,10 +237,7 @@ class WorkReportViewSet(GenericViewSet):
             from_date = min(report.date, from_date or date.max)
             to_date = max(report.date, to_date or date.min)
 
-            if report.task.name in tasks:
-                tasks[report.task.name] += hours
-            else:
-                tasks[report.task.name] = hours
+            tasks[report.task.name] += hours
 
         # header values
         table['C3'] = Cell(customer and customer.name)
@@ -256,20 +253,22 @@ class WorkReportViewSet(GenericViewSet):
         table['D4'].style_name = ''
         table['D8'].style_name = ''
 
-        # calculate location of total hours as insert rows moved it
-        table[13 + len(reports), 2].formula = 'of:=SUM(B13:B{0})'.format(
-            str(13 + len(reports) - 1))
-
-        pos = 18 + len(reports)
-        for task in tasks.items():
+        pos = 14 + len(reports)
+        for task_name, task_total_hours in tasks.items():
             table.insert_rows(pos, 1)
             table[pos, 0] = Cell(
-                '{0}:'.format(task[0]),
-                style_name=table[13 + len(reports), 0].style_name
+                task_name,
+                style_name=table[pos - 1, 0].style_name
             )
             table[pos, 2] = Cell(
-                task[1], style_name=table[13 + len(reports), 2].style_name
+                task_total_hours,
+                style_name=table[pos - 1, 2].style_name
             )
+
+        # calculate location of total hours as insert rows moved it
+        table[14 + len(reports) + len(tasks), 2].formula = (
+            'of:=SUM(B13:B{0})'.format(str(13 + len(reports) - 1))
+        )
 
         name = self._generate_workreport_name(from_date, today, project)
         return (name, doc)
