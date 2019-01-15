@@ -8,30 +8,46 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('projects', '0005_auto_20170907_0938'),
-    ]
+    dependencies = [("projects", "0005_auto_20170907_0938")]
 
     operations = [
         migrations.CreateModel(
-            name='CostCenter',
+            name="CostCenter",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('reference', models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("reference", models.CharField(blank=True, max_length=255, null=True)),
             ],
-            options={
-                'ordering': ['name'],
-            },
+            options={"ordering": ["name"]},
         ),
         migrations.AddField(
-            model_name='project',
-            name='cost_center',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='projects', to='projects.CostCenter'),
+            model_name="project",
+            name="cost_center",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="projects",
+                to="projects.CostCenter",
+            ),
         ),
         migrations.AddField(
-            model_name='task',
-            name='cost_center',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tasks', to='projects.CostCenter'),
+            model_name="task",
+            name="cost_center",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="tasks",
+                to="projects.CostCenter",
+            ),
         ),
     ]

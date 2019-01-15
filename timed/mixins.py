@@ -36,9 +36,8 @@ class AggregateQuerysetMixin(object):
 
         Ignores serializer method fields which define logic separately.
         """
-        return (
-            isinstance(val, relations.ResourceRelatedField) and
-            not isinstance(val, relations.SerializerMethodResourceRelatedField)
+        return isinstance(val, relations.ResourceRelatedField) and not isinstance(
+            val, relations.SerializerMethodResourceRelatedField
         )
 
     def get_serializer(self, data, *args, **kwargs):
@@ -46,7 +45,7 @@ class AggregateQuerysetMixin(object):
         if not data:
             return super().get_serializer(data, *args, **kwargs)
 
-        many = kwargs.get('many')
+        many = kwargs.get("many")
         if not many:
             data = [data]
 
@@ -63,7 +62,7 @@ class AggregateQuerysetMixin(object):
 
                 qs = value.model.objects.filter(id__in=obj_ids)
                 qs = qs.select_related()
-                if hasattr(self, 'prefetch_related_for_field'):
+                if hasattr(self, "prefetch_related_for_field"):
                     qs = qs.prefetch_related(
                         *self.prefetch_related_for_field.get(source, [])
                     )
@@ -73,13 +72,15 @@ class AggregateQuerysetMixin(object):
 
         # enhance entry dicts with model instances
         data = [
-            AggregateObject(**{
-                **entry,
+            AggregateObject(
                 **{
-                    field: objects[entry[field]]
-                    for field, objects in prefetch_per_field.items()
+                    **entry,
+                    **{
+                        field: objects[entry[field]]
+                        for field, objects in prefetch_per_field.items()
+                    },
                 }
-            })
+            )
             for entry in data
         ]
 

@@ -8,19 +8,23 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('employment', '0011_auto_20171101_1227'),
-    ]
+    dependencies = [("employment", "0011_auto_20171101_1227")]
 
     operations = [
         migrations.AlterField(
-            model_name='absencecredit',
-            name='absence_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='employment.AbsenceType'),
+            model_name="absencecredit",
+            name="absence_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, to="employment.AbsenceType"
+            ),
         ),
         migrations.AlterField(
-            model_name='employment',
-            name='location',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='employments', to='employment.Location'),
+            model_name="employment",
+            name="location",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="employments",
+                to="employment.Location",
+            ),
         ),
     ]

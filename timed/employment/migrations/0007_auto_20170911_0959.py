@@ -8,14 +8,14 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('employment', '0006_auto_20170906_1635'),
-    ]
+    dependencies = [("employment", "0006_auto_20170906_1635")]
 
     operations = [
         migrations.AlterField(
-            model_name='absencecredit',
-            name='absence_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employment.AbsenceType'),
-        ),
+            model_name="absencecredit",
+            name="absence_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="employment.AbsenceType"
+            ),
+        )
     ]

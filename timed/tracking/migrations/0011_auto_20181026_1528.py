@@ -9,29 +9,45 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('tracking', '0010_auto_20180904_0818'),
-    ]
+    dependencies = [("tracking", "0010_auto_20180904_0818")]
 
     operations = [
         migrations.AlterField(
-            model_name='absence',
-            name='type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='absences', to='employment.AbsenceType'),
+            model_name="absence",
+            name="type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="absences",
+                to="employment.AbsenceType",
+            ),
         ),
         migrations.AlterField(
-            model_name='activity',
-            name='task',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='activities', to='projects.Task'),
+            model_name="activity",
+            name="task",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="activities",
+                to="projects.Task",
+            ),
         ),
         migrations.AlterField(
-            model_name='report',
-            name='task',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='reports', to='projects.Task'),
+            model_name="report",
+            name="task",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="reports",
+                to="projects.Task",
+            ),
         ),
         migrations.AlterField(
-            model_name='report',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='reports', to=settings.AUTH_USER_MODEL),
+            model_name="report",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="reports",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

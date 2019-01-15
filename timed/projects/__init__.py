@@ -1,3 +1,3 @@
 # noqa: D104
 
-default_app_config = 'timed.projects.apps.ProjectsConfig'
+default_app_config = "timed.projects.apps.ProjectsConfig"

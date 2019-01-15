@@ -16,127 +16,313 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('auth', '0008_alter_user_username_max_length'),
-    ]
+    dependencies = [("auth", "0008_alter_user_username_max_length")]
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
-                ('first_name', models.CharField(blank=True, max_length=30, verbose_name='first name')),
-                ('last_name', models.CharField(blank=True, max_length=30, verbose_name='last name')),
-                ('email', models.EmailField(blank=True, max_length=254, verbose_name='email address')),
-                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
-                ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
-                ('supervisors', models.ManyToManyField(related_name='supervisees', to=settings.AUTH_USER_MODEL)),
-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                (
+                    "username",
+                    models.CharField(
+                        error_messages={
+                            "unique": "A user with that username already exists."
+                        },
+                        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+                        max_length=150,
+                        unique=True,
+                        validators=[
+                            django.contrib.auth.validators.UnicodeUsernameValidator()
+                        ],
+                        verbose_name="username",
+                    ),
+                ),
+                (
+                    "first_name",
+                    models.CharField(
+                        blank=True, max_length=30, verbose_name="first name"
+                    ),
+                ),
+                (
+                    "last_name",
+                    models.CharField(
+                        blank=True, max_length=30, verbose_name="last name"
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=254, verbose_name="email address"
+                    ),
+                ),
+                (
+                    "is_staff",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates whether the user can log into this admin site.",
+                        verbose_name="staff status",
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
+                        verbose_name="active",
+                    ),
+                ),
+                (
+                    "date_joined",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="date joined"
+                    ),
+                ),
+                (
+                    "groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.Group",
+                        verbose_name="groups",
+                    ),
+                ),
+                (
+                    "supervisors",
+                    models.ManyToManyField(
+                        related_name="supervisees", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
+                (
+                    "user_permissions",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Specific permissions for this user.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.Permission",
+                        verbose_name="user permissions",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
-                'verbose_name_plural': 'users',
-                'verbose_name': 'user',
+                "abstract": False,
+                "verbose_name_plural": "users",
+                "verbose_name": "user",
             },
-            managers=[
-                ('objects', timed.employment.models.UserManager()),
+            managers=[("objects", timed.employment.models.UserManager())],
+        ),
+        migrations.CreateModel(
+            name="AbsenceCredit",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("comment", models.CharField(blank=True, max_length=255)),
+                ("date", models.DateField()),
+                ("days", models.PositiveIntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
-            name='AbsenceCredit',
+            name="AbsenceType",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('comment', models.CharField(blank=True, max_length=255)),
-                ('date', models.DateField()),
-                ('days', models.PositiveIntegerField(default=0)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("fill_worktime", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='AbsenceType',
+            name="Employment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('fill_worktime', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "percentage",
+                    models.IntegerField(
+                        validators=[
+                            django.core.validators.MinValueValidator(0),
+                            django.core.validators.MaxValueValidator(100),
+                        ]
+                    ),
+                ),
+                ("worktime_per_day", models.DurationField()),
+                ("start_date", models.DateField()),
+                ("end_date", models.DateField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Employment',
+            name="Location",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('percentage', models.IntegerField(validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(100)])),
-                ('worktime_per_day', models.DurationField()),
-                ('start_date', models.DateField()),
-                ('end_date', models.DateField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
+                (
+                    "workdays",
+                    timed.models.WeekdaysField(
+                        choices=[
+                            (1, "Monday"),
+                            (2, "Tuesday"),
+                            (3, "Wednesday"),
+                            (4, "Thursday"),
+                            (5, "Friday"),
+                            (6, "Saturday"),
+                            (7, "Sunday"),
+                        ],
+                        default=["1", "2", "3", "4", "5"],
+                        max_length=13,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Location',
+            name="OvertimeCredit",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
-                ('workdays', timed.models.WeekdaysField(choices=[(1, 'Monday'), (2, 'Tuesday'), (3, 'Wednesday'), (4, 'Thursday'), (5, 'Friday'), (6, 'Saturday'), (7, 'Sunday')], default=['1', '2', '3', '4', '5'], max_length=13)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField()),
+                ("duration", models.DurationField(blank=True, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="overtime_credits",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='OvertimeCredit',
+            name="PublicHoliday",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField()),
-                ('duration', models.DurationField(blank=True, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='overtime_credits', to=settings.AUTH_USER_MODEL)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='PublicHoliday',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('date', models.DateField()),
-                ('location', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='public_holidays', to='employment.Location')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("date", models.DateField()),
+                (
+                    "location",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="public_holidays",
+                        to="employment.Location",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='employment',
-            name='location',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employment.Location'),
+            model_name="employment",
+            name="location",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="employment.Location"
+            ),
         ),
         migrations.AddField(
-            model_name='employment',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='employments', to=settings.AUTH_USER_MODEL),
+            model_name="employment",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="employments",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='absencecredit',
-            name='absence_type',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='absence_credits', to='employment.AbsenceType'),
+            model_name="absencecredit",
+            name="absence_type",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="absence_credits",
+                to="employment.AbsenceType",
+            ),
         ),
         migrations.AddField(
-            model_name='absencecredit',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='absence_credits', to=settings.AUTH_USER_MODEL),
+            model_name="absencecredit",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="absence_credits",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.CreateModel(
-            name='UserAbsenceType',
-            fields=[
-            ],
-            options={
-                'indexes': [],
-                'proxy': True,
-            },
-            bases=('employment.absencetype',),
+            name="UserAbsenceType",
+            fields=[],
+            options={"indexes": [], "proxy": True},
+            bases=("employment.absencetype",),
         ),
         migrations.AddIndex(
-            model_name='publicholiday',
-            index=models.Index(fields=['date'], name='employment__date_2d002c_idx'),
+            model_name="publicholiday",
+            index=models.Index(fields=["date"], name="employment__date_2d002c_idx"),
         ),
         migrations.AddIndex(
-            model_name='employment',
-            index=models.Index(fields=['start_date', 'end_date'], name='employment__start_d_74c274_idx'),
+            model_name="employment",
+            index=models.Index(
+                fields=["start_date", "end_date"], name="employment__start_d_74c274_idx"
+            ),
         ),
     ]

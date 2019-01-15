@@ -8,14 +8,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('employment', '0005_auto_20170906_1259'),
-    ]
+    dependencies = [("employment", "0005_auto_20170906_1259")]
 
     operations = [
         migrations.AlterField(
-            model_name='overtimecredit',
-            name='duration',
+            model_name="overtimecredit",
+            name="duration",
             field=models.DurationField(default=datetime.timedelta(0)),
-        ),
+        )
     ]

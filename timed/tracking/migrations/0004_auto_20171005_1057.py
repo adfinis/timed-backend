@@ -7,14 +7,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('tracking', '0003_auto_20170912_1347'),
-    ]
+    dependencies = [("tracking", "0003_auto_20170912_1347")]
 
     operations = [
         migrations.AlterField(
-            model_name='activity',
-            name='date',
-            field=models.DateField(),
-        ),
+            model_name="activity", name="date", field=models.DateField()
+        )
     ]

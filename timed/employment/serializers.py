@@ -8,9 +8,12 @@ from django.db.models.functions import Coalesce
 from django.utils.duration import duration_string
 from django.utils.translation import ugettext_lazy as _
 from rest_framework_json_api import relations
-from rest_framework_json_api.serializers import (ModelSerializer, Serializer,
-                                                 SerializerMethodField,
-                                                 ValidationError)
+from rest_framework_json_api.serializers import (
+    ModelSerializer,
+    Serializer,
+    SerializerMethodField,
+    ValidationError,
+)
 
 from timed.employment import models
 from timed.tracking.models import Absence, Report
@@ -19,45 +22,43 @@ from timed.tracking.models import Absence, Report
 class UserSerializer(ModelSerializer):
 
     included_serializers = {
-        'supervisors':
-            'timed.employment.serializers.UserSerializer',
-        'supervisees':
-            'timed.employment.serializers.UserSerializer',
+        "supervisors": "timed.employment.serializers.UserSerializer",
+        "supervisees": "timed.employment.serializers.UserSerializer",
     }
 
     class Meta:
         """Meta information for the user serializer."""
 
-        model  = get_user_model()
+        model = get_user_model()
         fields = [
-            'email',
-            'first_name',
-            'is_active',
-            'is_staff',
-            'is_superuser',
-            'last_name',
-            'supervisees',
-            'supervisors',
-            'tour_done',
-            'username',
+            "email",
+            "first_name",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+            "last_name",
+            "supervisees",
+            "supervisors",
+            "tour_done",
+            "username",
         ]
         read_only_fields = [
-            'first_name',
-            'is_active',
-            'is_staff',
-            'is_superuser',
-            'last_name',
-            'supervisees',
-            'supervisors',
-            'username',
+            "first_name",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+            "last_name",
+            "supervisees",
+            "supervisors",
+            "username",
         ]
 
 
 class WorktimeBalanceSerializer(Serializer):
     date = SerializerMethodField()
     balance = SerializerMethodField()
-    user    = relations.ResourceRelatedField(
-        model=get_user_model(), read_only=True, source='id'
+    user = relations.ResourceRelatedField(
+        model=get_user_model(), read_only=True, source="id"
     )
 
     def get_date(self, instance):
@@ -68,14 +69,15 @@ class WorktimeBalanceSerializer(Serializer):
             return instance.date
 
         # calculate last reported day if no specific date is set
-        max_absence_date = Absence.objects.filter(
-            user=user, date__lt=today).aggregate(date=Max('date'))
-        max_report_date = Report.objects.filter(
-            user=user, date__lt=today).aggregate(date=Max('date'))
+        max_absence_date = Absence.objects.filter(user=user, date__lt=today).aggregate(
+            date=Max("date")
+        )
+        max_report_date = Report.objects.filter(user=user, date__lt=today).aggregate(
+            date=Max("date")
+        )
 
         last_reported_date = max(
-            max_absence_date['date'] or date.min,
-            max_report_date['date'] or date.min
+            max_absence_date["date"] or date.min, max_report_date["date"] or date.min
         )
 
         instance.date = last_reported_date
@@ -89,33 +91,29 @@ class WorktimeBalanceSerializer(Serializer):
         _, _, balance = instance.id.calculate_worktime(start, balance_date)
         return duration_string(balance)
 
-    included_serializers = {
-        'user': 'timed.employment.serializers.UserSerializer'
-    }
+    included_serializers = {"user": "timed.employment.serializers.UserSerializer"}
 
     class Meta:
-        resource_name = 'worktime-balances'
+        resource_name = "worktime-balances"
 
 
 class AbsenceBalanceSerializer(Serializer):
-    credit          = SerializerMethodField()
-    used_days       = SerializerMethodField()
-    used_duration   = SerializerMethodField()
-    balance         = SerializerMethodField()
+    credit = SerializerMethodField()
+    used_days = SerializerMethodField()
+    used_duration = SerializerMethodField()
+    balance = SerializerMethodField()
 
-    user = relations.ResourceRelatedField(
-        model=get_user_model(), read_only=True
-    )
+    user = relations.ResourceRelatedField(model=get_user_model(), read_only=True)
 
     absence_type = relations.ResourceRelatedField(
-        model=models.AbsenceType, read_only=True, source='id'
+        model=models.AbsenceType, read_only=True, source="id"
     )
 
     absence_credits = relations.SerializerMethodResourceRelatedField(
-        source='get_absence_credits',
+        source="get_absence_credits",
         model=models.AbsenceCredit,
         many=True,
-        read_only=True
+        read_only=True,
     )
 
     def _get_start(self, instance):
@@ -127,8 +125,8 @@ class AbsenceBalanceSerializer(Serializer):
 
         For absence types which fill worktime this will be None.
         """
-        if 'credit' in instance:
-            return instance['credit']
+        if "credit" in instance:
+            return instance["credit"]
 
         # id is mapped to absence type
         absence_type = instance.id
@@ -136,10 +134,10 @@ class AbsenceBalanceSerializer(Serializer):
         start = self._get_start(instance)
 
         # avoid multiple calculations as get_balance needs it as well
-        instance['credit'] = absence_type.calculate_credit(
+        instance["credit"] = absence_type.calculate_credit(
             instance.user, start, instance.date
         )
-        return instance['credit']
+        return instance["credit"]
 
     def get_used_days(self, instance):
         """
@@ -147,8 +145,8 @@ class AbsenceBalanceSerializer(Serializer):
 
         For absence types which fill worktime this will be None.
         """
-        if 'used_days' in instance:
-            return instance['used_days']
+        if "used_days" in instance:
+            return instance["used_days"]
 
         # id is mapped to absence type
         absence_type = instance.id
@@ -156,10 +154,10 @@ class AbsenceBalanceSerializer(Serializer):
         start = self._get_start(instance)
 
         # avoid multiple calculations as get_balance needs it as well
-        instance['used_days'] = absence_type.calculate_used_days(
+        instance["used_days"] = absence_type.calculate_used_days(
             instance.user, start, instance.date
         )
-        return instance['used_days']
+        return instance["used_days"]
 
     def get_used_duration(self, instance):
         """
@@ -173,24 +171,25 @@ class AbsenceBalanceSerializer(Serializer):
             return None
 
         start = self._get_start(instance)
-        absences = sum([
-            absence.calculate_duration(
-                models.Employment.objects.get_at(
-                    instance.user, absence.date
+        absences = sum(
+            [
+                absence.calculate_duration(
+                    models.Employment.objects.get_at(instance.user, absence.date)
                 )
-            )
-            for absence in Absence.objects.filter(
-                user=instance.user,
-                date__range=[start, instance.date],
-                type_id=instance.id
-            ).select_related('type')
-        ], timedelta())
+                for absence in Absence.objects.filter(
+                    user=instance.user,
+                    date__range=[start, instance.date],
+                    type_id=instance.id,
+                ).select_related("type")
+            ],
+            timedelta(),
+        )
         return duration_string(absences)
 
     def get_absence_credits(self, instance):
         """Get the absence credits for the user and type."""
-        if 'absence_credits' in instance:
-            return instance['absence_credits']
+        if "absence_credits" in instance:
+            return instance["absence_credits"]
 
         # id is mapped to absence type
         absence_type = instance.id
@@ -200,10 +199,10 @@ class AbsenceBalanceSerializer(Serializer):
             absence_type=absence_type,
             user=instance.user,
             date__range=[start, instance.date],
-        ).select_related('user')
+        ).select_related("user")
 
         # avoid multiple calculations when absence credits need to be included
-        instance['absence_credits'] = absence_credits
+        instance["absence_credits"] = absence_credits
 
         return absence_credits
 
@@ -216,20 +215,18 @@ class AbsenceBalanceSerializer(Serializer):
         return self.get_credit(instance) - self.get_used_days(instance)
 
     included_serializers = {
-        'absence_type':
-            'timed.employment.serializers.AbsenceTypeSerializer',
-        'absence_credits':
-            'timed.employment.serializers.AbsenceCreditSerializer',
+        "absence_type": "timed.employment.serializers.AbsenceTypeSerializer",
+        "absence_credits": "timed.employment.serializers.AbsenceCreditSerializer",
     }
 
     class Meta:
-        resource_name = 'absence-balances'
+        resource_name = "absence-balances"
 
 
 class EmploymentSerializer(ModelSerializer):
     included_serializers = {
-        'user': 'timed.employment.serializers.UserSerializer',
-        'location': 'timed.employment.serializers.LocationSerializer'
+        "user": "timed.employment.serializers.UserSerializer",
+        "location": "timed.employment.serializers.LocationSerializer",
     }
 
     def validate(self, data):
@@ -243,42 +240,37 @@ class EmploymentSerializer(ModelSerializer):
         :rtype:  dict
         """
         instance = self.instance
-        start_date = data.get('start_date', instance and instance.start_date)
-        end_date = data.get('end_date', instance and instance.end_date)
+        start_date = data.get("start_date", instance and instance.start_date)
+        end_date = data.get("end_date", instance and instance.end_date)
         if end_date and start_date >= end_date:
-            raise ValidationError(_(
-                'The end date must be after the start date'
-            ))
+            raise ValidationError(_("The end date must be after the start date"))
 
-        user = data.get('user', instance and instance.user)
+        user = data.get("user", instance and instance.user)
         employments = models.Employment.objects.filter(user=user)
         # end date not set means employment is ending today
         end_date = end_date or date.today()
         employments = employments.annotate(
-            end=Coalesce('end_date', Value(date.today()))
+            end=Coalesce("end_date", Value(date.today()))
         )
         if instance:
             employments = employments.exclude(id=instance.id)
 
-        if any([
-            e.start_date <= end_date and start_date <= e.end
-            for e in employments
-        ]):
-            raise ValidationError(_(
-                'A user can\'t have multiple employments at the same time'
-            ))
+        if any([e.start_date <= end_date and start_date <= e.end for e in employments]):
+            raise ValidationError(
+                _("A user can't have multiple employments at the same time")
+            )
 
         return data
 
     class Meta:
         model = models.Employment
         fields = [
-            'user',
-            'location',
-            'percentage',
-            'worktime_per_day',
-            'start_date',
-            'end_date',
+            "user",
+            "location",
+            "percentage",
+            "worktime_per_day",
+            "start_date",
+            "end_date",
         ]
 
 
@@ -288,8 +280,8 @@ class LocationSerializer(ModelSerializer):
     class Meta:
         """Meta information for the location serializer."""
 
-        model  = models.Location
-        fields = ['name', 'workdays']
+        model = models.Location
+        fields = ["name", "workdays"]
 
 
 class PublicHolidaySerializer(ModelSerializer):
@@ -298,18 +290,14 @@ class PublicHolidaySerializer(ModelSerializer):
     location = relations.ResourceRelatedField(read_only=True)
 
     included_serializers = {
-        'location': 'timed.employment.serializers.LocationSerializer'
+        "location": "timed.employment.serializers.LocationSerializer"
     }
 
     class Meta:
         """Meta information for the public holiday serializer."""
 
-        model  = models.PublicHoliday
-        fields = [
-            'name',
-            'date',
-            'location',
-        ]
+        model = models.PublicHoliday
+        fields = ["name", "date", "location"]
 
 
 class AbsenceTypeSerializer(ModelSerializer):
@@ -318,41 +306,25 @@ class AbsenceTypeSerializer(ModelSerializer):
     class Meta:
         """Meta information for the absence type serializer."""
 
-        model  = models.AbsenceType
-        fields = [
-            'name',
-            'fill_worktime',
-        ]
+        model = models.AbsenceType
+        fields = ["name", "fill_worktime"]
 
 
 class AbsenceCreditSerializer(ModelSerializer):
     """Absence credit serializer."""
 
     included_serializers = {
-        'absence_type': 'timed.employment.serializers.AbsenceTypeSerializer'
+        "absence_type": "timed.employment.serializers.AbsenceTypeSerializer"
     }
 
     class Meta:
         """Meta information for the absence credit serializer."""
 
-        model  = models.AbsenceCredit
-        fields = [
-            'user',
-            'absence_type',
-            'date',
-            'days',
-            'comment',
-            'transfer'
-        ]
+        model = models.AbsenceCredit
+        fields = ["user", "absence_type", "date", "days", "comment", "transfer"]
 
 
 class OvertimeCreditSerializer(ModelSerializer):
     class Meta:
-        model  = models.OvertimeCredit
-        fields = [
-            'user',
-            'date',
-            'duration',
-            'comment',
-            'transfer'
-        ]
+        model = models.OvertimeCredit
+        fields = ["user", "date", "duration", "comment", "transfer"]

@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('tracking', '0009_remove_report_activity'),
-    ]
+    dependencies = [("tracking", "0009_remove_report_activity")]
 
     operations = [
         migrations.AddField(
-            model_name='activity',
-            name='not_billable',
+            model_name="activity",
+            name="not_billable",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='activity',
-            name='review',
+            model_name="activity",
+            name="review",
             field=models.BooleanField(default=False),
         ),
     ]

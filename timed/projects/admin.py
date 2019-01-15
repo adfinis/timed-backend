@@ -15,11 +15,9 @@ from timed.subscription.admin import CustomerPasswordInline
 class CustomerAdmin(admin.ModelAdmin):
     """Customer admin view."""
 
-    list_display = ['name']
-    search_fields = ['name']
-    inlines = [
-        CustomerPasswordInline
-    ]
+    list_display = ["name"]
+    search_fields = ["name"]
+    inlines = [CustomerPasswordInline]
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.projects.exists()
@@ -27,14 +25,14 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(models.BillingType)
 class BillingType(admin.ModelAdmin):
-    list_display = ['name']
-    search_fields = ['name']
+    list_display = ["name"]
+    search_fields = ["name"]
 
 
 @admin.register(models.CostCenter)
 class CostCenter(admin.ModelAdmin):
-    list_display = ['name', 'reference']
-    search_fields = ['name']
+    list_display = ["name", "reference"]
+    search_fields = ["name"]
 
 
 class TaskForm(forms.ModelForm):
@@ -46,15 +44,14 @@ class TaskForm(forms.ModelForm):
 
     model = models.Task
     estimated_time = DurationInHoursField(
-        label=_('Estimated time in hours'),
-        required=False,
+        label=_("Estimated time in hours"), required=False
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        initial = kwargs.get('initial')
+        initial = kwargs.get("initial")
         if initial:
-            self.changed_data = ['name']
+            self.changed_data = ["name"]
 
 
 class TaskInlineFormset(BaseInlineFormSet):
@@ -62,11 +59,11 @@ class TaskInlineFormset(BaseInlineFormSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        project = kwargs['instance']
+        project = kwargs["instance"]
         if project.tasks.count() == 0:
             self.initial = [
-                {'name': tmpl.name}
-                for tmpl in models.TaskTemplate.objects.order_by('name')
+                {"name": tmpl.name}
+                for tmpl in models.TaskTemplate.objects.order_by("name")
             ]
             self.extra += len(self.initial)
 
@@ -87,15 +84,14 @@ class TaskInline(admin.TabularInline):
 class ReviewerInline(admin.TabularInline):
     model = models.Project.reviewers.through
     extra = 0
-    verbose_name = _('Reviewer')
-    verbose_name_plural = _('Reviewers')
+    verbose_name = _("Reviewer")
+    verbose_name_plural = _("Reviewers")
 
 
 class ProjectForm(forms.ModelForm):
     model = models.Project
     estimated_time = DurationInHoursField(
-        label=_('Estimated time in hours'),
-        required=False,
+        label=_("Estimated time in hours"), required=False
     )
 
 
@@ -104,16 +100,12 @@ class ProjectAdmin(admin.ModelAdmin):
     """Project admin view."""
 
     form = ProjectForm
-    list_display  = ['name', 'customer']
-    list_filter   = ['customer']
-    search_fields = ['name', 'customer__name']
+    list_display = ["name", "customer"]
+    list_filter = ["customer"]
+    search_fields = ["name", "customer__name"]
 
-    inlines = [
-        TaskInline,
-        ReviewerInline,
-        RedmineProjectInline
-    ]
-    exclude = ('reviewers', )
+    inlines = [TaskInline, ReviewerInline, RedmineProjectInline]
+    exclude = ("reviewers",)
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.tasks.exists()
@@ -123,4 +115,4 @@ class ProjectAdmin(admin.ModelAdmin):
 class TaskTemplateAdmin(admin.ModelAdmin):
     """Task template admin view."""
 
-    list_display = ['name']
+    list_display = ["name"]

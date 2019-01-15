@@ -13,21 +13,23 @@ class Activity(models.Model):
     certain task.
     """
 
-    from_time    = models.TimeField()
-    to_time      = models.TimeField(blank=True, null=True)
-    comment      = models.TextField(blank=True)
-    date         = models.DateField()
-    transferred  = models.BooleanField(default=False)
-    review       = models.BooleanField(default=False)
+    from_time = models.TimeField()
+    to_time = models.TimeField(blank=True, null=True)
+    comment = models.TextField(blank=True)
+    date = models.DateField()
+    transferred = models.BooleanField(default=False)
+    review = models.BooleanField(default=False)
     not_billable = models.BooleanField(default=False)
-    task         = models.ForeignKey('projects.Task',
-                                     null=True,
-                                     blank=True,
-                                     on_delete=models.SET_NULL,
-                                     related_name='activities')
-    user         = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                     on_delete=models.CASCADE,
-                                     related_name='activities')
+    task = models.ForeignKey(
+        "projects.Task",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="activities",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="activities"
+    )
 
     def __str__(self):
         """Represent the model as a string.
@@ -35,13 +37,13 @@ class Activity(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return '{0}: {1}'.format(self.user, self.task)
+        return "{0}: {1}".format(self.user, self.task)
 
     class Meta:
         """Meta informations for the activity model."""
 
-        verbose_name_plural = 'activities'
-        indexes             = [models.Index(fields=['date'])]
+        verbose_name_plural = "activities"
+        indexes = [models.Index(fields=["date"])]
 
 
 class Attendance(models.Model):
@@ -52,12 +54,12 @@ class Attendance(models.Model):
     from resp. to time fields.
     """
 
-    date          = models.DateField()
-    from_time     = models.TimeField()
-    to_time       = models.TimeField()
-    user          = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                      on_delete=models.CASCADE,
-                                      related_name='attendances')
+    date = models.DateField()
+    from_time = models.TimeField()
+    to_time = models.TimeField()
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="attendances"
+    )
 
     def __str__(self):
         """Represent the model as a string.
@@ -65,11 +67,11 @@ class Attendance(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return '{0}: {1} {2} - {3}'.format(
+        return "{0}: {1} {2} - {3}".format(
             self.user,
-            self.date.strftime('%Y-%m-%d'),
-            self.from_time.strftime('%H:%M'),
-            self.to_time.strftime('%H:%M')
+            self.date.strftime("%Y-%m-%d"),
+            self.from_time.strftime("%H:%M"),
+            self.to_time.strftime("%H:%M"),
         )
 
 
@@ -81,20 +83,20 @@ class Report(models.Model):
     bill for the customer.
     """
 
-    comment      = models.TextField(blank=True)
-    date         = models.DateField()
-    duration     = models.DurationField()
-    review       = models.BooleanField(default=False)
+    comment = models.TextField(blank=True)
+    date = models.DateField()
+    duration = models.DurationField()
+    review = models.BooleanField(default=False)
     not_billable = models.BooleanField(default=False)
-    task         = models.ForeignKey('projects.Task',
-                                     on_delete=models.PROTECT,
-                                     related_name='reports')
-    user         = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                     on_delete=models.PROTECT,
-                                     related_name='reports')
-    verified_by  = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                     on_delete=models.SET_NULL,
-                                     null=True, blank=True)
+    task = models.ForeignKey(
+        "projects.Task", on_delete=models.PROTECT, related_name="reports"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="reports"
+    )
+    verified_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -105,10 +107,7 @@ class Report(models.Model):
         However, the duration must at least be 15 minutes long.
         """
         self.duration = timedelta(
-            seconds=max(
-                15 * 60,
-                round(self.duration.seconds / (15 * 60)) * (15 * 60)
-            )
+            seconds=max(15 * 60, round(self.duration.seconds / (15 * 60)) * (15 * 60))
         )
 
         super().save(*args, **kwargs)
@@ -119,12 +118,12 @@ class Report(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return '{0}: {1}'.format(self.user, self.task)
+        return "{0}: {1}".format(self.user, self.task)
 
     class Meta:
         """Meta information for the report model."""
 
-        indexes = [models.Index(fields=['date'])]
+        indexes = [models.Index(fields=["date"])]
 
 
 class AbsenceManager(models.Manager):
@@ -132,11 +131,13 @@ class AbsenceManager(models.Manager):
         from timed.employment.models import PublicHoliday
 
         queryset = super().get_queryset()
-        queryset = queryset.exclude(date__in=models.Subquery(
-            PublicHoliday.objects.filter(
-                location__employments__user=models.OuterRef('user')
-            ).values('date')
-        ))
+        queryset = queryset.exclude(
+            date__in=models.Subquery(
+                PublicHoliday.objects.filter(
+                    location__employments__user=models.OuterRef("user")
+                ).values("date")
+            )
+        )
         return queryset
 
 
@@ -147,14 +148,14 @@ class Absence(models.Model):
     worktime. E.g holidays or sickness.
     """
 
-    comment  = models.TextField(blank=True)
-    date     = models.DateField()
-    type     = models.ForeignKey('employment.AbsenceType',
-                                 on_delete=models.PROTECT,
-                                 related_name='absences')
-    user     = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                 on_delete=models.CASCADE,
-                                 related_name='absences')
+    comment = models.TextField(blank=True)
+    date = models.DateField()
+    type = models.ForeignKey(
+        "employment.AbsenceType", on_delete=models.PROTECT, related_name="absences"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="absences"
+    )
     objects = AbsenceManager()
 
     def calculate_duration(self, employment):
@@ -169,8 +170,8 @@ class Absence(models.Model):
             return employment.worktime_per_day
 
         reports = Report.objects.filter(date=self.date, user=self.user_id)
-        data = reports.aggregate(reported_time=models.Sum('duration'))
-        reported_time = data['reported_time'] or timedelta()
+        data = reports.aggregate(reported_time=models.Sum("duration"))
+        reported_time = data["reported_time"] or timedelta()
         if reported_time >= employment.worktime_per_day:
             # prevent negative duration in case user already
             # reported more time than worktime per day
@@ -181,4 +182,4 @@ class Absence(models.Model):
     class Meta:
         """Meta informations for the absence model."""
 
-        unique_together = ('date', 'user',)
+        unique_together = ("date", "user")

@@ -20,6 +20,7 @@ before_script:
   - psql -c "CREATE DATABASE timed;" -U postgres
 
 script:
+  - black --check .
   - flake8
   - pytest --no-cov-on-fail --cov --create-db
 

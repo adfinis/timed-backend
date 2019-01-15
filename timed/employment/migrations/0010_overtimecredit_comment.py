@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('employment', '0009_delete_userabsencetype'),
-    ]
+    dependencies = [("employment", "0009_delete_userabsencetype")]
 
     operations = [
         migrations.AddField(
-            model_name='overtimecredit',
-            name='comment',
+            model_name="overtimecredit",
+            name="comment",
             field=models.CharField(blank=True, max_length=255),
-        ),
+        )
     ]

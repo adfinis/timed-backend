@@ -17,36 +17,36 @@ def migrate_activity_block_time(apps, schema_editor):
     in settings.TIME_ZONE
     """
     current_tz = timezone(settings.TIME_ZONE)
-    ActivityBlock = apps.get_model('tracking', 'ActivityBlock')
+    ActivityBlock = apps.get_model("tracking", "ActivityBlock")
     for block in ActivityBlock.objects.all():
         if block.to_datetime is not None:
-            block.to_datetime = block.to_datetime.astimezone(current_tz).replace(tzinfo=utc)
-        block.from_datetime = block.from_datetime.astimezone(current_tz).replace(tzinfo=utc)
+            block.to_datetime = block.to_datetime.astimezone(current_tz).replace(
+                tzinfo=utc
+            )
+        block.from_datetime = block.from_datetime.astimezone(current_tz).replace(
+            tzinfo=utc
+        )
         block.save()
 
 
 def delete_invalid_blocks(apps, schema_editor):
     """Delete blocks where to is earlier than from."""
-    ActivityBlock = apps.get_model('tracking', 'ActivityBlock')
-    ActivityBlock.objects.filter(from_datetime__gt=F('to_datetime')).delete()
+    ActivityBlock = apps.get_model("tracking", "ActivityBlock")
+    ActivityBlock.objects.filter(from_datetime__gt=F("to_datetime")).delete()
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('tracking', '0001_initial'),
-    ]
+    dependencies = [("tracking", "0001_initial")]
 
     operations = [
         migrations.RunPython(migrate_activity_block_time),
         migrations.AlterField(
-            model_name='activityblock',
-            name='from_datetime',
-            field=models.TimeField(),
+            model_name="activityblock", name="from_datetime", field=models.TimeField()
         ),
         migrations.AlterField(
-            model_name='activityblock',
-            name='to_datetime',
+            model_name="activityblock",
+            name="to_datetime",
             field=models.TimeField(blank=True, null=True),
         ),
         migrations.RunPython(delete_invalid_blocks),

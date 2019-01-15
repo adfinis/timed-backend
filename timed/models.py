@@ -14,16 +14,16 @@ class WeekdaysField(MultiSelectField):
     MO, TU, WE, TH, FR, SA, SU = range(1, 8)
 
     WEEKDAYS = (
-        (MO, _('Monday')),
-        (TU, _('Tuesday')),
-        (WE, _('Wednesday')),
-        (TH, _('Thursday')),
-        (FR, _('Friday')),
-        (SA, _('Saturday')),
-        (SU, _('Sunday'))
+        (MO, _("Monday")),
+        (TU, _("Tuesday")),
+        (WE, _("Wednesday")),
+        (TH, _("Thursday")),
+        (FR, _("Friday")),
+        (SA, _("Saturday")),
+        (SU, _("Sunday")),
     )
 
     def __init__(self, *args, **kwargs):
         """Initialize multi select with choices weekdays."""
-        kwargs['choices'] = self.WEEKDAYS
+        kwargs["choices"] = self.WEEKDAYS
         super().__init__(*args, **kwargs)

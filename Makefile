@@ -14,5 +14,6 @@ start: ## Start the development server
 	@docker-compose up -d --build
 
 test: ## Test the project
+	@docker-compose exec backend black --check .
 	@docker-compose exec backend flake8
 	@docker-compose exec backend pytest --no-cov-on-fail --cov --create-db

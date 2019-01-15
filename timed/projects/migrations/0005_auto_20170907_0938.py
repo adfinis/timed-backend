@@ -7,55 +7,53 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('projects', '0004_auto_20170906_1045'),
-    ]
+    dependencies = [("projects", "0004_auto_20170906_1045")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='billingtype',
-            options={'ordering': ['name']},
+            name="billingtype", options={"ordering": ["name"]}
         ),
         migrations.RemoveIndex(
-            model_name='customer',
-            name='projects_cu_name_e0e97a_idx',
+            model_name="customer", name="projects_cu_name_e0e97a_idx"
         ),
+        migrations.RemoveIndex(model_name="task", name="projects_ta_name_dd9620_idx"),
         migrations.RemoveIndex(
-            model_name='task',
-            name='projects_ta_name_dd9620_idx',
-        ),
-        migrations.RemoveIndex(
-            model_name='project',
-            name='projects_pr_name_ac60a8_idx',
+            model_name="project", name="projects_pr_name_ac60a8_idx"
         ),
         migrations.AddField(
-            model_name='billingtype',
-            name='reference',
+            model_name="billingtype",
+            name="reference",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='customer',
-            name='reference',
-            field=models.CharField(blank=True, db_index=True, max_length=255, null=True),
+            model_name="customer",
+            name="reference",
+            field=models.CharField(
+                blank=True, db_index=True, max_length=255, null=True
+            ),
         ),
         migrations.AddField(
-            model_name='project',
-            name='reference',
-            field=models.CharField(blank=True, db_index=True, max_length=255, null=True),
+            model_name="project",
+            name="reference",
+            field=models.CharField(
+                blank=True, db_index=True, max_length=255, null=True
+            ),
         ),
         migrations.AddField(
-            model_name='task',
-            name='reference',
-            field=models.CharField(blank=True, db_index=True, max_length=255, null=True),
+            model_name="task",
+            name="reference",
+            field=models.CharField(
+                blank=True, db_index=True, max_length=255, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='customer',
-            name='name',
+            model_name="customer",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='name',
+            model_name="project",
+            name="name",
             field=models.CharField(db_index=True, max_length=255),
         ),
     ]

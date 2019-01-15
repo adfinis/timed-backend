@@ -9,10 +9,10 @@ from timed.projects import models
 class CustomerFactory(DjangoModelFactory):
     """Customer factory."""
 
-    name     = Faker('company')
-    email    = Faker('company_email')
-    website  = Faker('url')
-    comment  = Faker('sentence')
+    name = Faker("company")
+    email = Faker("company_email")
+    website = Faker("url")
+    comment = Faker("sentence")
     archived = False
 
     class Meta:
@@ -22,7 +22,7 @@ class CustomerFactory(DjangoModelFactory):
 
 
 class BillingTypeFactory(DjangoModelFactory):
-    name = Faker('currency_name')
+    name = Faker("currency_name")
     reference = None
 
     class Meta:
@@ -30,7 +30,7 @@ class BillingTypeFactory(DjangoModelFactory):
 
 
 class CostCenterFactory(DjangoModelFactory):
-    name = Faker('job')
+    name = Faker("job")
     reference = None
 
     class Meta:
@@ -40,13 +40,13 @@ class CostCenterFactory(DjangoModelFactory):
 class ProjectFactory(DjangoModelFactory):
     """Project factory."""
 
-    name            = Faker('catch_phrase')
-    estimated_time  = Faker('time_delta')
-    archived        = False
-    comment         = Faker('sentence')
-    customer        = SubFactory('timed.projects.factories.CustomerFactory')
-    cost_center     = SubFactory('timed.projects.factories.CostCenterFactory')
-    billing_type    = SubFactory('timed.projects.factories.BillingTypeFactory')
+    name = Faker("catch_phrase")
+    estimated_time = Faker("time_delta")
+    archived = False
+    comment = Faker("sentence")
+    customer = SubFactory("timed.projects.factories.CustomerFactory")
+    cost_center = SubFactory("timed.projects.factories.CostCenterFactory")
+    billing_type = SubFactory("timed.projects.factories.BillingTypeFactory")
 
     class Meta:
         """Meta informations for the project factory."""
@@ -57,11 +57,11 @@ class ProjectFactory(DjangoModelFactory):
 class TaskFactory(DjangoModelFactory):
     """Task factory."""
 
-    name            = Faker('company_suffix')
-    estimated_time  = Faker('time_delta')
-    archived        = False
-    project         = SubFactory('timed.projects.factories.ProjectFactory')
-    cost_center     = SubFactory('timed.projects.factories.CostCenterFactory')
+    name = Faker("company_suffix")
+    estimated_time = Faker("time_delta")
+    archived = False
+    project = SubFactory("timed.projects.factories.ProjectFactory")
+    cost_center = SubFactory("timed.projects.factories.CostCenterFactory")
 
     class Meta:
         """Meta informations for the task factory."""
@@ -72,7 +72,7 @@ class TaskFactory(DjangoModelFactory):
 class TaskTemplateFactory(DjangoModelFactory):
     """Task template factory."""
 
-    name = Faker('sentence')
+    name = Faker("sentence")
 
     class Meta:
         """Meta informations for the task template factory."""

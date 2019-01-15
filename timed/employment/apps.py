@@ -6,5 +6,5 @@ from django.apps import AppConfig
 class EmploymentConfig(AppConfig):
     """App configuration for employment app."""
 
-    name  = 'timed.employment'
-    label = 'employment'
+    name = "timed.employment"
+    label = "employment"

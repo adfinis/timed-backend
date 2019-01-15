@@ -8,25 +8,23 @@ import django.utils.timezone
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('tracking', '0005_remove_absence_duration'),
-    ]
+    dependencies = [("tracking", "0005_remove_absence_duration")]
 
     operations = [
         migrations.AddField(
-            model_name='activity',
-            name='transferred',
+            model_name="activity",
+            name="transferred",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='activity',
-            name='from_time',
+            model_name="activity",
+            name="from_time",
             field=models.TimeField(default=django.utils.timezone.now),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='activity',
-            name='to_time',
+            model_name="activity",
+            name="to_time",
             field=models.TimeField(blank=True, null=True),
         ),
     ]

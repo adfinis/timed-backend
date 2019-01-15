@@ -1,3 +1,3 @@
 # noqa: D104
 
-default_app_config = 'timed.tracking.apps.TrackingConfig'
+default_app_config = "timed.tracking.apps.TrackingConfig"

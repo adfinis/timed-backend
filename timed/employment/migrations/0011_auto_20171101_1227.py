@@ -7,19 +7,17 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('employment', '0010_overtimecredit_comment'),
-    ]
+    dependencies = [("employment", "0010_overtimecredit_comment")]
 
     operations = [
         migrations.AddField(
-            model_name='absencecredit',
-            name='transfer',
+            model_name="absencecredit",
+            name="transfer",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='overtimecredit',
-            name='transfer',
+            model_name="overtimecredit",
+            name="transfer",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -6,5 +6,5 @@ from django.apps import AppConfig
 class ProjectsConfig(AppConfig):
     """App configuration for projects app."""
 
-    name  = 'timed.projects'
-    label = 'projects'
+    name = "timed.projects"
+    label = "projects"

@@ -11,8 +11,6 @@ class RedmineProject(models.Model):
     """
 
     project = models.OneToOneField(
-        Project,
-        on_delete=models.CASCADE,
-        related_name='redmine_project'
+        Project, on_delete=models.CASCADE, related_name="redmine_project"
     )
     issue_id = models.PositiveIntegerField()

@@ -8,20 +8,20 @@ import django.utils.timezone
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('employment', '0004_auto_20170904_1510'),
-    ]
+    dependencies = [("employment", "0004_auto_20170904_1510")]
 
     operations = [
         migrations.AddField(
-            model_name='employment',
-            name='added',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="employment",
+            name="added",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='employment',
-            name='updated',
+            model_name="employment",
+            name="updated",
             field=models.DateTimeField(auto_now=True),
         ),
     ]

@@ -31,42 +31,42 @@ class Command(BaseCommand):
     projects where they are added as reviewer.
     """
 
-    help = 'Notify reviewers of projects with unverified reports.'
+    help = "Notify reviewers of projects with unverified reports."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--months',
+            "--months",
             default=1,
             type=int,
-            dest='months',
-            help='Number of months to check unverified reports in.'
+            dest="months",
+            help="Number of months to check unverified reports in.",
         )
         parser.add_argument(
-            '--offset',
+            "--offset",
             default=5,
             type=int,
-            dest='offset',
-            help='Period will end today minus given offset.'
+            dest="offset",
+            help="Period will end today minus given offset.",
         )
         parser.add_argument(
-            '--message',
-            default='',
+            "--message",
+            default="",
             type=str,
-            dest='message',
-            help='Additional message to send if there are unverified reports'
+            dest="message",
+            help="Additional message to send if there are unverified reports",
         )
         parser.add_argument(
-            '--cc',
-            action='append',
-            dest='cc',
-            help='List of email addresses where to send a cc'
+            "--cc",
+            action="append",
+            dest="cc",
+            help="List of email addresses where to send a cc",
         )
 
     def handle(self, *args, **options):
-        months = options['months']
-        offset = options['offset']
-        message = options['message']
-        cc = options['cc']
+        months = options["months"]
+        offset = options["offset"]
+        message = options["message"]
+        cc = options["cc"]
 
         today = date.today()
         # -1 as we also skip today
@@ -85,12 +85,9 @@ class Command(BaseCommand):
         assigned but are not verified in given time frame.
         """
         queryset = Report.objects.filter(
-            date__range=[start, end],
-            verified_by__isnull=True
+            date__range=[start, end], verified_by__isnull=True
         )
-        queryset = queryset.annotate(
-            num_reviewers=Count('task__project__reviewers')
-        )
+        queryset = queryset.annotate(num_reviewers=Count("task__project__reviewers"))
         queryset = queryset.filter(num_reviewers__gt=0)
 
         return queryset
@@ -99,7 +96,7 @@ class Command(BaseCommand):
         """Notify reviewers on their unverified reports."""
         User = get_user_model()
         reviewers = User.objects.all_reviewers().filter(email__isnull=False)
-        subject = '[Timed] Verification of reports'
+        subject = "[Timed] Verification of reports"
         from_email = settings.DEFAULT_FROM_EMAIL
         connection = get_connection()
         messages = []
@@ -107,15 +104,17 @@ class Command(BaseCommand):
         for reviewer in reviewers:
             if reports.filter(task__project__reviewers=reviewer).exists():
                 body = render_to_string(
-                    'mail/notify_reviewers_unverified.txt', {
+                    "mail/notify_reviewers_unverified.txt",
+                    {
                         # we need start and end date in system format
-                        'start': str(start),
-                        'end': str(end),
-                        'message': optional_message,
-                        'reviewer': reviewer,
-                        'protocol': settings.HOST_PROTOCOL,
-                        'domain': settings.HOST_DOMAIN,
-                    }, using='text'
+                        "start": str(start),
+                        "end": str(end),
+                        "message": optional_message,
+                        "reviewer": reviewer,
+                        "protocol": settings.HOST_PROTOCOL,
+                        "domain": settings.HOST_DOMAIN,
+                    },
+                    using="text",
                 )
 
                 message = EmailMessage(
@@ -124,7 +123,7 @@ class Command(BaseCommand):
                     from_email=from_email,
                     to=[reviewer.email],
                     cc=cc,
-                    connection=connection
+                    connection=connection,
                 )
 
                 messages.append(message)

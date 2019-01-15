@@ -1,5 +1,12 @@
-from rest_framework import (decorators, exceptions, mixins, permissions,
-                            response, status, viewsets)
+from rest_framework import (
+    decorators,
+    exceptions,
+    mixins,
+    permissions,
+    response,
+    status,
+    viewsets,
+)
 
 from timed.projects.filters import ProjectFilterSet
 from timed.projects.models import Project
@@ -17,16 +24,10 @@ class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = serializers.SubscriptionProjectSerializer
     filterset_class = ProjectFilterSet
-    ordering_fields = (
-        'name',
-        'id'
-    )
+    ordering_fields = ("name", "id")
 
     def get_queryset(self):
-        return Project.objects.filter(
-            archived=False,
-            customer_visible=True
-        )
+        return Project.objects.filter(archived=False, customer_visible=True)
 
 
 class PackageViewSet(viewsets.ReadOnlyModelViewSet):
@@ -34,26 +35,23 @@ class PackageViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = filters.PackageFilter
 
     def get_queryset(self):
-        return models.Package.objects.select_related(
-            'billing_type'
-        )
+        return models.Package.objects.select_related("billing_type")
 
 
-class OrderViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   viewsets.GenericViewSet):
+class OrderViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = serializers.OrderSerializer
     filterset_class = filters.OrderFilter
 
     @decorators.action(
         detail=True,
-        methods=['post'],
-        permission_classes=[
-            permissions.IsAuthenticated,
-            permissions.IsAdminUser
-        ]
+        methods=["post"],
+        permission_classes=[permissions.IsAuthenticated, permissions.IsAdminUser],
     )
     def confirm(self, request, pk=None):
         """
@@ -69,9 +67,7 @@ class OrderViewSet(mixins.CreateModelMixin,
         return response.Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset(self):
-        return models.Order.objects.select_related(
-            'project'
-        )
+        return models.Order.objects.select_related("project")
 
     def perform_destroy(self, instance):
         if instance.acknowledged:

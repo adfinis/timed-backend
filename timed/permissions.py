@@ -1,5 +1,4 @@
-from rest_framework.permissions import (SAFE_METHODS, BasePermission,
-                                        IsAuthenticated)
+from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthenticated
 
 
 class IsUnverified(BasePermission):
@@ -23,7 +22,7 @@ class IsDeleteOnly(BasePermission):
     """Allows only delete method."""
 
     def has_permission(self, request, view):
-        return request.method == 'DELETE'
+        return request.method == "DELETE"
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request, view)
@@ -33,7 +32,7 @@ class IsCreateOnly(BasePermission):
     """Allows only create method."""
 
     def has_permission(self, request, view):
-        return request.method == 'POST'
+        return request.method == "POST"
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request, view)
@@ -43,7 +42,7 @@ class IsUpdateOnly(BasePermission):
     """Allows only update method."""
 
     def has_permission(self, request, view):
-        return request.method in ['PATCH', 'PUT']
+        return request.method in ["PATCH", "PUT"]
 
     def has_object_permission(self, request, view, obj):
         return self.has_permission(request, view)

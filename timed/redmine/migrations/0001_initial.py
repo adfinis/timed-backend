@@ -10,17 +10,30 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('projects', '0001_initial'),
-    ]
+    dependencies = [("projects", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
-            name='RedmineProject',
+            name="RedmineProject",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('issue_id', models.PositiveIntegerField()),
-                ('project', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='redmine_project', to='projects.Project')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("issue_id", models.PositiveIntegerField()),
+                (
+                    "project",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="redmine_project",
+                        to="projects.Project",
+                    ),
+                ),
             ],
-        ),
+        )
     ]

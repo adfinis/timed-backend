@@ -8,14 +8,18 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('projects', '0001_initial'),
-    ]
+    dependencies = [("projects", "0001_initial")]
 
     operations = [
         migrations.AlterField(
-            model_name='project',
-            name='billing_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='projects', to='projects.BillingType'),
-        ),
+            model_name="project",
+            name="billing_type",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="projects",
+                to="projects.BillingType",
+            ),
+        )
     ]

@@ -7,26 +7,19 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('employment', '0003_user_tour_done'),
-    ]
+    dependencies = [("employment", "0003_user_tour_done")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='absencetype',
-            options={'ordering': ('name',)},
+            name="absencetype", options={"ordering": ("name",)}
         ),
+        migrations.AlterModelOptions(name="location", options={"ordering": ("name",)}),
         migrations.AlterModelOptions(
-            name='location',
-            options={'ordering': ('name',)},
-        ),
-        migrations.AlterModelOptions(
-            name='publicholiday',
-            options={'ordering': ('date',)},
+            name="publicholiday", options={"ordering": ("date",)}
         ),
         migrations.AlterField(
-            model_name='absencecredit',
-            name='days',
+            model_name="absencecredit",
+            name="days",
             field=models.IntegerField(default=0),
         ),
     ]

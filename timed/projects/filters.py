@@ -11,35 +11,26 @@ from timed.projects import models
 class CustomerFilterSet(FilterSet):
     """Filter set for the customers endpoint."""
 
-    archived = NumberFilter(field_name='archived')
+    archived = NumberFilter(field_name="archived")
 
     class Meta:
         """Meta information for the customer filter set."""
 
-        model  = models.Customer
-        fields = [
-            'archived',
-            'reference'
-        ]
+        model = models.Customer
+        fields = ["archived", "reference"]
 
 
 class ProjectFilterSet(FilterSet):
     """Filter set for the projects endpoint."""
 
-    archived = NumberFilter(field_name='archived')
-    reviewer = NumberFilter(field_name='reviewers')
+    archived = NumberFilter(field_name="archived")
+    reviewer = NumberFilter(field_name="reviewers")
 
     class Meta:
         """Meta information for the project filter set."""
 
-        model  = models.Project
-        fields = [
-            'archived',
-            'customer',
-            'billing_type',
-            'cost_center',
-            'reference'
-        ]
+        model = models.Project
+        fields = ["archived", "customer", "billing_type", "cost_center", "reference"]
 
 
 class MyMostFrequentTaskFilter(Filter):
@@ -73,11 +64,11 @@ class MyMostFrequentTaskFilter(Filter):
             reports__user=user,
             reports__date__gt=from_date,
             archived=False,
-            project__archived=False
+            project__archived=False,
         )
-        qs = qs.annotate(frequency=Count('reports')).order_by('-frequency')
+        qs = qs.annotate(frequency=Count("reports")).order_by("-frequency")
         # limit number of results to given value
-        qs = qs[:int(value)]
+        qs = qs[: int(value)]
 
         return qs
 
@@ -86,16 +77,10 @@ class TaskFilterSet(FilterSet):
     """Filter set for the tasks endpoint."""
 
     my_most_frequent = MyMostFrequentTaskFilter()
-    archived         = NumberFilter(field_name='archived')
+    archived = NumberFilter(field_name="archived")
 
     class Meta:
         """Meta information for the task filter set."""
 
-        model  = models.Task
-        fields = [
-            'archived',
-            'project',
-            'my_most_frequent',
-            'reference',
-            'cost_center'
-        ]
+        model = models.Task
+        fields = ["archived", "project", "my_most_frequent", "reference", "cost_center"]

@@ -7,9 +7,9 @@ class CurrentUserResourceRelatedField(ResourceRelatedField):
     """User resource related field restricting user to current user."""
 
     def __init__(self, *args, **kwargs):
-        kwargs['default'] = CurrentUserDefault()
+        kwargs["default"] = CurrentUserDefault()
         super().__init__(*args, **kwargs)
 
     def get_queryset(self):
-        request = self.context['request']
+        request = self.context["request"]
         return get_user_model().objects.filter(pk=request.user.pk)

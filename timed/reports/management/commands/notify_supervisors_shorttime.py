@@ -25,38 +25,38 @@ class Command(BaseCommand):
     expected worktime is lower than 90%.
     """
 
-    help = 'Notify supervisors when supervisees have reported shortime.'
+    help = "Notify supervisors when supervisees have reported shortime."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--days',
+            "--days",
             default=7,
             type=int,
-            dest='days',
-            help='Length of period to check shorttime in'
+            dest="days",
+            help="Length of period to check shorttime in",
         )
         parser.add_argument(
-            '--offset',
+            "--offset",
             default=5,
             type=int,
-            dest='offset',
-            help='Period will end today minus given offset.'
+            dest="offset",
+            help="Period will end today minus given offset.",
         )
         parser.add_argument(
-            '--ratio',
+            "--ratio",
             default=0.9,
             type=float,
-            dest='ratio',
+            dest="ratio",
             help=(
-                'Ratio between expected and reported time '
-                'before it is considered shorttime'
-            )
+                "Ratio between expected and reported time "
+                "before it is considered shorttime"
+            ),
         )
 
     def handle(self, *args, **options):
-        days = options['days']
-        offset = options['offset']
-        ratio = options['ratio']
+        days = options["days"]
+        offset = options["offset"]
+        ratio = options["ratio"]
 
         today = date.today()
         # -1 as we also skip today
@@ -90,11 +90,11 @@ class Command(BaseCommand):
             supervisee_ratio = reported / expected
             if supervisee_ratio < ratio:
                 supervisees_shorttime[supervisee.id] = {
-                    'reported': self._decimal_hours(reported),
-                    'expected': self._decimal_hours(expected),
-                    'delta': self._decimal_hours(delta),
-                    'ratio': supervisee_ratio,
-                    'balance': self._decimal_hours(
+                    "reported": self._decimal_hours(reported),
+                    "expected": self._decimal_hours(expected),
+                    "delta": self._decimal_hours(delta),
+                    "ratio": supervisee_ratio,
+                    "balance": self._decimal_hours(
                         supervisee.calculate_worktime(start_year, end)[2]
                     ),
                 }
@@ -110,24 +110,27 @@ class Command(BaseCommand):
                             reported, expected, delta, ratio and balance
         """
         supervisors = get_user_model().objects.all_supervisors()
-        subject = '[Timed] Report supervisees with shorttime'
+        subject = "[Timed] Report supervisees with shorttime"
         from_email = settings.DEFAULT_FROM_EMAIL
         mails = []
 
         for supervisor in supervisors:
             suspects = supervisor.supervisees.filter(
-                id__in=supervisees.keys()).order_by('first_name')
+                id__in=supervisees.keys()
+            ).order_by("first_name")
             suspects_shorttime = [
                 (suspect, supervisees[suspect.id]) for suspect in suspects
             ]
             if suspects.count() > 0 and supervisor.email:
                 body = render_to_string(
-                    'mail/notify_supervisor_shorttime.txt', {
-                        'start': start,
-                        'end': end,
-                        'ratio': ratio,
-                        'suspects': suspects_shorttime
-                    }, using='text'
+                    "mail/notify_supervisor_shorttime.txt",
+                    {
+                        "start": start,
+                        "end": end,
+                        "ratio": ratio,
+                        "suspects": suspects_shorttime,
+                    },
+                    using="text",
                 )
                 mails.append((subject, body, from_email, [supervisor.email]))
 

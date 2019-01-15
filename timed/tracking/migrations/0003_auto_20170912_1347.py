@@ -7,19 +7,13 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('tracking', '0002_auto_20170912_1346'),
-    ]
+    dependencies = [("tracking", "0002_auto_20170912_1346")]
 
     operations = [
         migrations.RenameField(
-            model_name='activityblock',
-            old_name='from_datetime',
-            new_name='from_time',
+            model_name="activityblock", old_name="from_datetime", new_name="from_time"
         ),
         migrations.RenameField(
-            model_name='activityblock',
-            old_name='to_datetime',
-            new_name='to_time',
+            model_name="activityblock", old_name="to_datetime", new_name="to_time"
         ),
     ]

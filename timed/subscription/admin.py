@@ -11,24 +11,20 @@ from . import models
 
 class PackageForm(forms.ModelForm):
     model = models.Package
-    duration = DurationInHoursField(
-        label=_('Duration in hours'),
-        required=True,
-    )
+    duration = DurationInHoursField(label=_("Duration in hours"), required=True)
 
 
 @admin.register(models.Package)
 class PackageAdmin(admin.ModelAdmin):
-    list_display = ['billing_type', 'duration', 'price']
+    list_display = ["billing_type", "duration", "price"]
     form = PackageForm
 
 
 class CustomerPasswordForm(forms.ModelForm):
     def save(self, commit=True):
-        password = self.cleaned_data.get('password')
+        password = self.cleaned_data.get("password")
         if password is not None:
-            self.instance.password = hashlib.md5(
-                password.encode()).hexdigest()
+            self.instance.password = hashlib.md5(password.encode()).hexdigest()
         return super().save(commit=commit)
 
 

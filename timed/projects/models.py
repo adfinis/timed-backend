@@ -11,13 +11,12 @@ class Customer(models.Model):
     reported on their projects.
     """
 
-    name      = models.CharField(max_length=255, unique=True)
-    reference = models.CharField(max_length=255, db_index=True,
-                                 blank=True, null=True)
-    email     = models.EmailField(blank=True)
-    website   = models.URLField(blank=True)
-    comment   = models.TextField(blank=True)
-    archived  = models.BooleanField(default=False)
+    name = models.CharField(max_length=255, unique=True)
+    reference = models.CharField(max_length=255, db_index=True, blank=True, null=True)
+    email = models.EmailField(blank=True)
+    website = models.URLField(blank=True)
+    comment = models.TextField(blank=True)
+    archived = models.BooleanField(default=False)
 
     def __str__(self):
         """Represent the model as a string.
@@ -30,33 +29,33 @@ class Customer(models.Model):
     class Meta:
         """Meta informations for the customer model."""
 
-        ordering = ['name']
+        ordering = ["name"]
 
 
 class CostCenter(models.Model):
     """Cost center defining how cost of projects and tasks are allocated."""
 
-    name      = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True)
     reference = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
 
 class BillingType(models.Model):
     """Billing type defining how a project, resp. reports are being billed."""
 
-    name      = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True)
     reference = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
 
 class Project(models.Model):
@@ -66,26 +65,30 @@ class Project(models.Model):
     belongs to a customer.
     """
 
-    name                = models.CharField(max_length=255, db_index=True)
-    reference           = models.CharField(max_length=255, db_index=True,
-                                           blank=True, null=True)
-    comment             = models.TextField(blank=True)
-    archived            = models.BooleanField(default=False)
-    estimated_time      = models.DurationField(blank=True, null=True)
-    customer            = models.ForeignKey('projects.Customer',
-                                            on_delete=models.CASCADE,
-                                            related_name='projects')
-    billing_type        = models.ForeignKey(BillingType,
-                                            on_delete=models.SET_NULL,
-                                            blank=True, null=True,
-                                            related_name='projects')
-    cost_center         = models.ForeignKey(CostCenter,
-                                            on_delete=models.SET_NULL,
-                                            blank=True, null=True,
-                                            related_name='projects')
-    reviewers           = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                                                 related_name='reviews')
-    customer_visible    = models.BooleanField(default=False)
+    name = models.CharField(max_length=255, db_index=True)
+    reference = models.CharField(max_length=255, db_index=True, blank=True, null=True)
+    comment = models.TextField(blank=True)
+    archived = models.BooleanField(default=False)
+    estimated_time = models.DurationField(blank=True, null=True)
+    customer = models.ForeignKey(
+        "projects.Customer", on_delete=models.CASCADE, related_name="projects"
+    )
+    billing_type = models.ForeignKey(
+        BillingType,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="projects",
+    )
+    cost_center = models.ForeignKey(
+        CostCenter,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="projects",
+    )
+    reviewers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="reviews")
+    customer_visible = models.BooleanField(default=False)
 
     def __str__(self):
         """Represent the model as a string.
@@ -93,10 +96,10 @@ class Project(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return '{0} > {1}'.format(self.customer, self.name)
+        return "{0} > {1}".format(self.customer, self.name)
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
 
 class Task(models.Model):
@@ -106,17 +109,20 @@ class Task(models.Model):
     report their activities and reports on it.
     """
 
-    name            = models.CharField(max_length=255)
-    reference       = models.CharField(max_length=255, db_index=True,
-                                       blank=True, null=True)
-    estimated_time  = models.DurationField(blank=True, null=True)
-    archived        = models.BooleanField(default=False)
-    project         = models.ForeignKey('projects.Project',
-                                        on_delete=models.CASCADE,
-                                        related_name='tasks')
-    cost_center     = models.ForeignKey(CostCenter, on_delete=models.SET_NULL,
-                                        blank=True, null=True,
-                                        related_name='tasks')
+    name = models.CharField(max_length=255)
+    reference = models.CharField(max_length=255, db_index=True, blank=True, null=True)
+    estimated_time = models.DurationField(blank=True, null=True)
+    archived = models.BooleanField(default=False)
+    project = models.ForeignKey(
+        "projects.Project", on_delete=models.CASCADE, related_name="tasks"
+    )
+    cost_center = models.ForeignKey(
+        CostCenter,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="tasks",
+    )
 
     def __str__(self):
         """Represent the model as a string.
@@ -124,12 +130,12 @@ class Task(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return '{0} > {1}'.format(self.project, self.name)
+        return "{0} > {1}".format(self.project, self.name)
 
     class Meta:
         """Meta informations for the task model."""
 
-        ordering = ['name']
+        ordering = ["name"]
 
 
 class TaskTemplate(models.Model):
@@ -150,4 +156,4 @@ class TaskTemplate(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]

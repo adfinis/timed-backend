@@ -17,26 +17,26 @@ class Command(BaseCommand):
     which changed in given last days.
     """
 
-    help = 'Send notification on given email address on changed employments.'
+    help = "Send notification on given email address on changed employments."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--email',
+            "--email",
             type=str,
-            dest='email',
-            help='Email address notification is sent to.'
+            dest="email",
+            help="Email address notification is sent to.",
         )
         parser.add_argument(
-            '--last-days',
+            "--last-days",
             default=7,
             type=int,
-            dest='last_days',
-            help='Time frame of last days employment changed.'
+            dest="last_days",
+            help="Time frame of last days employment changed.",
         )
 
     def handle(self, *args, **options):
-        email = options['email']
-        last_days = options['last_days']
+        email = options["email"]
+        last_days = options["last_days"]
 
         # today is excluded
         end = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -45,18 +45,13 @@ class Command(BaseCommand):
         employments = Employment.objects.filter(updated__range=[start, end])
         if employments.exists():
             from_email = settings.DEFAULT_FROM_EMAIL
-            subject = '[Timed] Employments changed in last {0} days'.format(
-                last_days
-            )
+            subject = "[Timed] Employments changed in last {0} days".format(last_days)
             body = render_to_string(
-                'mail/notify_changed_employments.txt', {
-                    'employments': employments
-                }, using='text'
+                "mail/notify_changed_employments.txt",
+                {"employments": employments},
+                using="text",
             )
             message = EmailMessage(
-                subject=subject,
-                body=body,
-                from_email=from_email,
-                to=[email],
+                subject=subject, body=body, from_email=from_email, to=[email]
             )
             message.send()

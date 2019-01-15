@@ -20,7 +20,7 @@ class Location(models.Model):
     A location is the place where an employee works.
     """
 
-    name     = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, unique=True)
     workdays = WeekdaysField(default=[str(day) for day in range(1, 6)])
     """
     Workdays defined per location, default is Monday - Friday
@@ -35,7 +35,7 @@ class Location(models.Model):
         return self.name
 
     class Meta:
-        ordering = ('name', )
+        ordering = ("name",)
 
 
 class PublicHoliday(models.Model):
@@ -45,11 +45,11 @@ class PublicHoliday(models.Model):
     to work.
     """
 
-    name     = models.CharField(max_length=50)
-    date     = models.DateField()
-    location = models.ForeignKey(Location,
-                                 on_delete=models.CASCADE,
-                                 related_name='public_holidays')
+    name = models.CharField(max_length=50)
+    date = models.DateField()
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name="public_holidays"
+    )
 
     def __str__(self):
         """Represent the model as a string.
@@ -57,13 +57,13 @@ class PublicHoliday(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return '{0} {1}'.format(self.name, self.date.strftime('%Y'))
+        return "{0} {1}".format(self.name, self.date.strftime("%Y"))
 
     class Meta:
         """Meta information for the public holiday model."""
 
-        indexes = [models.Index(fields=['date'])]
-        ordering = ('date', )
+        indexes = [models.Index(fields=["date"])]
+        ordering = ("date",)
 
 
 class AbsenceType(models.Model):
@@ -73,7 +73,7 @@ class AbsenceType(models.Model):
     school.
     """
 
-    name          = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     fill_worktime = models.BooleanField(default=False)
 
     def __str__(self):
@@ -94,12 +94,10 @@ class AbsenceType(models.Model):
             return None
 
         credits = AbsenceCredit.objects.filter(
-            user=user,
-            absence_type=self,
-            date__range=[start, end]
+            user=user, absence_type=self, date__range=[start, end]
         )
-        data = credits.aggregate(credit=Sum('days'))
-        credit = data['credit'] or 0
+        data = credits.aggregate(credit=Sum("days"))
+        credit = data["credit"] or 0
 
         return credit
 
@@ -113,15 +111,13 @@ class AbsenceType(models.Model):
             return None
 
         absences = Absence.objects.filter(
-            user=user,
-            type=self,
-            date__range=[start, end]
+            user=user, type=self, date__range=[start, end]
         )
         used_days = absences.count()
         return used_days
 
     class Meta:
-        ordering = ('name', )
+        ordering = ("name",)
 
 
 class AbsenceCredit(models.Model):
@@ -132,14 +128,16 @@ class AbsenceCredit(models.Model):
     E.g a credit that defines that a user can only have 25 holidays.
     """
 
-    user         = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                     on_delete=models.CASCADE,
-                                     related_name='absence_credits')
-    comment      = models.CharField(max_length=255, blank=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="absence_credits",
+    )
+    comment = models.CharField(max_length=255, blank=True)
     absence_type = models.ForeignKey(AbsenceType, on_delete=models.PROTECT)
-    date         = models.DateField()
-    days         = models.IntegerField(default=0)
-    transfer     = models.BooleanField(default=False)
+    date = models.DateField()
+    days = models.IntegerField(default=0)
+    transfer = models.BooleanField(default=False)
     """
     Mark whether this absence credit is a transfer from last year.
     """
@@ -152,11 +150,13 @@ class OvertimeCredit(models.Model):
     added to the worktime of a user.
     """
 
-    user     = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                 on_delete=models.CASCADE,
-                                 related_name='overtime_credits')
-    comment  = models.CharField(max_length=255, blank=True)
-    date     = models.DateField()
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="overtime_credits",
+    )
+    comment = models.CharField(max_length=255, blank=True)
+    date = models.DateField()
     duration = models.DurationField(default=timedelta(0))
     transfer = models.BooleanField(default=False)
     """
@@ -175,12 +175,9 @@ class EmploymentManager(models.Manager):
         :returns: Employment
         """
         return self.get(
-            (
-                models.Q(end_date__gte=date) |
-                models.Q(end_date__isnull=True)
-            ),
+            (models.Q(end_date__gte=date) | models.Q(end_date__isnull=True)),
             start_date__lte=date,
-            user=user
+            user=user,
         )
 
     def for_user(self, user, start, end):
@@ -195,11 +192,9 @@ class EmploymentManager(models.Manager):
         """
         # end date NULL on database is like employment is ending today
         queryset = self.annotate(
-            end=functions.Coalesce('end_date', models.Value(date.today()))
+            end=functions.Coalesce("end_date", models.Value(date.today()))
         )
-        return queryset.filter(
-            user=user
-        ).exclude(
+        return queryset.filter(user=user).exclude(
             models.Q(end__lt=start) | models.Q(start_date__gt=end)
         )
 
@@ -211,19 +206,19 @@ class Employment(models.Model):
     and from when to when.
     """
 
-    user             = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                         on_delete=models.CASCADE,
-                                         related_name='employments')
-    location         = models.ForeignKey(Location,
-                                         on_delete=models.PROTECT,
-                                         related_name='employments')
-    percentage       = models.IntegerField(validators=[
-                                           MinValueValidator(0),
-                                           MaxValueValidator(100)])
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="employments"
+    )
+    location = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name="employments"
+    )
+    percentage = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
     worktime_per_day = models.DurationField()
-    start_date       = models.DateField()
-    end_date         = models.DateField(blank=True, null=True)
-    objects          = EmploymentManager()
+    start_date = models.DateField()
+    end_date = models.DateField(blank=True, null=True)
+    objects = EmploymentManager()
 
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -234,10 +229,10 @@ class Employment(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return '{0} ({1} - {2})'.format(
+        return "{0} ({1} - {2})".format(
             self.user.username,
-            self.start_date.strftime('%d.%m.%Y'),
-            self.end_date.strftime('%d.%m.%Y') if self.end_date else 'today'
+            self.start_date.strftime("%d.%m.%Y"),
+            self.end_date.strftime("%d.%m.%Y") if self.end_date else "today",
         )
 
     def calculate_worktime(self, start, end):
@@ -271,10 +266,7 @@ class Employment(models.Model):
         # workdays is in isoweekday, byweekday expects Monday to be zero
         week_workdays = [int(day) - 1 for day in self.location.workdays]
         workdays = rrule.rrule(
-            rrule.DAILY,
-            dtstart=start,
-            until=end,
-            byweekday=week_workdays
+            rrule.DAILY, dtstart=start, until=end, byweekday=week_workdays
         ).count()
 
         # converting workdays as db expects 1 (Sunday) to 7 (Saturday)
@@ -287,35 +279,30 @@ class Employment(models.Model):
             location=self.location,
             date__gte=start,
             date__lte=end,
-            date__week_day__in=workdays_db
+            date__week_day__in=workdays_db,
         ).count()
 
         expected_worktime = self.worktime_per_day * (workdays - holidays)
 
         overtime_credit_data = OvertimeCredit.objects.filter(
-            user=self.user_id,
-            date__gte=start,
-            date__lte=end
-        ).aggregate(total_duration=Sum('duration'))
-        overtime_credit = overtime_credit_data['total_duration'] or timedelta()
+            user=self.user_id, date__gte=start, date__lte=end
+        ).aggregate(total_duration=Sum("duration"))
+        overtime_credit = overtime_credit_data["total_duration"] or timedelta()
 
         reported_worktime_data = Report.objects.filter(
-            user=self.user_id,
-            date__gte=start,
-            date__lte=end
-        ).aggregate(duration_total=Sum('duration'))
-        reported_worktime = (
-            reported_worktime_data['duration_total'] or timedelta()
-        )
+            user=self.user_id, date__gte=start, date__lte=end
+        ).aggregate(duration_total=Sum("duration"))
+        reported_worktime = reported_worktime_data["duration_total"] or timedelta()
 
-        absences = sum([
-            absence.calculate_duration(self)
-            for absence in Absence.objects.filter(
-                user=self.user_id,
-                date__gte=start,
-                date__lte=end,
-            ).select_related('type')
-        ], timedelta())
+        absences = sum(
+            [
+                absence.calculate_duration(self)
+                for absence in Absence.objects.filter(
+                    user=self.user_id, date__gte=start, date__lte=end
+                ).select_related("type")
+            ],
+            timedelta(),
+        )
 
         reported = reported_worktime + absences + overtime_credit
 
@@ -324,38 +311,40 @@ class Employment(models.Model):
     class Meta:
         """Meta information for the employment model."""
 
-        indexes = [models.Index(fields=['start_date', 'end_date'])]
+        indexes = [models.Index(fields=["start_date", "end_date"])]
 
 
 class UserManager(UserManager):
     def all_supervisors(self):
         objects = self.model.objects.annotate(
-            supervisees_count=models.Count('supervisees'))
+            supervisees_count=models.Count("supervisees")
+        )
         return objects.filter(supervisees_count__gt=0)
 
     def all_reviewers(self):
-        objects = self.model.objects.annotate(
-            reviews_count=models.Count('reviews'))
+        objects = self.model.objects.annotate(reviews_count=models.Count("reviews"))
         return objects.filter(reviews__gt=0)
 
     def all_supervisees(self):
         objects = self.model.objects.annotate(
-            supervisors_count=models.Count('supervisors'))
+            supervisors_count=models.Count("supervisors")
+        )
         return objects.filter(supervisors_count__gt=0)
 
 
 class User(AbstractUser):
     """Timed specific user."""
 
-    supervisors = models.ManyToManyField('self', symmetrical=False,
-                                         related_name='supervisees')
+    supervisors = models.ManyToManyField(
+        "self", symmetrical=False, related_name="supervisees"
+    )
 
     tour_done = models.BooleanField(default=False)
     """
     Indicate whether user has finished tour through Timed in frontend.
     """
 
-    last_name = models.CharField(_('last name'), max_length=30, blank=False)
+    last_name = models.CharField(_("last name"), max_length=30, blank=False)
     """
     Overwrite last name to make it required as interface relies on it.
     May also be name of organization if need to.
@@ -379,12 +368,12 @@ class User(AbstractUser):
         :returns:     tuple of 3 values reported, expected and delta in given
                       time frame
         """
-        employments = Employment.objects.for_user(
-            self, start, end).select_related('location')
+        employments = Employment.objects.for_user(self, start, end).select_related(
+            "location"
+        )
 
         balances = [
-            employment.calculate_worktime(start, end)
-            for employment in employments
+            employment.calculate_worktime(start, end) for employment in employments
         ]
 
         reported = sum([balance[0] for balance in balances], timedelta())

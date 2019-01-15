@@ -7,13 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('tracking', '0004_auto_20171005_1057'),
-    ]
+    dependencies = [("tracking", "0004_auto_20171005_1057")]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='absence',
-            name='duration',
-        ),
-    ]
+    operations = [migrations.RemoveField(model_name="absence", name="duration")]
