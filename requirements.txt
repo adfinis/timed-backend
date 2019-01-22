@@ -6,7 +6,7 @@ django-multiselectfield==0.1.8
 djangorestframework==3.9.1
 djangorestframework-jwt==1.11.0
 djangorestframework-jsonapi==2.7.0
-psycopg2-binary==2.7.6.1
+psycopg2-binary==2.7.7
 pytz==2018.9
 pyexcel-webio==0.1.4
 pyexcel-io==0.5.11
