@@ -1,6 +1,10 @@
 version: "3"
 services:
   backend:
+    build:
+      context: .
+      args:
+        REQUIREMENTS: requirements-dev.txt
     environment:
       - PYTHONDONTWRITEBYTECODE=1
     volumes:

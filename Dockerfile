@@ -8,14 +8,17 @@ RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for
 RUN apt-get update && apt-get install -y --no-install-recommends \
   libldap2-dev \
   libsasl2-dev \
-&& rm -rf /var/lib/apt/lists/*
+&& rm -rf /var/lib/apt/lists/* \
+&& mkdir -p /app
+
+ARG REQUIREMENTS=requirements.txt
 
 ENV DJANGO_SETTINGS_MODULE timed.settings
 ENV STATIC_ROOT /var/www/static
 ENV UWSGI_INI /app/uwsgi.ini
 
-COPY requirements.txt /app
-RUN pip install --upgrade -r requirements.txt
+COPY requirements.txt requirements-dev.txt /app/
+RUN pip install --upgrade --no-cache-dir --requirement $REQUIREMENTS --disable-pip-version-check
 
 COPY . /app
 

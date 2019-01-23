@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/adfinis-sygroup/timed-backend.svg?branch=master)](https://travis-ci.org/adfinis-sygroup/timed-backend)
 [![Codecov](https://codecov.io/gh/adfinis-sygroup/timed-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/adfinis-sygroup/timed-backend)
 [![Pyup](https://pyup.io/repos/github/adfinis-sygroup/timed-backend/shield.svg)](https://pyup.io/account/repos/github/adfinis-sygroup/timed-backend/)
-[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/adfinis-sygroup/cookiecutter-django-json-api)
+[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/adfinis-sygroup/timed-backend)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 Timed timetracking software REST API built with Django
@@ -54,18 +54,9 @@ according to type.
 | `DJANGO_ADMINS`                     | List of people who get error notifications            | not set             |
 | `DJANGO_WORK_REPORT_PATH`           | Path of custom work report template                   | not set             |
 
-## Development
+## Contributing
 
-For development setup you can set environment variables `ENV=dev`. This way default values will be used. NOT TO BE USED IN PRODUCTION!
-
-### Testing
-
-Run tests by executing:
-
-```bash
-make install-dev
-make test
-```
+Look at our [contributing guidelines](CONTRIBUTION.md) to start with your first contribution.
 
 ## License
 
