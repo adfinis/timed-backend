@@ -59,6 +59,31 @@ def test_absence_list_supervisor(auth_client):
     assert len(json["data"]) == 2
 
 
+def test_absence_list_supervisee(auth_client):
+    AbsenceFactory.create(user=auth_client.user)
+
+    supervisors = UserFactory.create_batch(2)
+
+    supervisors[0].supervisees.add(auth_client.user)
+    AbsenceFactory.create(user=supervisors[0])
+
+    url = reverse("absence-list")
+
+    response = auth_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()
+    assert len(json["data"]) == 1
+
+    # absences of multiple supervisors shouldn't affect supervisee
+    supervisors[1].supervisees.add(auth_client.user)
+    AbsenceFactory.create(user=supervisors[1])
+
+    response = auth_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    json = response.json()
+    assert len(json["data"]) == 1
+
+
 def test_absence_detail(auth_client):
     absence = AbsenceFactory.create(user=auth_client.user)
 

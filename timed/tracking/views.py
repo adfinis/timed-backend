@@ -271,6 +271,8 @@ class AbsenceViewSet(ModelViewSet):
         queryset = models.Absence.objects.select_related("type", "user")
 
         if not user.is_superuser:
-            queryset = queryset.filter(Q(user=user) | Q(user__supervisors=user))
+            queryset = queryset.filter(
+                Q(user=user) | Q(user__in=user.supervisees.all())
+            )
 
         return queryset
