@@ -75,14 +75,14 @@ class Project(models.Model):
     )
     billing_type = models.ForeignKey(
         BillingType,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         blank=True,
         null=True,
         related_name="projects",
     )
     cost_center = models.ForeignKey(
         CostCenter,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         blank=True,
         null=True,
         related_name="projects",
