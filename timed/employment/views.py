@@ -5,7 +5,6 @@ from django.contrib.auth import get_user_model
 from django.db.models import CharField, DateField, IntegerField, Q, Value
 from django.db.models.functions import Concat
 from django.utils.translation import ugettext_lazy as _
-from rest_condition import C
 from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -37,13 +36,13 @@ class UserViewSet(ModelViewSet):
 
     permission_classes = [
         # only owner, superuser and supervisor may update user
-        (C(IsOwner) | C(IsSuperUser) | C(IsSupervisor)) & C(IsUpdateOnly)
+        (IsOwner | IsSuperUser | IsSupervisor) & IsUpdateOnly
         # only superuser may delete users without reports
-        | C(IsSuperUser) & C(IsDeleteOnly) & C(NoReports)
+        | IsSuperUser & IsDeleteOnly & NoReports
         # only superuser may create users
-        | C(IsSuperUser) & C(IsCreateOnly)
+        | IsSuperUser & IsCreateOnly
         # all authenticated users may read
-        | C(IsAuthenticated) & C(IsReadOnly)
+        | IsAuthenticated & IsReadOnly
     ]
 
     serializer_class = serializers.UserSerializer
@@ -263,9 +262,9 @@ class EmploymentViewSet(ModelViewSet):
     filterset_class = filters.EmploymentFilterSet
     permission_classes = [
         # super user can add/read overtime credits
-        C(IsAuthenticated) & C(IsSuperUser)
+        IsAuthenticated & IsSuperUser
         # user may only read filtered results
-        | C(IsAuthenticated) & C(IsReadOnly)
+        | IsAuthenticated & IsReadOnly
     ]
 
     def get_queryset(self):
@@ -327,9 +326,9 @@ class AbsenceCreditViewSet(ModelViewSet):
     serializer_class = serializers.AbsenceCreditSerializer
     permission_classes = [
         # super user can add/read absence credits
-        C(IsAuthenticated) & C(IsSuperUser)
+        IsAuthenticated & IsSuperUser
         # user may only read filtered results
-        | C(IsAuthenticated) & C(IsReadOnly)
+        | IsAuthenticated & IsReadOnly
     ]
 
     def get_queryset(self):
@@ -358,9 +357,9 @@ class OvertimeCreditViewSet(ModelViewSet):
     serializer_class = serializers.OvertimeCreditSerializer
     permission_classes = [
         # super user can add/read overtime credits
-        C(IsAuthenticated) & C(IsSuperUser)
+        IsAuthenticated & IsSuperUser
         # user may only read filtered results
-        | C(IsAuthenticated) & C(IsReadOnly)
+        | IsAuthenticated & IsReadOnly
     ]
 
     def get_queryset(self):

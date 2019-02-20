@@ -55,7 +55,6 @@ setup(
         "pyexcel-xlsx",
         "pyexcel-ezodf",
         "django-environ",
-        "rest_condition",
         "django-money",
         "python-redmine",
     ),

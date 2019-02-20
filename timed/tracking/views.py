@@ -4,7 +4,6 @@ import django_excel
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy as _
-from rest_condition import C
 from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -12,7 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from timed.permissions import (
     IsAuthenticated,
-    IsDeleteOnly,
+    IsNotDelete,
     IsNotTransferred,
     IsOwner,
     IsReadOnly,
@@ -32,8 +31,8 @@ class ActivityViewSet(ModelViewSet):
     filterset_class = filters.ActivityFilterSet
     permission_classes = [
         # users may not change transferred activities
-        C(IsAuthenticated) & C(IsNotTransferred)
-        | C(IsAuthenticated) & C(IsReadOnly)
+        IsAuthenticated & IsNotTransferred
+        | IsAuthenticated & IsReadOnly
     ]
 
     def get_queryset(self):
@@ -71,14 +70,14 @@ class ReportViewSet(ModelViewSet):
     filterset_class = filters.ReportFilterSet
     permission_classes = [
         # superuser may edit all reports but not delete
-        C(IsSuperUser) & ~C(IsDeleteOnly)
+        IsSuperUser & IsNotDelete
         # reviewer and supervisor may change unverified reports
         # but not delete them
-        | (C(IsReviewer) | C(IsSupervisor)) & C(IsUnverified) & ~C(IsDeleteOnly)
+        | (IsReviewer | IsSupervisor) & IsUnverified & IsNotDelete
         # owner may only change its own unverified reports
-        | C(IsAuthenticated) & C(IsOwner) & C(IsUnverified)
+        | IsAuthenticated & IsOwner & IsUnverified
         # all authenticated users may read all reports
-        | C(IsAuthenticated) & C(IsReadOnly)
+        | IsAuthenticated & IsReadOnly
     ]
     ordering = ("date", "id")
     ordering_fields = (
@@ -258,11 +257,11 @@ class AbsenceViewSet(ModelViewSet):
 
     permission_classes = [
         # superuser can change all but not delete
-        C(IsAuthenticated) & C(IsSuperUser) & ~C(IsDeleteOnly)
+        IsAuthenticated & IsSuperUser & IsNotDelete
         # owner may change all its absences
-        | C(IsAuthenticated) & C(IsOwner)
+        | IsAuthenticated & IsOwner
         # all authenticated users may read filtered result
-        | C(IsAuthenticated) & C(IsReadOnly)
+        | IsAuthenticated & IsReadOnly
     ]
 
     def get_queryset(self):
