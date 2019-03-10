@@ -1,6 +1,6 @@
 -r requirements.txt
 black==18.9b0
-coverage==4.5.2
+coverage==4.5.3
 factory-boy==2.11.1
 flake8==3.7.6
 flake8-blind-except==0.1.1
