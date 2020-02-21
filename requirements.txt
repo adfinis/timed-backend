@@ -1,7 +1,7 @@
 python-dateutil==2.8.1
 django==2.2.10 # pyup: <3.0
 django-auth-ldap==2.1.0
-django-multiselectfield==0.1.11
+django-multiselectfield==0.1.12
 djangorestframework==3.11.0
 djangorestframework-simplejwt==4.4.0
 djangorestframework-jsonapi[django-filter]==3.0.0
