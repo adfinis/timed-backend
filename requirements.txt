@@ -1,6 +1,6 @@
 python-dateutil==2.8.1
 django==2.2.10 # pyup: <3.0
-django-auth-ldap==2.1.0
+django-auth-ldap==2.1.1
 # might remove this once we find out how the jsonapi extras_require work
 django-filter==2.2.0
 django-multiselectfield==0.1.12
