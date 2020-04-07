@@ -16,6 +16,6 @@ pyexcel-ods3==0.5.3
 pyexcel-xlsx==0.5.8
 pyexcel-ezodf==0.3.4
 django-environ==0.4.5
-django-money==1.0
+django-money==1.1
 python-redmine==2.2.1
 uwsgi==2.0.18
