@@ -1,5 +1,5 @@
 python-dateutil==2.8.1
-django==2.2.13
+django==3.0.8
 # might remove this once we find out how the jsonapi extras_require work
 django-filter==2.3.0
 django-multiselectfield==0.1.12
