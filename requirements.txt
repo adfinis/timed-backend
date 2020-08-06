@@ -3,7 +3,7 @@ django==2.2.13
 # might remove this once we find out how the jsonapi extras_require work
 django-filter==2.3.0
 django-multiselectfield==0.1.12
-djangorestframework==3.11.0
+djangorestframework==3.11.1
 djangorestframework-jsonapi[django-filter]==3.1.0
 mozilla-django-oidc==1.2.3
 psycopg2==2.8.5
