@@ -14,12 +14,12 @@ jobs:
       - name: Build the project
         run: |
           docker-compose -f docker-compose.yml up -d --build
+          docker-compose -f docker-compose.yml exec -T backend pip install -r requirements-dev.txt
       - name: Lint the code
         run: |
           docker-compose exec -T backend black --check .
           docker-compose exec -T backend flake8
           docker-compose exec -T backend ./manage.py makemigrations --check --dry-run --no-input
-          docker-compose exec -T backend reuse lint
       - name: Run pytest
         run: docker-compose exec -T backend pytest --no-cov-on-fail --cov --create-db -vv
       - name: Upload coverage to Codecov
