@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron:  '0 0 * * 0'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the project
+        run: |
+          docker-compose -f docker-compose.yml up-d --build
+      - name: Lint the code
+        run: |
+          docker-compose exec -T backend black --check .
+          docker-compose exec -T backend flake8
+          docker-compose exec -T backend ./manage.py makemigrations --check --dry-run --no-input
+          docker-compose exec -T backend reuse lint
+      - name: Run pytest
+        run: docker-compose exec -T backend pytest --no-cov-on-fail --cov --create-db -vv
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1

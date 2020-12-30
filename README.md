@@ -1,6 +1,6 @@
 # Timed Backend
 
-[![Build Status](https://travis-ci.org/adfinis-sygroup/timed-backend.svg?branch=master)](https://travis-ci.org/adfinis-sygroup/timed-backend)
+[![Build Status](https://github.com/adfinis-sygroup/timed-backend/workflows/Test/badge.svg)](https://github.com/adfinis-sygroup/timed-backend/actions?query=workflow%3A%22Test%22)
 [![Codecov](https://codecov.io/gh/adfinis-sygroup/timed-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/adfinis-sygroup/timed-backend)
 [![Pyup](https://pyup.io/repos/github/adfinis-sygroup/timed-backend/shield.svg)](https://pyup.io/account/repos/github/adfinis-sygroup/timed-backend/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/adfinis-sygroup/timed-backend)
