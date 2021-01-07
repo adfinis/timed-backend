@@ -13,8 +13,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build the project
         run: |
-          docker-compose -f docker-compose.yml up -d --build
-          docker-compose -f docker-compose.yml exec -T backend pip install -r requirements-dev.txt
+          docker-compose up -d --build backend
+          docker-compose exec -T backend pip install -r requirements-dev.txt
       - name: Lint the code
         run: |
           docker-compose exec -T backend black --check .
@@ -22,5 +22,3 @@ jobs:
           docker-compose exec -T backend ./manage.py makemigrations --check --dry-run --no-input
       - name: Run pytest
         run: docker-compose exec -T backend pytest --no-cov-on-fail --cov --create-db -vv
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
