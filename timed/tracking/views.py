@@ -4,7 +4,7 @@ import django_excel
 from django.conf import settings
 from django.db.models import Case, CharField, F, Q, Value, When
 from django.http import HttpResponseBadRequest
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response

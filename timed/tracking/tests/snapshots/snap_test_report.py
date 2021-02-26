@@ -15,9 +15,20 @@ Some of your reports have been changed.
 Reviewer: Test User
 
 
-Date: 11/13/1983
+Date: 06/27/1970
+Duration: 2:30 (h:mm)
+
+Comment: some other comment
+
+* Task
+  [old] Dickerson, George and White > Horizontal analyzing product > and Sons
+  [new] Dickerson, George and White > Horizontal analyzing product > Group
+
+---
+
+Date: 11/02/1975
 Duration: 0:15 (h:mm)
-Task: Marsh, Gonzalez and Michael > Intuitive coherent hardware > LLC
+Task: Dickerson, George and White > Horizontal analyzing product > Group
 Comment: some other comment
 
 * Not_Billable
@@ -26,25 +37,14 @@ Comment: some other comment
 
 ---
 
-Date: 07/10/1985
-Duration: 2:30 (h:mm)
-
-Comment: some other comment
-
-* Task
-  [old] Marsh, Gonzalez and Michael > Intuitive coherent hardware > and Sons
-  [new] Marsh, Gonzalez and Michael > Intuitive coherent hardware > LLC
-
----
-
-Date: 06/01/1999
+Date: 05/14/1976
 Duration: 3:15 (h:mm)
 
 
 
 * Task
-  [old] Marsh, Gonzalez and Michael > Intuitive coherent hardware > LLC
-  [new] Marsh, Gonzalez and Michael > Intuitive coherent hardware > LLC
+  [old] Dickerson, George and White > Horizontal analyzing product > Ltd
+  [new] Dickerson, George and White > Horizontal analyzing product > Group
 
 * Comment
   [old] foo
@@ -52,9 +52,9 @@ Duration: 3:15 (h:mm)
 
 ---
 
-Date: 10/26/2002
+Date: 04/20/2005
 Duration: 1:00 (h:mm)
-Task: Marsh, Gonzalez and Michael > Intuitive coherent hardware > LLC
+Task: Dickerson, George and White > Horizontal analyzing product > Group
 
 
 * Comment

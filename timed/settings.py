@@ -27,7 +27,7 @@ def default(default_dev=env.NOTSET, default_prod=env.NOTSET):
 DATABASES = {
     "default": {
         "ENGINE": env.str(
-            "DJANGO_DATABASE_ENGINE", default="django.db.backends.postgresql_psycopg2"
+            "DJANGO_DATABASE_ENGINE", default="django.db.backends.postgresql"
         ),
         "NAME": env.str("DJANGO_DATABASE_NAME", default="timed"),
         "USER": env.str("DJANGO_DATABASE_USER", default="timed"),

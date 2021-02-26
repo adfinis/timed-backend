@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Max, Value
 from django.db.models.functions import Coalesce
 from django.utils.duration import duration_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework_json_api import relations
 from rest_framework_json_api.serializers import (
     ModelSerializer,

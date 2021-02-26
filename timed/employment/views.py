@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import CharField, DateField, IntegerField, Q, Value
 from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response

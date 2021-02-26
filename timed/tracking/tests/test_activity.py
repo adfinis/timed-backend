@@ -88,8 +88,8 @@ def test_activity_delete(auth_client):
 
 def test_activity_list_filter_active(auth_client):
     user = auth_client.user
-    ActivityFactory.create(user=user)
-    activity = ActivityFactory.create(user=user, to_time=None)
+    activity1 = ActivityFactory.create(user=user)
+    activity2 = ActivityFactory.create(user=user, to_time=None, task=activity1.task)
 
     url = reverse("activity-list")
 
@@ -97,7 +97,7 @@ def test_activity_list_filter_active(auth_client):
     assert response.status_code == status.HTTP_200_OK
     json = response.json()
     assert len(json["data"]) == 1
-    assert json["data"][0]["id"] == str(activity.id)
+    assert json["data"][0]["id"] == str(activity2.id)
 
 
 def test_activity_list_filter_day(auth_client):
@@ -235,19 +235,19 @@ def test_activity_active_update(auth_client):
     )
 
 
-def test_activity_set_to_time_none(auth_client):
-    activity = ActivityFactory.create(user=auth_client.user)
-    ActivityFactory.create(user=auth_client.user, to_time=None)
+def test_activity_set_to_time_none(auth_client, activity_factory):
+    activity1 = activity_factory(user=auth_client.user, to_time=None)
+    activity2 = activity_factory(user=auth_client.user, task=activity1.task)
 
     data = {
         "data": {
             "type": "activities",
-            "id": activity.id,
+            "id": activity2.id,
             "attributes": {"to-time": None},
         }
     }
 
-    url = reverse("activity-detail", args=[activity.id])
+    url = reverse("activity-detail", args=[activity2.id])
 
     res = auth_client.patch(url, data)
     assert res.status_code == status.HTTP_400_BAD_REQUEST

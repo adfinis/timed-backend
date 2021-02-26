@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.db.models import BooleanField, Case, When
 from django.utils.duration import duration_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework_json_api import relations, serializers
 from rest_framework_json_api.relations import ResourceRelatedField
 from rest_framework_json_api.serializers import (
@@ -170,9 +170,9 @@ class ReportBulkSerializer(Serializer):
         queryset=Task.objects.all(), allow_null=True, required=False
     )
     comment = serializers.CharField(allow_null=True, required=False)
-    review = serializers.NullBooleanField(required=False)
-    not_billable = serializers.NullBooleanField(required=False)
-    verified = serializers.NullBooleanField(required=False)
+    review = serializers.BooleanField(required=False, allow_null=True)
+    not_billable = serializers.BooleanField(required=False, allow_null=True)
+    verified = serializers.BooleanField(required=False, allow_null=True)
 
     class Meta:
         resource_name = "report-bulks"

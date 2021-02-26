@@ -1,14 +1,14 @@
 """Root URL mapping."""
 
-from django.conf.urls import include, url
 from django.contrib import admin
+from django.urls import include, re_path
 
 urlpatterns = [
-    url(r"^admin/", admin.site.urls),
-    url(r"^api/v1/", include("timed.employment.urls")),
-    url(r"^api/v1/", include("timed.projects.urls")),
-    url(r"^api/v1/", include("timed.tracking.urls")),
-    url(r"^api/v1/", include("timed.reports.urls")),
-    url(r"^api/v1/", include("timed.subscription.urls")),
-    url(r"^oidc/", include("mozilla_django_oidc.urls")),
+    re_path(r"^admin/", admin.site.urls),
+    re_path(r"^api/v1/", include("timed.employment.urls")),
+    re_path(r"^api/v1/", include("timed.projects.urls")),
+    re_path(r"^api/v1/", include("timed.tracking.urls")),
+    re_path(r"^api/v1/", include("timed.reports.urls")),
+    re_path(r"^api/v1/", include("timed.subscription.urls")),
+    re_path(r"^oidc/", include("mozilla_django_oidc.urls")),
 ]

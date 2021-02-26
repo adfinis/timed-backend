@@ -1,5 +1,5 @@
 """Basic model and field classes to be used in all apps."""
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from multiselectfield import MultiSelectField
 
 
