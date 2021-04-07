@@ -16,7 +16,38 @@ from timed.forms import DurationInHoursField
 admin.site.disable_action("delete_selected")
 
 
+class SupervisorForm(forms.ModelForm):
+    """Custom form for the supervisor admin."""
+
+    # Change the label of the supervisor through table attribute to_user
+    to_user = forms.ModelChoiceField(
+        queryset=models.User.objects.all(), label=_("supervised by")
+    )
+
+    class Meta:
+        """Meta information for the supervisor form."""
+
+        fields = "__all__"
+        model = models.User.supervisors.through
+
+
+class SuperviseeForm(forms.ModelForm):
+    """Custom form for the supervisee admin."""
+
+    # Change the label of the supervisor through table attribute from_user
+    from_user = forms.ModelChoiceField(
+        queryset=models.User.objects.all(), label=_("supervising")
+    )
+
+    class Meta:
+        """Meta information for the supervisee form."""
+
+        fields = "__all__"
+        model = models.User.supervisors.through
+
+
 class SupervisorInline(admin.TabularInline):
+    form = SupervisorForm
     model = models.User.supervisors.through
     extra = 0
     fk_name = "from_user"
@@ -25,11 +56,12 @@ class SupervisorInline(admin.TabularInline):
 
 
 class SuperviseeInline(admin.TabularInline):
+    form = SuperviseeForm
     model = models.User.supervisors.through
     extra = 0
     fk_name = "to_user"
-    verbose_name = _("Supervisee")
-    verbose_name_plural = _("Supervisees")
+    verbose_name = _("Employee")
+    verbose_name_plural = _("Employees")
 
 
 class EmploymentForm(forms.ModelForm):

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-14 17:04+0200\n"
+"POT-Creation-Date: 2021-04-08 14:55+0200\n"
 "PO-Revision-Date: 2017-03-02 13:59+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,55 +17,63 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.11\n"
 
-#: timed/employment/admin.py:23
+#: timed/employment/admin.py:22
+msgid "supervised by"
+msgstr ""
+
+#: timed/employment/admin.py:34
+msgid "supervising"
+msgstr ""
+
+#: timed/employment/admin.py:47
 msgid "Supervisor"
 msgstr ""
 
-#: timed/employment/admin.py:24
+#: timed/employment/admin.py:48
 msgid "Supervisors"
 msgstr ""
 
-#: timed/employment/admin.py:31
-msgid "Supervisee"
+#: timed/employment/admin.py:56
+msgid "Employee"
 msgstr ""
 
-#: timed/employment/admin.py:32
-msgid "Supervisees"
+#: timed/employment/admin.py:57
+msgid "Employees"
 msgstr ""
 
-#: timed/employment/admin.py:38
+#: timed/employment/admin.py:63
 msgid "Worktime per day in hours"
 msgstr ""
 
-#: timed/employment/admin.py:58 timed/employment/serializers.py:248
+#: timed/employment/admin.py:83 timed/employment/serializers.py:248
 msgid "The end date must be after the start date"
 msgstr "The end date must be after the start date"
 
-#: timed/employment/admin.py:68 timed/employment/serializers.py:262
+#: timed/employment/admin.py:93 timed/employment/serializers.py:262
 msgid "A user can't have multiple employments at the same time"
 msgstr "A user can't have multiple employments at the same time"
 
-#: timed/employment/admin.py:88 timed/subscription/admin.py:14
+#: timed/employment/admin.py:113 timed/subscription/admin.py:14
 msgid "Duration in hours"
 msgstr ""
 
-#: timed/employment/admin.py:124
+#: timed/employment/admin.py:149
 msgid "Extra fields"
 msgstr ""
 
-#: timed/employment/admin.py:129
+#: timed/employment/admin.py:154
 msgid "Disable selected users"
 msgstr ""
 
-#: timed/employment/admin.py:134
+#: timed/employment/admin.py:159
 msgid "Enable selected users"
 msgstr ""
 
-#: timed/employment/admin.py:139
+#: timed/employment/admin.py:164
 msgid "Disable staff status of selected users"
 msgstr ""
 
-#: timed/employment/admin.py:144
+#: timed/employment/admin.py:169
 msgid "Enable staff status of selected users"
 msgstr ""
 
@@ -73,24 +81,24 @@ msgstr ""
 msgid "last name"
 msgstr ""
 
-#: timed/employment/views.py:87 timed/employment/views.py:99
+#: timed/employment/views.py:96 timed/employment/views.py:108
 #, python-format
 msgid "Transfer %(year)s"
 msgstr ""
 
-#: timed/employment/views.py:138 timed/employment/views.py:197
+#: timed/employment/views.py:147 timed/employment/views.py:206
 msgid "Date is invalid"
 msgstr ""
 
-#: timed/employment/views.py:141 timed/employment/views.py:199
+#: timed/employment/views.py:150 timed/employment/views.py:208
 msgid "Date filter needs to be set"
 msgstr ""
 
-#: timed/employment/views.py:225
+#: timed/employment/views.py:234
 msgid "User filter needs to be set"
 msgstr ""
 
-#: timed/employment/views.py:233
+#: timed/employment/views.py:242
 msgid "User is invalid"
 msgstr ""
 
@@ -142,6 +150,37 @@ msgstr ""
 msgid "password"
 msgstr ""
 
+#: timed/templates/login.html:9
+msgid "Please correct the error below."
+msgstr ""
+
+#: timed/templates/login.html:9
+msgid "Please correct the errors below."
+msgstr ""
+
+#: timed/templates/login.html:25
+#, python-format
+msgid ""
+"You are authenticated as %(username)s, but are not authorized to access this "
+"page. Would you like to login to a different account?"
+msgstr ""
+
+#: timed/templates/login.html:46
+msgid "Forgotten your password or username?"
+msgstr ""
+
+#: timed/templates/login.html:50
+msgid "Log in"
+msgstr ""
+
+#: timed/templates/login.html:57
+msgid "Current user:"
+msgstr ""
+
+#: timed/templates/login.html:63
+msgid "Login with SSO"
+msgstr ""
+
 #: timed/tracking/serializers.py:47
 #, fuzzy
 #| msgid "A user can only have one active employment"
@@ -169,39 +208,43 @@ msgstr ""
 msgid "Report can't both be set as `review` and `verified`."
 msgstr ""
 
-#: timed/tracking/serializers.py:294
+#: timed/tracking/serializers.py:151
+msgid "Only reviewers may bill reports."
+msgstr ""
+
+#: timed/tracking/serializers.py:307
 msgid "Only owner may change date"
 msgstr ""
 
-#: timed/tracking/serializers.py:304
+#: timed/tracking/serializers.py:317
 msgid "Only owner may change absence type"
 msgstr ""
 
-#: timed/tracking/serializers.py:322
+#: timed/tracking/serializers.py:335
 msgid "You can't create an absence on an unemployed day."
 msgstr ""
 
-#: timed/tracking/serializers.py:328
+#: timed/tracking/serializers.py:341
 msgid "You can't create an absence on a public holiday"
 msgstr ""
 
-#: timed/tracking/serializers.py:332
+#: timed/tracking/serializers.py:345
 msgid "You can't create an absence on a weekend"
 msgstr ""
 
-#: timed/tracking/views.py:176
+#: timed/tracking/views.py:177
 msgid "Editable filter needs to be set for bulk update"
 msgstr ""
 
-#: timed/tracking/views.py:185
+#: timed/tracking/views.py:186 timed/tracking/views.py:206
 msgid "Reviewer filter needs to be set to verifying user"
 msgstr ""
 
-#: timed/tracking/views.py:196
+#: timed/tracking/views.py:197
 msgid "Reports can't both be set as `review` and `verified`."
 msgstr ""
 
-#: timed/tracking/views.py:244
+#: timed/tracking/views.py:257
 #, python-brace-format
 msgid "Your request exceeds the maximum allowed entries ({0} > {1})"
 msgstr ""
