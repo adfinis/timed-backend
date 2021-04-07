@@ -12,7 +12,7 @@ flake8-string-format==0.3.0
 ipdb==0.13.7
 isort==5.6.4
 pdbpp==0.10.2
-pytest==6.2.2
+pytest==6.2.3
 pytest-cov==2.11.1
 pytest-django==4.1.0
 pytest-env==0.6.2
