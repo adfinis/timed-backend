@@ -75,6 +75,7 @@ class ProjectSerializer(ModelSerializer):
             "billing_type",
             "cost_center",
             "reviewers",
+            "customer_visible",
         ]
 
 
