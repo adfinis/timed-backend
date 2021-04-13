@@ -1,4 +1,4 @@
-.PHONY: help start test shell loaddata
+.PHONY: help start stop test shell flush loaddata
 .DEFAULT_GOAL := help
 
 help:
@@ -6,13 +6,18 @@ help:
 
 start: ## Start the development server
 	@docker-compose up -d --build
-	@make loaddata
+
+stop: ## Stop the development server
+	@docker-compose stop
 
 test: ## Test the project
-	@docker-compose exec backend sh -c "black --check . && flake8 && pytest --no-cov-on-fail --cov --create-db"
+	@docker-compose exec backend sh -c "black --check . && flake8 && pytest --no-cov-on-fail --cov"
 
 shell: ## Shell into the backend
 	@docker-compose exec backend bash
 
-loaddata: ## Loads test data into the database
+flush: ## Flush database contents
+	@docker-compose exec backend ./manage.py flush --no-input
+
+loaddata: flush ## Loads test data into the database
 	@docker-compose exec backend ./manage.py loaddata timed/fixtures/test_data.json

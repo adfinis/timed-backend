@@ -26,8 +26,7 @@ RUN pip install --upgrade --no-cache-dir --requirement $REQUIREMENTS --disable-p
 
 COPY . /app
 
-RUN mkdir -p /var/www/static \
-  && ENV=docker ./manage.py collectstatic --noinput
+RUN mkdir -p /var/www/static
 
 EXPOSE 80
 CMD ./cmd.sh

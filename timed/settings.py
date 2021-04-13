@@ -27,7 +27,7 @@ def default(default_dev=env.NOTSET, default_prod=env.NOTSET):
 DATABASES = {
     "default": {
         "ENGINE": env.str(
-            "DJANGO_DATABASE_ENGINE", default="django.db.backends.postgresql"
+            "DJANGO_DATABASE_ENGINE", default="django_prometheus.db.backends.postgresql"
         ),
         "NAME": env.str("DJANGO_DATABASE_NAME", default="timed"),
         "USER": env.str("DJANGO_DATABASE_USER", default="timed"),
@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "django_filters",
     "djmoney",
     "mozilla_django_oidc",
+    "django_prometheus",
     "timed.employment",
     "timed.projects",
     "timed.tracking",
@@ -70,6 +71,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -77,6 +79,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "timed.urls"
@@ -148,7 +151,8 @@ STATIC_ROOT = env.str("STATIC_ROOT", None)
 CACHES = {
     "default": {
         "BACKEND": env.str(
-            "CACHE_BACKEND", default="django.core.cache.backends.locmem.LocMemCache"
+            "CACHE_BACKEND",
+            default="django_prometheus.cache.backends.locmem.LocMemCache",
         ),
         "LOCATION": env.str("CACHE_LOCATION", ""),
     }

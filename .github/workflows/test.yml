@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build the project
         run: |
+          echo "ENV=dev" > .env
           docker-compose up -d --build backend
           docker-compose exec -T backend pip install -r requirements-dev.txt
       - name: Lint the code

@@ -11,4 +11,5 @@ urlpatterns = [
     re_path(r"^api/v1/", include("timed.reports.urls")),
     re_path(r"^api/v1/", include("timed.subscription.urls")),
     re_path(r"^oidc/", include("mozilla_django_oidc.urls")),
+    re_path(r"^prometheus/", include("django_prometheus.urls")),
 ]

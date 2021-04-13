@@ -29,7 +29,6 @@ services:
     environment:
       - DJANGO_DATABASE_HOST=db
       - DJANGO_DATABASE_PORT=5432
-      - ENV=docker
       - STATIC_ROOT=/var/www/static
     networks:
       - timed.local
