@@ -12,6 +12,7 @@ pytz==2021.1
 pyexcel-webio==0.1.4
 pyexcel-io==0.6.4
 django-excel==0.0.10
+django-nested-inline==0.4.2
 pyexcel-ods3==0.6.0
 pyexcel-xlsx==0.6.0
 pyexcel-ezodf==0.3.4

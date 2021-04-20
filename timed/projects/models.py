@@ -18,6 +18,11 @@ class Customer(models.Model):
     website = models.URLField(blank=True)
     comment = models.TextField(blank=True)
     archived = models.BooleanField(default=False)
+    assignees = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through="CustomerAssignee",
+        related_name="assigned_to_customers",
+    )
 
     def __str__(self):
         """Represent the model as a string.
@@ -97,6 +102,11 @@ class Project(models.Model):
     amount_invoiced = MoneyField(
         max_digits=10, decimal_places=2, default_currency="CHF", blank=True, null=True
     )
+    assignees = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through="ProjectAssignee",
+        related_name="assigned_to_projects",
+    )
 
     def __str__(self):
         """Represent the model as a string.
@@ -137,6 +147,11 @@ class Task(models.Model):
     amount_invoiced = MoneyField(
         max_digits=10, decimal_places=2, default_currency="CHF", blank=True, null=True
     )
+    assignees = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through="TaskAssignee",
+        related_name="assigned_to_tasks",
+    )
 
     def __str__(self):
         """Represent the model as a string.
@@ -171,3 +186,60 @@ class TaskTemplate(models.Model):
 
     class Meta:
         ordering = ["name"]
+
+
+class CustomerAssignee(models.Model):
+    """Customer assignee model.
+
+    Customer assignee is an employee that is assigned to a specific customer.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="customer_assignees",
+    )
+    customer = models.ForeignKey(
+        "projects.Customer", on_delete=models.CASCADE, related_name="customer_assignees"
+    )
+    is_resource = models.BooleanField(default=False)
+    is_reviewer = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
+
+
+class ProjectAssignee(models.Model):
+    """Project assignee model.
+
+    Project assignee is an employee that is assigned to a specific project.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="project_assignees",
+    )
+    project = models.ForeignKey(
+        "projects.Project", on_delete=models.CASCADE, related_name="project_assignees"
+    )
+    is_resource = models.BooleanField(default=False)
+    is_reviewer = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
+
+
+class TaskAssignee(models.Model):
+    """Task assignee model.
+
+    Task assignee is an employee that is assigned to a specific task.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="task_assignees",
+    )
+    task = models.ForeignKey(
+        "projects.Task", on_delete=models.CASCADE, related_name="task_assignees"
+    )
+    is_resource = models.BooleanField(default=False)
+    is_reviewer = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
