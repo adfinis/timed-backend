@@ -21,7 +21,15 @@ class CustomerSerializer(ModelSerializer):
         """Meta information for the customer serializer."""
 
         model = models.Customer
-        fields = ["name", "reference", "email", "website", "comment", "archived", "assignees",]
+        fields = [
+            "name",
+            "reference",
+            "email",
+            "website",
+            "comment",
+            "archived",
+            "assignees",
+        ]
 
 
 class BillingTypeSerializer(ModelSerializer):

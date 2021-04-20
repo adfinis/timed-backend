@@ -21,6 +21,7 @@ class ProjectAssigneeInline(admin.TabularInline):
     model = models.ProjectAssignee
     extra = 0
 
+
 class TaskAssigneeInline(NestedStackedInline):
     model = models.TaskAssignee
     extra = 1
