@@ -98,13 +98,6 @@ class TaskInline(NestedStackedInline):
         return False
 
 
-class ReviewerInline(admin.TabularInline):
-    model = models.Project.reviewers.through
-    extra = 0
-    verbose_name = _("Reviewer")
-    verbose_name_plural = _("Reviewers")
-
-
 class ProjectForm(forms.ModelForm):
     model = models.Project
     estimated_time = DurationInHoursField(
@@ -121,7 +114,7 @@ class ProjectAdmin(NestedModelAdmin):
     list_filter = ["customer"]
     search_fields = ["name", "customer__name"]
 
-    inlines = [TaskInline, ReviewerInline, RedmineProjectInline, ProjectAssigneeInline]
+    inlines = [TaskInline, RedmineProjectInline, ProjectAssigneeInline]
     exclude = ("reviewers",)
 
     def has_delete_permission(self, request, obj=None):
