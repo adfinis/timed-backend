@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
+
 from timed.projects.models import Project, ProjectAssignee
-from timed.employment.models import User
 
 
 class Command(BaseCommand):

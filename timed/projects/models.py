@@ -2,9 +2,9 @@
 
 from django.conf import settings
 from django.db import models
-from djmoney.models.fields import MoneyField
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
+from djmoney.models.fields import MoneyField
 
 
 class Customer(models.Model):
@@ -254,7 +254,7 @@ def create_or_update_project_assignee(sender, instance, created, **kwargs):
     If the created project assignee should be a reviewer, create a corresponding reviewer object.
     If a project assignee's is_reviewer attribute is updated, either create a new reviewer object or delete the corresponding one.
     """
-    if instance.is_reviewer == True:
+    if instance.is_reviewer:
         if not Project.reviewers.through.objects.filter(
             user=instance.user, project=instance.project
         ):

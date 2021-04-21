@@ -4,8 +4,8 @@ from django import forms
 from django.contrib import admin
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import gettext_lazy as _
-
 from nested_inline.admin import NestedModelAdmin, NestedStackedInline
+
 from timed.forms import DurationInHoursField
 from timed.projects import models
 from timed.redmine.admin import RedmineProjectInline
