@@ -29,7 +29,7 @@ def test_project_list_include(auth_client, django_assert_num_queries, project):
 
     url = reverse("project-list")
 
-    with django_assert_num_queries(7):
+    with django_assert_num_queries(10):
         response = auth_client.get(
             url,
             data={"include": ",".join(ProjectSerializer.included_serializers.keys())},

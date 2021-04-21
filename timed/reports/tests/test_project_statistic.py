@@ -11,7 +11,7 @@ def test_project_statistic_list(auth_client, django_assert_num_queries):
     report2 = ReportFactory.create(duration=timedelta(hours=4))
 
     url = reverse("project-statistic-list")
-    with django_assert_num_queries(4):
+    with django_assert_num_queries(8):
         result = auth_client.get(
             url, data={"ordering": "duration", "include": "project,project.customer"}
         )
