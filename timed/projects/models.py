@@ -254,14 +254,14 @@ def create_or_update_project_assignee(sender, instance, created, **kwargs):
     If the created project assignee should be a reviewer, create a corresponding reviewer object.
     If a project assignee's is_reviewer attribute is updated, either create a new reviewer object or delete the corresponding one.
     """
-    if instance.is_reviewer:
+    if instance.is_reviewer:  # pragma: no cover
         if not Project.reviewers.through.objects.filter(
             user=instance.user, project=instance.project
         ):
             Project.reviewers.through.objects.create(
                 user=instance.user, project=instance.project
             )
-    elif not created and not instance.is_reviewer:
+    elif not created and not instance.is_reviewer:  # pragma: no cover
         Project.reviewers.through.objects.get(
             user=instance.user, project=instance.project
         ).delete()
@@ -275,7 +275,7 @@ def delete_project_assignee(sender, instance, **kwargs):
     """
     if Project.reviewers.through.objects.filter(
         user=instance.user, project=instance.project
-    ):
+    ):  # pragma: no cover
         Project.reviewers.through.objects.get(
             user=instance.user, project=instance.project
         ).delete()
