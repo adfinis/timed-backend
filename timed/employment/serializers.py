@@ -273,6 +273,7 @@ class EmploymentSerializer(ModelSerializer):
             "worktime_per_day",
             "start_date",
             "end_date",
+            "is_external",
         ]
 
 
