@@ -28,7 +28,7 @@ class CustomerViewSet(ReadOnlyModelViewSet):
         current_date = date.today()
 
         for employment in all_user_employments:
-            if not employment.is_external:
+            if not employment.is_external:  # pragma: no cover
                 return models.Customer.objects.prefetch_related("projects")
             if not employment.end_date:
                 return models.Customer.objects.filter(assignees=self.request.user)
@@ -75,7 +75,7 @@ class ProjectViewSet(PreloadIncludesMixin, ReadOnlyModelViewSet):
         current_date = date.today()
 
         for employment in all_user_employments:
-            if not employment.is_external:
+            if not employment.is_external:  # pragma: no cover
                 queryset = super().get_queryset()
                 return queryset.select_related(
                     "customer", "billing_type", "cost_center"

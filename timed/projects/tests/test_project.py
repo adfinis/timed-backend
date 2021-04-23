@@ -1,10 +1,10 @@
 """Tests for the projects endpoint."""
-from datetime import timedelta
+from datetime import date, timedelta
 
 from django.urls import reverse
 from rest_framework import status
 
-from timed.employment.factories import UserFactory
+from timed.employment.factories import EmploymentFactory, UserFactory
 from timed.projects.factories import ProjectFactory
 from timed.projects.serializers import ProjectSerializer
 
@@ -29,7 +29,7 @@ def test_project_list_include(auth_client, django_assert_num_queries, project):
 
     url = reverse("project-list")
 
-    with django_assert_num_queries(10):
+    with django_assert_num_queries(16):
         response = auth_client.get(
             url,
             data={"include": ",".join(ProjectSerializer.included_serializers.keys())},
@@ -102,3 +102,35 @@ def test_project_delete(auth_client, project):
 
     response = auth_client.delete(url)
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+
+
+def test_project_list_external_user(auth_client):
+    EmploymentFactory.create(user=auth_client.user, is_external=True)
+    project = ProjectFactory.create()
+    project.assignees.add(auth_client.user)
+    ProjectFactory.create_batch(4)
+
+    url = reverse("project-list")
+
+    response = auth_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+    json = response.json()
+    assert len(json["data"]) == 1
+
+
+def test_project_list_temporary_external_user(auth_client):
+    EmploymentFactory.create(
+        user=auth_client.user, is_external=True, end_date=date.today()
+    )
+    project = ProjectFactory.create()
+    project.assignees.add(auth_client.user)
+    ProjectFactory.create_batch(4)
+
+    url = reverse("project-list")
+
+    response = auth_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+    json = response.json()
+    assert len(json["data"]) == 1
