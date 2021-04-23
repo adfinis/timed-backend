@@ -1,5 +1,7 @@
 """Viewsets for the projects app."""
 
+from datetime import date
+
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_json_api.views import PreloadIncludesMixin
 
@@ -17,10 +19,24 @@ class CustomerViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         """Prefetch related data.
 
+        If an employee is external, get only assigned customers.
+
         :return: The customers
         :rtype:  QuerySet
         """
-        return models.Customer.objects.prefetch_related("projects")
+        all_user_employments = self.request.user.employments.all()
+        current_date = date.today()
+
+        for employment in all_user_employments:
+            if not employment.is_external:
+                return models.Customer.objects.prefetch_related("projects")
+            if not employment.end_date:
+                return models.Customer.objects.filter(assignees=self.request.user)
+            elif (
+                employment.start_date <= current_date
+                and employment.end_date >= current_date
+            ):
+                return models.Customer.objects.filter(assignees=self.request.user)
 
 
 class BillingTypeViewSet(ReadOnlyModelViewSet):
@@ -54,8 +70,25 @@ class ProjectViewSet(PreloadIncludesMixin, ReadOnlyModelViewSet):
     }
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.select_related("customer", "billing_type", "cost_center")
+        """Get only assigned projects, if an employee is external."""
+        all_user_employments = self.request.user.employments.all()
+        current_date = date.today()
+
+        for employment in all_user_employments:
+            if not employment.is_external:
+                queryset = super().get_queryset()
+                return queryset.select_related(
+                    "customer", "billing_type", "cost_center"
+                )
+            if not employment.end_date:
+                queryset = models.Project.objects.filter(assignees=self.request.user)
+                return queryset.select_related("customer")
+            elif (
+                employment.start_date <= current_date
+                and employment.end_date >= current_date
+            ):
+                queryset = models.Project.objects.filter(assignees=self.request.user)
+                return queryset.select_related("customer")
 
 
 class TaskViewSet(ModelViewSet):
