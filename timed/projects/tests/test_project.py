@@ -1,5 +1,5 @@
 """Tests for the projects endpoint."""
-from datetime import date, timedelta
+from datetime import timedelta
 
 from django.urls import reverse
 from rest_framework import status
@@ -106,23 +106,6 @@ def test_project_delete(auth_client, project):
 
 def test_project_list_external_user(auth_client):
     EmploymentFactory.create(user=auth_client.user, is_external=True)
-    project = ProjectFactory.create()
-    project.assignees.add(auth_client.user)
-    ProjectFactory.create_batch(4)
-
-    url = reverse("project-list")
-
-    response = auth_client.get(url)
-    assert response.status_code == status.HTTP_200_OK
-
-    json = response.json()
-    assert len(json["data"]) == 1
-
-
-def test_project_list_temporary_external_user(auth_client):
-    EmploymentFactory.create(
-        user=auth_client.user, is_external=True, end_date=date.today()
-    )
     project = ProjectFactory.create()
     project.assignees.add(auth_client.user)
     ProjectFactory.create_batch(4)

@@ -30,9 +30,7 @@ class CustomerViewSet(ReadOnlyModelViewSet):
         for employment in all_user_employments:
             if not employment.is_external:  # pragma: no cover
                 return models.Customer.objects.prefetch_related("projects")
-            elif not employment.end_date:
-                return models.Customer.objects.filter(assignees=self.request.user)
-            elif (
+            elif not employment.end_date or (
                 employment.start_date <= current_date
                 and employment.end_date >= current_date
             ):
@@ -80,10 +78,7 @@ class ProjectViewSet(PreloadIncludesMixin, ReadOnlyModelViewSet):
                 return queryset.select_related(
                     "customer", "billing_type", "cost_center"
                 )
-            elif not employment.end_date:
-                queryset = models.Project.objects.filter(assignees=self.request.user)
-                return queryset.select_related("customer")
-            elif (
+            elif not employment.end_date or (
                 employment.start_date <= current_date
                 and employment.end_date >= current_date
             ):
