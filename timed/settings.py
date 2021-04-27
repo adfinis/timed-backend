@@ -63,11 +63,8 @@ INSTALLED_APPS = [
     "django_filters",
     "djmoney",
     "mozilla_django_oidc",
-<<<<<<< HEAD
     "django_prometheus",
-=======
     "nested_inline",
->>>>>>> feat: assign users to customers, projects and tasks
     "timed.employment",
     "timed.projects",
     "timed.tracking",

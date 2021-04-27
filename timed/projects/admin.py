@@ -17,7 +17,7 @@ class CustomerAssigneeInline(admin.TabularInline):
     extra = 0
 
 
-class ProjectAssigneeInline(admin.TabularInline):
+class ProjectAssigneeInline(NestedStackedInline):
     model = models.ProjectAssignee
     extra = 0
 
