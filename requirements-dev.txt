@@ -20,5 +20,5 @@ pytest-factoryboy==2.1.0
 pytest-freezegun==0.4.2
 pytest-mock==3.6.0
 pytest-randomly==3.7.0
-requests-mock==1.9.0
+requests-mock==1.9.1
 snapshottest==0.6.0
