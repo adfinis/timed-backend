@@ -1,0 +1,56 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "00:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: djangorestframework
+    versions:
+    - 3.11.2
+    - 3.12.2
+  - dependency-name: django
+    versions:
+    - 3.1.5
+    - 3.1.6
+    - 3.1.7
+  - dependency-name: django-money
+    versions:
+    - "1.3"
+    - 1.3.1
+  - dependency-name: pytz
+    versions:
+    - "2020.5"
+    - "2021.1"
+  - dependency-name: pytest
+    versions:
+    - 6.2.2
+  - dependency-name: pytest-mock
+    versions:
+    - 3.5.1
+  - dependency-name: pytest-factoryboy
+    versions:
+    - 2.1.0
+  - dependency-name: factory-boy
+    versions:
+    - 3.2.0
+  - dependency-name: pytest-randomly
+    versions:
+    - 3.5.0
+  - dependency-name: djangorestframework-jsonapi[django-filter]
+    versions:
+    - 4.0.0
+  commit-message:
+    prefix: chore
+    include: scope
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "00:00"
+  open-pull-requests-limit: 10
+  commit-message:
+    prefix: chore
+    include: scope
