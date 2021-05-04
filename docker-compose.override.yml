@@ -25,6 +25,36 @@ services:
     networks:
       - timed.local
 
+  keycloak:
+    image: jboss/keycloak:10.0.1
+    volumes:
+      - ./dev-config/keycloak-config.json:/etc/keycloak/keycloak-config.json:ro
+    depends_on:
+      - db
+    environment:
+      - DB_VENDOR=postgres
+      - DB_ADDR=db
+      - DB_USER=timed
+      - DB_DATABASE=timed
+      - DB_PASSWORD=timed
+      - PROXY_ADDRESS_FORWARDING=true
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+    command: ["-Dkeycloak.migration.action=import", "-Dkeycloak.migration.provider=singleFile", "-Dkeycloak.migration.file=/etc/keycloak/keycloak-config.json", "-b", "0.0.0.0"]
+    networks:
+      - timed.local
+
+  proxy:
+    image: nginx:1.17.10-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./dev-config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      timed.local:
+        aliases:
+          - timed.local
+
   mailhog:
     image: mailhog/mailhog
     ports:
