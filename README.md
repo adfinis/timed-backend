@@ -125,6 +125,9 @@ according to type.
 | `GUNICORN_CMD_ARGS`                          | [Additional args for gunicorn](https://docs.gunicorn.org/en/latest/configure.html)       | not set                                                      |
 | `STATIC_ROOT`                                | Path to the static files. In prod, you may want to mount a docker volume here, so it can be served by nginx | `/app/static`                             |
 | `STATIC_URL`                                 | URL path to the static files on the web server. Configure nginx to point this to `$STATIC_ROOT`   | `/static`                                                    |
+| `DJANGO_SENTRY_DSN`                          | Sentry DSN for error reporting                                                           | not set, set to enable Sentry integration                    |
+| `DJANGO_SENTRY_TRACES_SAMPLE_RATE`           | Sentry trace sample rate, Set 1.0 to capture 100% of transactions                        | 1.0                                                          |
+| `DJANGO_SENTRY_SEND_DEFAULT_PII`             | Associate users to errors in Sentry                                                      | True                                                         |
 
 
 ## Contributing
