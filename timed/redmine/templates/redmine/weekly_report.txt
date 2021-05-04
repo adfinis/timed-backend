@@ -9,5 +9,5 @@ Estimated hours: {{estimated_hours}}
 
 Reported in last {{last_days}} days:
 {% for report in reports %}
-{{report.date}} {{report.duration|float_hours|floatformat:2}} {{report.user.get_full_name|ljust:20}} {{report.task.name|ljust:"20"}} {{report.comment}} Not Billable: {{report.not_billable|ljust:"10"}} Needs Review: {{report.review}}{% endfor %}
+{{report.date}} {{report.duration|float_hours|floatformat:2}} {{report.user.get_full_name|ljust:20}} {{report.task.name|ljust:"20"}} {{report.comment|ljust:"100"}}{% if report.not_billable %} "Not Billable"{% endif %}{% if report.review %} "Needs Review"{% endif %}{% endfor %}
 ```

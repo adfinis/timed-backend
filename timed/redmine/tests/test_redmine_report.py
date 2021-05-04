@@ -1,12 +1,13 @@
+import pytest
 from django.core.management import call_command
 from redminelib.exceptions import ResourceNotFoundError
 
-from timed.projects.factories import ProjectFactory, TaskFactory
 from timed.redmine.models import RedmineProject
-from timed.tracking.factories import ReportFactory
 
 
-def test_redmine_report(db, freezer, mocker):
+@pytest.mark.parametrize("not_billable", [False, True])
+@pytest.mark.parametrize("review", [False, True])
+def test_redmine_report(db, freezer, mocker, report_factory, not_billable, review):
     """
     Test redmine report.
 
@@ -20,12 +21,15 @@ def test_redmine_report(db, freezer, mocker):
     redmine_class.return_value = redmine_instance
 
     freezer.move_to("2017-07-28")
-    report = ReportFactory.create(comment="ADSY <=> Other")
+    report = report_factory(
+        not_billable=not_billable,
+        review=review,
+    )
     report_hours = report.duration.total_seconds() / 3600
     estimated_hours = report.task.project.estimated_time.total_seconds() / 3600
     RedmineProject.objects.create(project=report.task.project, issue_id=1000)
     # report not attached to redmine
-    ReportFactory.create()
+    other = report_factory()
 
     freezer.move_to("2017-07-31")
     call_command("redmine_report", last_days=7)
@@ -35,15 +39,15 @@ def test_redmine_report(db, freezer, mocker):
     assert "Total hours: {0}".format(report_hours) in issue.notes
     assert "Estimated hours: {0}".format(estimated_hours) in issue.notes
     assert "Hours in last 7 days: {0}\n".format(report_hours) in issue.notes
-    assert "{0}".format(report.comment) in issue.notes
-    assert "{0}\n".format(report.review) in issue.notes
-    assert (
-        "{0}\n\n".format(report.comment) not in issue.notes
-    ), "Only one new line after report line"
+    assert report.comment in issue.notes
+    assert "Not Billable" in issue.notes or not not_billable
+    assert "Needs Review" in issue.notes or not review
+
+    assert other.comment not in issue.notes, "Only one new line after report line"
     issue.save.assert_called_once_with()
 
 
-def test_redmine_report_no_estimated_time(db, freezer, mocker):
+def test_redmine_report_no_estimated_time(db, freezer, mocker, task, report_factory):
     redmine_instance = mocker.MagicMock()
     issue = mocker.MagicMock()
     redmine_instance.issue.get.return_value = issue
@@ -51,9 +55,9 @@ def test_redmine_report_no_estimated_time(db, freezer, mocker):
     redmine_class.return_value = redmine_instance
 
     freezer.move_to("2017-07-28")
-    project = ProjectFactory.create(estimated_time=None)
-    task = TaskFactory.create(project=project)
-    report = ReportFactory.create(comment="ADSY <=> Other", task=task)
+    task.project.estimated_time = None
+    task.project.save()
+    report = report_factory(task=task)
     RedmineProject.objects.create(project=report.task.project, issue_id=1000)
 
     freezer.move_to("2017-07-31")
@@ -63,7 +67,7 @@ def test_redmine_report_no_estimated_time(db, freezer, mocker):
     issue.save.assert_called_once_with()
 
 
-def test_redmine_report_invalid_issue(db, freezer, mocker, capsys):
+def test_redmine_report_invalid_issue(db, freezer, mocker, capsys, report_factory):
     """Test case when issue is not available."""
     redmine_instance = mocker.MagicMock()
     redmine_class = mocker.patch("redminelib.Redmine")
@@ -71,7 +75,7 @@ def test_redmine_report_invalid_issue(db, freezer, mocker, capsys):
     redmine_instance.issue.get.side_effect = ResourceNotFoundError()
 
     freezer.move_to("2017-07-28")
-    report = ReportFactory.create()
+    report = report_factory()
     RedmineProject.objects.create(project=report.task.project, issue_id=1000)
 
     freezer.move_to("2017-07-31")
