@@ -144,7 +144,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = env.str("STATIC_URL", "/static/")
-STATIC_ROOT = env.str("STATIC_ROOT", None)
+STATIC_ROOT = env.str("STATIC_ROOT", "/app/static")
 
 # Cache
 
