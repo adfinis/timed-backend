@@ -18,7 +18,7 @@ pytest-django==4.2.0
 pytest-env==0.6.2
 pytest-factoryboy==2.1.0
 pytest-freezegun==0.4.2
-pytest-mock==3.6.0
+pytest-mock==3.6.1
 pytest-randomly==3.7.0
 requests-mock==1.9.2
 snapshottest==0.6.0
