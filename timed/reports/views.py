@@ -223,16 +223,15 @@ class WorkReportViewSet(GenericViewSet):
             table["A13"] = Cell(
                 report.date, style_name=date_style_report, value_type="date"
             )
-
+            table["B13"] = Cell(report.user.get_full_name(), style_name=text_style)
             hours = report.duration.total_seconds() / 60 / 60
-            table["B13"] = Cell(hours, style_name=float_style)
-            if report.not_billable:
-                table["C13"] = Cell("no", style_name=float_style)
-            else:
-                table["C13"] = Cell("yes", style_name=float_style)
-            table["D13"] = Cell(report.user.get_full_name(), style_name=text_style)
+            table["C13"] = Cell(hours, style_name=float_style)
+            table["D13"] = Cell(report.comment, style_name=text_style)
             table["E13"] = Cell(report.task.name, style_name=text_style)
-            table["F13"] = Cell(report.comment, style_name=text_style)
+            if report.not_billable:
+                table["F13"] = Cell("no", style_name=float_style)
+            else:
+                table["F13"] = Cell("yes", style_name=float_style)
 
             # when from and to date are None find lowest and biggest date
             from_date = min(report.date, from_date or date.max)
