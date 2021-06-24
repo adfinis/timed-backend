@@ -5,13 +5,16 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
+from timed.employment.factories import EmploymentFactory
+from timed.projects.factories import TaskFactory
 
-def test_task_list_not_archived(auth_client, task_factory):
+
+def test_task_list_not_archived(internal_employee_client, task_factory):
     task = task_factory(archived=False)
     task_factory(archived=True)
     url = reverse("task-list")
 
-    response = auth_client.get(url, data={"archived": 0})
+    response = internal_employee_client.get(url, data={"archived": 0})
     assert response.status_code == status.HTTP_200_OK
 
     json = response.json()
@@ -19,8 +22,8 @@ def test_task_list_not_archived(auth_client, task_factory):
     assert json["data"][0]["id"] == str(task.id)
 
 
-def test_task_my_most_frequent(auth_client, task_factory, report_factory):
-    user = auth_client.user
+def test_task_my_most_frequent(internal_employee_client, task_factory, report_factory):
+    user = internal_employee_client.user
     tasks = task_factory.create_batch(6)
 
     report_date = date.today() - timedelta(days=20)
@@ -43,7 +46,7 @@ def test_task_my_most_frequent(auth_client, task_factory, report_factory):
 
     url = reverse("task-list")
 
-    response = auth_client.get(url, {"my_most_frequent": "10"})
+    response = internal_employee_client.get(url, {"my_most_frequent": "10"})
     assert response.status_code == status.HTTP_200_OK
 
     data = response.json()["data"]
@@ -52,22 +55,34 @@ def test_task_my_most_frequent(auth_client, task_factory, report_factory):
     assert data[1]["id"] == str(tasks[1].id)
 
 
-def test_task_detail(auth_client, task):
+def test_task_detail(internal_employee_client, task):
     url = reverse("task-detail", args=[task.id])
 
-    response = auth_client.get(url)
+    response = internal_employee_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.parametrize(
-    "is_reviewer,expected",
-    [(True, status.HTTP_201_CREATED), (False, status.HTTP_403_FORBIDDEN)],
+    "project_assignee__is_resource, project_assignee__is_manager, project_assignee__is_reviewer, customer_assignee__is_reviewer, expected",
+    [
+        (True, False, False, False, status.HTTP_400_BAD_REQUEST),
+        (False, True, False, False, status.HTTP_201_CREATED),
+        (False, False, True, False, status.HTTP_201_CREATED),
+        (False, False, False, True, status.HTTP_201_CREATED),
+    ],
 )
-def test_task_create(auth_client, project, is_reviewer, expected):
-    url = reverse("task-list")
+def test_task_create(
+    auth_client, project, project_assignee, customer_assignee, expected
+):
+    user = auth_client.user
+    project_assignee.user = user
+    project_assignee.save()
+    if customer_assignee.is_reviewer:
+        customer_assignee.customer = project.customer
+        customer_assignee.user = user
+        customer_assignee.save()
 
-    if is_reviewer:
-        project.reviewers.add(auth_client.user)
+    url = reverse("task-list")
 
     data = {
         "data": {
@@ -83,12 +98,19 @@ def test_task_create(auth_client, project, is_reviewer, expected):
 
 
 @pytest.mark.parametrize(
-    "is_reviewer,expected",
-    [(True, status.HTTP_200_OK), (False, status.HTTP_403_FORBIDDEN)],
+    "task_assignee__is_resource, task_assignee__is_manager, task_assignee__is_reviewer, expected",
+    [
+        (True, False, False, status.HTTP_403_FORBIDDEN),
+        (False, True, False, status.HTTP_200_OK),
+        (False, False, True, status.HTTP_200_OK),
+    ],
 )
-def test_task_update(auth_client, project, task, is_reviewer, expected):
-    if is_reviewer:
-        project.reviewers.add(auth_client.user)
+def test_task_update(auth_client, task, task_assignee, expected):
+    user = auth_client.user
+    EmploymentFactory.create(user=user)
+    task_assignee.task = task
+    task_assignee.user = user
+    task_assignee.save()
 
     url = reverse("task-detail", args=[task.id])
 
@@ -97,12 +119,19 @@ def test_task_update(auth_client, project, task, is_reviewer, expected):
 
 
 @pytest.mark.parametrize(
-    "is_reviewer,expected",
-    [(True, status.HTTP_204_NO_CONTENT), (False, status.HTTP_403_FORBIDDEN)],
+    "project_assignee__is_resource, project_assignee__is_manager, project_assignee__is_reviewer, expected",
+    [
+        (True, False, False, status.HTTP_403_FORBIDDEN),
+        (False, True, False, status.HTTP_204_NO_CONTENT),
+        (False, False, True, status.HTTP_403_FORBIDDEN),
+    ],
 )
-def test_task_delete(auth_client, project, task, is_reviewer, expected):
-    if is_reviewer:
-        project.reviewers.add(auth_client.user)
+def test_task_delete(auth_client, task, project_assignee, expected):
+    user = auth_client.user
+    project_assignee.project = task.project
+    project_assignee.user = user
+    project_assignee.save()
+    EmploymentFactory.create(user=user)
 
     url = reverse("task-detail", args=[task.id])
 
@@ -110,10 +139,10 @@ def test_task_delete(auth_client, project, task, is_reviewer, expected):
     assert response.status_code == expected
 
 
-def test_task_detail_no_reports(auth_client, task):
+def test_task_detail_no_reports(internal_employee_client, task):
     url = reverse("task-detail", args=[task.id])
 
-    res = auth_client.get(url)
+    res = internal_employee_client.get(url)
 
     assert res.status_code == status.HTTP_200_OK
 
@@ -121,14 +150,30 @@ def test_task_detail_no_reports(auth_client, task):
     assert json["meta"]["spent-time"] == "00:00:00"
 
 
-def test_task_detail_with_reports(auth_client, task, report_factory):
+def test_task_detail_with_reports(internal_employee_client, task, report_factory):
     report_factory.create_batch(5, task=task, duration=timedelta(minutes=30))
 
     url = reverse("task-detail", args=[task.id])
 
-    res = auth_client.get(url)
+    res = internal_employee_client.get(url)
 
     assert res.status_code == status.HTTP_200_OK
 
     json = res.json()
     assert json["meta"]["spent-time"] == "02:30:00"
+
+
+@pytest.mark.parametrize("is_assigned, expected", [(True, 1), (False, 0)])
+def test_task_list_external_employee(external_employee_client, is_assigned, expected):
+    TaskFactory.create_batch(4)
+    task = TaskFactory.create()
+    if is_assigned:
+        task.assignees.add(external_employee_client.user)
+
+    url = reverse("task-list")
+
+    response = external_employee_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+    json = response.json()
+    assert len(json["data"]) == expected

@@ -26,13 +26,13 @@ def test_user_update_unauthenticated(client, db):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_user_list(db, auth_client, django_assert_num_queries):
+def test_user_list(db, internal_employee_client, django_assert_num_queries):
     UserFactory.create_batch(2)
 
     url = reverse("user-list")
 
-    with django_assert_num_queries(7):
-        response = auth_client.get(url)
+    with django_assert_num_queries(8):
+        response = internal_employee_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
 
@@ -40,19 +40,19 @@ def test_user_list(db, auth_client, django_assert_num_queries):
     assert len(json["data"]) == 3
 
 
-def test_user_detail(auth_client):
-    user = auth_client.user
+def test_user_detail(internal_employee_client):
+    user = internal_employee_client.user
 
     url = reverse("user-detail", args=[user.id])
 
-    response = auth_client.get(url)
+    response = internal_employee_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
 
-def test_user_create_authenticated(auth_client):
+def test_user_create_authenticated(internal_employee_client):
     url = reverse("user-list")
 
-    response = auth_client.post(url)
+    response = internal_employee_client.post(url)
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
@@ -77,8 +77,8 @@ def test_user_create_superuser(superadmin_client):
     assert response.status_code == status.HTTP_201_CREATED
 
 
-def test_user_update_owner(auth_client):
-    user = auth_client.user
+def test_user_update_owner(internal_employee_client):
+    user = internal_employee_client.user
     data = {
         "data": {
             "type": "users",
@@ -89,7 +89,7 @@ def test_user_update_owner(auth_client):
 
     url = reverse("user-detail", args=[user.id])
 
-    response = auth_client.patch(url, data)
+    response = internal_employee_client.patch(url, data)
     assert response.status_code == status.HTTP_200_OK
 
     user.refresh_from_db()
@@ -97,28 +97,29 @@ def test_user_update_owner(auth_client):
     assert not user.is_staff
 
 
-def test_user_update_other(auth_client):
+def test_user_update_other(internal_employee_client):
     """User may not change other user."""
     user = UserFactory.create()
     url = reverse("user-detail", args=[user.id])
-    res = auth_client.patch(url)
+    res = internal_employee_client.patch(url)
 
     assert res.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_user_delete_authenticated(auth_client):
+def test_user_delete_authenticated(internal_employee_client):
     """Should not be able delete a user."""
-    user = auth_client.user
+    user = internal_employee_client.user
 
     url = reverse("user-detail", args=[user.id])
 
-    response = auth_client.delete(url)
+    response = internal_employee_client.delete(url)
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_user_delete_superuser(superadmin_client):
     """Should not be able delete a user."""
     user = UserFactory.create()
+    EmploymentFactory.create(user=superadmin_client.user)
 
     url = reverse("user-detail", args=[user.id])
 
@@ -130,6 +131,7 @@ def test_user_delete_with_reports_superuser(superadmin_client, db):
     """Test that user with reports may not be deleted."""
     user = UserFactory.create()
     ReportFactory.create(user=user)
+    EmploymentFactory.create(user=superadmin_client.user)
 
     url = reverse("user-detail", args=[user.id])
 
@@ -137,16 +139,16 @@ def test_user_delete_with_reports_superuser(superadmin_client, db):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_user_supervisor_filter(auth_client):
+def test_user_supervisor_filter(internal_employee_client):
     """Should filter users by supervisor."""
     supervisees = UserFactory.create_batch(5)
 
     UserFactory.create_batch(5)
 
-    auth_client.user.supervisees.add(*supervisees)
-    auth_client.user.save()
+    internal_employee_client.user.supervisees.add(*supervisees)
+    internal_employee_client.user.save()
 
-    res = auth_client.get(reverse("user-list"), {"supervisor": auth_client.user.id})
+    res = internal_employee_client.get(reverse("user-list"), {"supervisor": internal_employee_client.user.id})
 
     assert len(res.json()["data"]) == 5
 
@@ -154,6 +156,7 @@ def test_user_supervisor_filter(auth_client):
 @pytest.mark.freeze_time("2018-01-07")
 def test_user_transfer(superadmin_client):
     user = UserFactory.create()
+    EmploymentFactory.create(user=superadmin_client.user)
     EmploymentFactory.create(user=user, start_date=date(2017, 12, 28), percentage=100)
     AbsenceTypeFactory.create(fill_worktime=True)
     AbsenceTypeFactory.create(fill_worktime=False)
@@ -184,7 +187,7 @@ def test_user_transfer(superadmin_client):
 
 
 @pytest.mark.parametrize("value,expected", [(1, 1), (0, 4)])
-def test_user_is_reviewer_filter(auth_client, value, expected):
+def test_user_is_reviewer_filter(internal_employee_client, value, expected):
     """Should filter users if they are a reviewer."""
     user = UserFactory.create()
     project = ProjectFactory.create()
@@ -192,43 +195,43 @@ def test_user_is_reviewer_filter(auth_client, value, expected):
 
     project.reviewers.add(user)
 
-    res = auth_client.get(reverse("user-list"), {"is_reviewer": value})
+    res = internal_employee_client.get(reverse("user-list"), {"is_reviewer": value})
     assert len(res.json()["data"]) == expected
 
 
 @pytest.mark.parametrize("value,expected", [(1, 1), (0, 5)])
-def test_user_is_supervisor_filter(auth_client, value, expected):
+def test_user_is_supervisor_filter(internal_employee_client, value, expected):
     """Should filter useres if they are a supervisor."""
     users = UserFactory.create_batch(2)
     UserFactory.create_batch(3)
 
-    auth_client.user.supervisees.add(*users)
+    internal_employee_client.user.supervisees.add(*users)
 
-    res = auth_client.get(reverse("user-list"), {"is_supervisor": value})
+    res = internal_employee_client.get(reverse("user-list"), {"is_supervisor": value})
     assert len(res.json()["data"]) == expected
 
 
-def test_user_attributes(auth_client, project):
+def test_user_attributes(internal_employee_client, project):
     """Should filter users if they are a reviewer."""
     user = UserFactory.create()
 
     url = reverse("user-detail", args=[user.id])
 
-    res = auth_client.get(url)
+    res = internal_employee_client.get(url)
     assert not res.json()["data"]["attributes"]["is-reviewer"]
 
     project.reviewers.add(user)
-    res = auth_client.get(url)
+    res = internal_employee_client.get(url)
     assert res.json()["data"]["attributes"]["is-reviewer"]
 
 
-def test_user_me_auth(auth_client):
-    """Should return the auth_client user."""
-    user = auth_client.user
+def test_user_me_auth(internal_employee_client):
+    """Should return the internal_employee_client user."""
+    user = internal_employee_client.user
 
     url = reverse("user-me")
 
-    response = auth_client.get(url)
+    response = internal_employee_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
     me_data = response.json()["data"]
@@ -237,7 +240,7 @@ def test_user_me_auth(auth_client):
     # should be the same as user-detail
     url = reverse("user-detail", args=[user.id])
 
-    response = auth_client.get(url)
+    response = internal_employee_client.get(url)
     assert me_data == response.json()["data"]
 
 

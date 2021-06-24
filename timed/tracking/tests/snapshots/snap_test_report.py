@@ -21,14 +21,14 @@ Duration: 2:30 (h:mm)
 Comment: some other comment
 
 * Task
-  [old] Dickerson, George and White > Horizontal analyzing product > and Sons
-  [new] Dickerson, George and White > Horizontal analyzing product > Group
+  [old] Allen Inc > Cross-platform content-based synergy > and Sons
+  [new] Allen Inc > Cross-platform content-based synergy > Group
 
 ---
 
 Date: 11/02/1975
 Duration: 0:15 (h:mm)
-Task: Dickerson, George and White > Horizontal analyzing product > Group
+Task: Allen Inc > Cross-platform content-based synergy > Group
 Comment: some other comment
 
 * Not_Billable
@@ -43,8 +43,8 @@ Duration: 3:15 (h:mm)
 
 
 * Task
-  [old] Dickerson, George and White > Horizontal analyzing product > Ltd
-  [new] Dickerson, George and White > Horizontal analyzing product > Group
+  [old] Allen Inc > Cross-platform content-based synergy > Ltd
+  [new] Allen Inc > Cross-platform content-based synergy > Group
 
 * Comment
   [old] foo
@@ -54,7 +54,7 @@ Duration: 3:15 (h:mm)
 
 Date: 04/20/2005
 Duration: 1:00 (h:mm)
-Task: Dickerson, George and White > Horizontal analyzing product > Group
+Task: Allen Inc > Cross-platform content-based synergy > Group
 
 
 * Comment

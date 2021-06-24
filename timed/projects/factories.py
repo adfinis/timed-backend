@@ -79,3 +79,48 @@ class TaskTemplateFactory(DjangoModelFactory):
         """Meta informations for the task template factory."""
 
         model = models.TaskTemplate
+
+
+class CustomerAssigneeFactory(DjangoModelFactory):
+    """CustomerAssignee factory."""
+
+    user = SubFactory("timed.employment.factories.UserFactory")
+    customer = SubFactory("timed.projects.factories.CustomerFactory")
+    is_resource = False
+    is_reviewer = False
+    is_manager = False
+
+    class Meta:
+        """Meta informations for the task template factory."""
+
+        model = models.CustomerAssignee
+
+
+class ProjectAssigneeFactory(DjangoModelFactory):
+    """ProjectAssignee factory."""
+
+    user = SubFactory("timed.employment.factories.UserFactory")
+    project = SubFactory("timed.projects.factories.ProjectFactory")
+    is_resource = False
+    is_reviewer = False
+    is_manager = False
+
+    class Meta:
+        """Meta informations for the task template factory."""
+
+        model = models.ProjectAssignee
+
+
+class TaskAssigneeFactory(DjangoModelFactory):
+    """CustomerAssignee factory."""
+
+    user = SubFactory("timed.employment.factories.UserFactory")
+    task = SubFactory("timed.projects.factories.TaskFactory")
+    is_resource = False
+    is_reviewer = False
+    is_manager = False
+
+    class Meta:
+        """Meta informations for the task template factory."""
+
+        model = models.TaskAssignee

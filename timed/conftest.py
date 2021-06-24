@@ -62,6 +62,34 @@ def superadmin_user(db):
 
 
 @pytest.fixture
+def external_employee(db):
+    user = get_user_model().objects.create_user(
+        username="user",
+        password="123qweasd",
+        first_name="Test",
+        last_name="User",
+        is_superuser=False,
+        is_staff=False,
+    )
+    employment_factories.EmploymentFactory.create(user=user, is_external=True)
+    return user
+
+
+@pytest.fixture
+def internal_employee(db):
+    user = get_user_model().objects.create_user(
+        username="user",
+        password="123qweasd",
+        first_name="Test",
+        last_name="User",
+        is_superuser=False,
+        is_staff=False,
+    )
+    employment_factories.EmploymentFactory.create(user=user, is_external=False)
+    return user
+
+
+@pytest.fixture
 def client():
     return APIClient()
 
@@ -90,6 +118,24 @@ def superadmin_client(superadmin_user):
     client = APIClient()
     client.force_authenticate(user=superadmin_user)
     client.user = superadmin_user
+    return client
+
+
+@pytest.fixture
+def external_employee_client(external_employee):
+    """Return instance of a APIClient that is logged in as external test user."""
+    client = APIClient()
+    client.force_authenticate(user=external_employee)
+    client.user = external_employee
+    return client
+
+
+@pytest.fixture
+def internal_employee_client(internal_employee):
+    """Return instance of a APIClient that is logged in as external test user."""
+    client = APIClient()
+    client.force_authenticate(user=internal_employee)
+    client.user = internal_employee
     return client
 
 

@@ -32,12 +32,12 @@ def test_year_statistic_list(auth_client):
     assert json["meta"]["total-time"] == "03:00:00"
 
 
-def test_year_statistic_detail(auth_client):
+def test_year_statistic_detail(internal_employee_client):
     ReportFactory.create(duration=timedelta(hours=1), date=date(2015, 2, 28))
     ReportFactory.create(duration=timedelta(hours=1), date=date(2015, 12, 31))
 
     url = reverse("year-statistic-detail", args=[2015])
-    result = auth_client.get(url, data={"ordering": "year"})
+    result = internal_employee_client.get(url, data={"ordering": "year"})
     assert result.status_code == 200
     json = result.json()
     assert json["data"]["attributes"]["duration"] == "02:00:00"
