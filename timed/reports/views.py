@@ -102,8 +102,6 @@ class ProjectStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
         & IsAuthenticated
     ]
 
-    prefetch_related_for_field = {"task__project": ["reviewers"]}
-
     def get_queryset(self):
         queryset = Report.objects.all()
 
@@ -126,8 +124,6 @@ class TaskStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
         (IsInternal | IsSuperUser)
         & IsAuthenticated
     ]
-
-    prefetch_related_for_field = {"task": ["project__reviewers"]}
 
     def get_queryset(self):
         queryset = Report.objects.all()

@@ -13,10 +13,6 @@ from timed.tracking.models import Report
 class CustomerSerializer(ModelSerializer):
     """Customer serializer."""
 
-    included_serializers = {
-        "assignees": "timed.employment.serializers.UserSerializer",
-    }
-
     class Meta:
         """Meta information for the customer serializer."""
 
@@ -28,7 +24,6 @@ class CustomerSerializer(ModelSerializer):
             "website",
             "comment",
             "archived",
-            "assignees",
         ]
 
 
@@ -54,8 +49,6 @@ class ProjectSerializer(ModelSerializer):
         "customer": "timed.projects.serializers.CustomerSerializer",
         "billing_type": "timed.projects.serializers.BillingTypeSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
-        "reviewers": "timed.employment.serializers.UserSerializer",
-        "assignees": "timed.employment.serializers.UserSerializer",
     }
 
     def get_root_meta(self, resource, many):
@@ -88,9 +81,7 @@ class ProjectSerializer(ModelSerializer):
             "customer",
             "billing_type",
             "cost_center",
-            "reviewers",
             "customer_visible",
-            "assignees",
         ]
 
 
@@ -103,7 +94,6 @@ class TaskSerializer(ModelSerializer):
         "activities": "timed.tracking.serializers.ActivitySerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
-        "assignees": "timed.employment.serializers.UserSerializer",
     }
 
     def get_root_meta(self, resource, many):
@@ -173,5 +163,49 @@ class TaskSerializer(ModelSerializer):
             "archived",
             "project",
             "cost_center",
-            "assignees",
         ]
+
+
+class CustomerAssigneeSerializer(ModelSerializer):
+    """Customer assignee serializer."""
+
+    included_serializers = {
+        "user": "timed.employment.serializers.UserSerializer",
+        "customer": "timed.projects.serializers.CustomerSerializer",
+    }
+
+    class Meta:
+        """Meta information for the customer assignee serializer."""
+
+        model = models.CustomerAssignee
+        fields = ["user", "customer", "is_reviewer", "is_manager", "is_resource"]
+
+
+class ProjectAssigneeSerializer(ModelSerializer):
+    """Project assignee serializer."""
+
+    included_serializers = {
+        "user": "timed.employment.serializers.UserSerializer",
+        "project": "timed.projects.serializers.ProjectSerializer",
+    }
+
+    class Meta:
+        """Meta information for the project assignee serializer."""
+
+        model = models.ProjectAssignee
+        fields = ["user", "project", "is_reviewer", "is_manager", "is_resource"]
+
+
+class TaskAssigneeSerializer(ModelSerializer):
+    """Task assignees serializer."""
+
+    included_serializers = {
+        "user": "timed.employment.serializers.UserSerializer",
+        "task": "timed.projects.serializers.TaskSerializer",
+    }
+
+    class Meta:
+        """Meta information for the task assignee serializer."""
+
+        model = models.TaskAssignee
+        fields = ["user", "task", "is_reviewer", "is_manager", "is_resource"]

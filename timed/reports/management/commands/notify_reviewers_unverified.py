@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMessage, get_connection
 from django.core.management.base import BaseCommand
-from django.db.models import Count
+from django.db.models import Q
 from django.template.loader import get_template
 
 from timed.tracking.models import Report
@@ -86,13 +86,7 @@ class Command(BaseCommand):
         Unverified reports are reports on project which have a reviewer
         assigned but are not verified in given time frame.
         """
-        queryset = Report.objects.filter(
-            date__range=[start, end], verified_by__isnull=True
-        )
-        queryset = queryset.annotate(num_reviewers=Count("task__project__reviewers"))
-        queryset = queryset.filter(num_reviewers__gt=0)
-
-        return queryset
+        return Report.objects.filter(date__range=[start, end], verified_by__isnull=True)
 
     def _notify_reviewers(self, start, end, reports, optional_message, cc):
         """Notify reviewers on their unverified reports."""
@@ -104,7 +98,20 @@ class Command(BaseCommand):
         messages = []
 
         for reviewer in reviewers:
-            if reports.filter(task__project__reviewers=reviewer).exists():
+            if reports.filter(
+                Q(
+                    task__task_assignees__user=reviewer,
+                    task__task_assignees__is_reviewer=True,
+                )
+                | Q(
+                    task__project__project_assignees__user=reviewer,
+                    task__project__project_assignees__is_reviewer=True,
+                )
+                | Q(
+                    task__project__customer__customer_assignees__user=reviewer,
+                    task__project__customer__customer_assignees__is_reviewer=True,
+                )
+            ).exists():
                 body = template.render(
                     {
                         # we need start and end date in system format

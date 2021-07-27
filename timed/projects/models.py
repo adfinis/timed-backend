@@ -94,7 +94,6 @@ class Project(models.Model):
         null=True,
         related_name="projects",
     )
-    reviewers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="reviews")
     customer_visible = models.BooleanField(default=False)
     amount_offered = MoneyField(
         max_digits=10, decimal_places=2, default_currency="CHF", blank=True, null=True

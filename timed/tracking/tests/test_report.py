@@ -9,7 +9,7 @@ from django.utils.duration import duration_string
 from rest_framework import status
 
 from timed.employment.factories import EmploymentFactory, UserFactory
-from timed.projects.factories import TaskAssigneeFactory
+from timed.projects.factories import ProjectAssigneeFactory, TaskAssigneeFactory
 
 
 def test_report_list(
@@ -176,7 +176,9 @@ def test_report_list_filter_reviewer(
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
 
     url = reverse("report-list")
 
@@ -252,12 +254,18 @@ def test_report_list_filter_editable_reviewer(
     # reviewers and report is created by current user
     report = report_factory.create(user=user)
     other_user = user_factory.create()
-    report.task.project.reviewers.add(user)
-    report.task.project.reviewers.add(other_user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
+    ProjectAssigneeFactory.create(
+        user=other_user, project=report.task.project, is_reviewer=True
+    )
     # 3rd case: report by other user and current user
     # is the reviewer
     reviewer_report = report_factory.create()
-    reviewer_report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=reviewer_report.task.project, is_reviewer=True
+    )
 
     url = reverse("report-list")
 
@@ -519,7 +527,9 @@ def test_report_update_bulk_verify_reviewer(
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
 
     url = reverse("report-bulk")
 
@@ -644,7 +654,9 @@ def test_report_update_date_reviewer(
 ):
     user = internal_employee_client.user
     report = report_factory.create()
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
 
     data = {
         "data": {
@@ -666,7 +678,9 @@ def test_report_update_duration_reviewer(
 ):
     user = internal_employee_client.user
     report = report_factory.create(duration=timedelta(hours=2))
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
 
     data = {
         "data": {
@@ -707,7 +721,9 @@ def test_report_update_verified_and_review_reviewer(
 ):
     user = internal_employee_client.user
     report = report_factory.create(duration=timedelta(hours=2))
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
 
     data = {
         "data": {
@@ -754,7 +770,9 @@ def test_report_update_reviewer(
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
 
     data = {
         "data": {
@@ -822,8 +840,11 @@ def test_report_reset_verified_by_reviewer(
 ):
     """Test that reviewer may not change verified report."""
     user = internal_employee_client.user
-    report = report_factory.create(user=user, verified_by=user)
-    report.task.project.reviewers.add(user)
+    reviewer = UserFactory.create()
+    report = report_factory.create(user=user, verified_by=reviewer)
+    ProjectAssigneeFactory.create(
+        user=reviewer, project=report.task.project, is_reviewer=True
+    )
 
     data = {
         "data": {
@@ -849,7 +870,9 @@ def test_report_reset_verified_and_billed_by_reviewer(
     """Test that reviewer may not change verified and billed report."""
     user = internal_employee_client.user
     report = report_factory.create(user=user, verified_by=user)
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
     # Billed is not set on create because the factory doesnt seem to work with that
     report.billed = True
     report.save()
@@ -1126,7 +1149,7 @@ def test_report_update_bulk_verify_reviewer_multiple_notify(
     mailoutbox,
 ):
     reviewer = internal_employee_client.user
-    project.reviewers.add(reviewer)
+    ProjectAssigneeFactory.create(user=reviewer, project=project, is_reviewer=True)
 
     user1, user2, user3 = user_factory.create_batch(3)
     report1_1 = report_factory(user=user1, task=task)
@@ -1199,7 +1222,12 @@ def test_report_update_reviewer_notify(
         report = report_factory(user=reviewer, review=True)
     else:
         report = report_factory(user=user, review=True)
-    report.task.project.reviewers.set([reviewer, user])
+    ProjectAssigneeFactory.create(
+        user=reviewer, project=report.task.project, is_reviewer=True
+    )
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
     new_task = task_factory(project=report.task.project)
     task = report.task
     TaskAssigneeFactory.create(user=user, is_resource=True, task=task)
@@ -1250,7 +1278,7 @@ def test_report_notify_rendering(
 ):
     reviewer = internal_employee_client.user
     user = user_factory()
-    project.reviewers.add(reviewer)
+    ProjectAssigneeFactory.create(user=reviewer, project=project, is_reviewer=True)
     task1, task2, task3 = task_factory.create_batch(3, project=project)
 
     report1 = report_factory(
@@ -1330,7 +1358,9 @@ def test_report_update_bulk_bill_reviewer(
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
 
     url = reverse("report-bulk")
 
@@ -1433,7 +1463,9 @@ def test_report_update_billed(internal_employee_client, report_factory, task):
 def test_report_update_bulk_billed(internal_employee_client, report_factory, task):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    report.task.project.reviewers.add(user)
+    ProjectAssigneeFactory.create(
+        user=user, project=report.task.project, is_reviewer=True
+    )
     task.project.billed = True
     task.project.save()
 

@@ -115,7 +115,6 @@ class ProjectAdmin(NestedModelAdmin):
     search_fields = ["name", "customer__name"]
 
     inlines = [TaskInline, RedmineProjectInline, ProjectAssigneeInline]
-    exclude = ("reviewers",)
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.tasks.exists()

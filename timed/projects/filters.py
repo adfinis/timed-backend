@@ -1,7 +1,7 @@
 """Filters for filtering the data of the projects app endpoints."""
 from datetime import date, timedelta
 
-from django.db.models import Count
+from django.db.models import Count, Q
 from django_filters.constants import EMPTY_VALUES
 from django_filters.rest_framework import Filter, FilterSet, NumberFilter
 
@@ -24,7 +24,41 @@ class ProjectFilterSet(FilterSet):
     """Filter set for the projects endpoint."""
 
     archived = NumberFilter(field_name="archived")
-    reviewer = NumberFilter(field_name="reviewers")
+    # reviewer = NumberFilter(field_name="reviewers")
+    has_manager = NumberFilter(method="filter_has_manager")
+    has_reviewer = NumberFilter(method="filter_has_reviewer")
+
+    def filter_has_manager(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(
+                pk__in=models.ProjectAssignee.objects.filter(
+                    is_manager=True, user_id=value
+                ).values("project_id"),
+            )
+            | Q(
+                customer_id__in=models.CustomerAssignee.objects.filter(
+                    is_manager=True, user_id=value
+                ).values("customer_id"),
+            )
+        )
+
+    def filter_has_reviewer(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(
+                pk__in=models.ProjectAssignee.objects.filter(
+                    is_reviewer=True, user_id=value
+                ).values("project_id"),
+            )
+            | Q(
+                customer_id__in=models.CustomerAssignee.objects.filter(
+                    is_reviewer=True, user_id=value
+                ).values("customer_id"),
+            )
+        )
 
     class Meta:
         """Meta information for the project filter set."""

@@ -4,7 +4,6 @@ from datetime import date
 
 from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework_json_api.views import PreloadIncludesMixin
 
 from timed.employment.models import Employment
 from timed.permissions import (
@@ -74,7 +73,7 @@ class CostCenterViewSet(ReadOnlyModelViewSet):
         return models.CostCenter.objects.all()
 
 
-class ProjectViewSet(PreloadIncludesMixin, ReadOnlyModelViewSet):
+class ProjectViewSet(ReadOnlyModelViewSet):
     """Project view set."""
 
     serializer_class = serializers.ProjectSerializer
@@ -82,11 +81,6 @@ class ProjectViewSet(PreloadIncludesMixin, ReadOnlyModelViewSet):
     ordering_fields = ("customer__name", "name")
     ordering = "name"
     queryset = models.Project.objects.all()
-
-    prefetch_for_includes = {
-        "__all__": ["reviewers"],
-        "reviewers": ["reviewers__supervisors"],
-    }
 
     def get_queryset(self):
         """Get only assigned projects, if an employee is external."""
@@ -148,3 +142,27 @@ class TaskViewSet(ModelViewSet):
                 | Q(project__assignees=user)
                 | Q(project__customer__assignees=user)
             )
+
+
+class TaskAsssigneeViewSet(ReadOnlyModelViewSet):
+    serializer_class = serializers.TaskAssigneeSerializer
+
+    def get_queryset(self):
+        # return models.TaskAssignee.objects.prefetch_related("task", "user")
+        return models.TaskAssignee.objects.all()
+
+
+class ProjectAsssigneeViewSet(ReadOnlyModelViewSet):
+    serializer_class = serializers.ProjectAssigneeSerializer
+
+    def get_queryset(self):
+        # return models.ProjectAssignee.objects.prefetch_related("project", "user")
+        return models.ProjectAssignee.objects.all()
+
+
+class CustomerAsssigneeViewSet(ReadOnlyModelViewSet):
+    serializer_class = serializers.CustomerAssigneeSerializer
+
+    def get_queryset(self):
+        # return models.CustomerAssignee.objects.prefetch_related("customer", "user")
+        return models.CustomerAssignee.objects.all()

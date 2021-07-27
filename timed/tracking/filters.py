@@ -12,6 +12,7 @@ from django_filters.rest_framework import (
     NumberFilter,
 )
 
+from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssignee
 from timed.tracking import models
 
 
@@ -92,11 +93,32 @@ class ReportFilterSet(FilterSet):
     verified = NumberFilter(
         field_name="verified_by_id", lookup_expr="isnull", exclude=True
     )
-    reviewer = NumberFilter(field_name="task__project__reviewers")
+    reviewer = NumberFilter(method="filter_has_reviewer")
     verifier = NumberFilter(field_name="verified_by")
     billing_type = NumberFilter(field_name="task__project__billing_type")
     user = NumberFilter(field_name="user_id")
     cost_center = NumberFilter(method="filter_cost_center")
+
+    def filter_has_reviewer(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(
+                task_id__in=TaskAssignee.objects.filter(
+                    is_reviewer=True, user_id=value
+                ).values("task_id"),
+            )
+            | Q(
+                task__project_id__in=ProjectAssignee.objects.filter(
+                    is_reviewer=True, user_id=value
+                ).values("project_id"),
+            )
+            | Q(
+                task__project__customer_id__in=CustomerAssignee.objects.filter(
+                    is_reviewer=True, user_id=value
+                ).values("customer_id"),
+            )
+        )
 
     def filter_editable(self, queryset, name, value):
         """Filter reports whether they are editable by current user.
@@ -106,13 +128,23 @@ class ReportFilterSet(FilterSet):
         """
         user = self.request.user
 
-        def get_editable_query():
-            return (
-                # avoid duplicates by using subqueries instead of joins
-                Q(user__in=user.supervisees.values("id"))
-                | Q(task__project__in=user.reviews.values("id"))
-                | Q(user=user)
-            ) & ~(Q(verified_by__isnull=False) & Q(billed=True))
+        editable_filter = (
+            # avoid duplicates by using subqueries instead of joins
+            Q(user__in=user.supervisees.values("id"))
+            | Q(
+                task__task_assignees__user=user,
+                task__task_assignees__is_reviewer=True,
+            )
+            | Q(
+                task__project__project_assignees__user=user,
+                task__project__project_assignees__is_reviewer=True,
+            )
+            | Q(
+                task__project__customer__customer_assignees__user=user,
+                task__project__customer__customer_assignees__is_reviewer=True,
+            )
+            | Q(user=user)
+        ) & ~(Q(verified_by__isnull=False) & Q(billed=True))
 
         if value:  # editable
             if user.is_superuser:
@@ -120,7 +152,7 @@ class ReportFilterSet(FilterSet):
                 return queryset
 
             # only owner, reviewer or supervisor may change unverified reports
-            queryset = queryset.filter(get_editable_query())
+            queryset = queryset.filter(editable_filter).distinct()
 
             return queryset
         else:  # not editable
@@ -128,7 +160,7 @@ class ReportFilterSet(FilterSet):
                 # no reports which are not editable
                 return queryset.none()
 
-            queryset = queryset.exclude(get_editable_query())
+            queryset = queryset.exclude(editable_filter)
             return queryset
 
     def filter_cost_center(self, queryset, name, value):

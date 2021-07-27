@@ -9,7 +9,7 @@ from timed.employment.factories import (
     EmploymentFactory,
     UserFactory,
 )
-from timed.projects.factories import ProjectFactory
+from timed.projects.factories import ProjectAssigneeFactory, ProjectFactory
 from timed.tracking.factories import AbsenceFactory, ReportFactory
 
 
@@ -31,7 +31,7 @@ def test_user_list(db, internal_employee_client, django_assert_num_queries):
 
     url = reverse("user-list")
 
-    with django_assert_num_queries(8):
+    with django_assert_num_queries(14):
         response = internal_employee_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
@@ -207,8 +207,7 @@ def test_user_is_reviewer_filter(internal_employee_client, value, expected):
     user = UserFactory.create()
     project = ProjectFactory.create()
     UserFactory.create_batch(3)
-
-    project.reviewers.add(user)
+    ProjectAssigneeFactory.create(user=user, project=project, is_reviewer=True)
 
     res = internal_employee_client.get(reverse("user-list"), {"is_reviewer": value})
     assert len(res.json()["data"]) == expected
@@ -235,7 +234,7 @@ def test_user_attributes(internal_employee_client, project):
     res = internal_employee_client.get(url)
     assert not res.json()["data"]["attributes"]["is-reviewer"]
 
-    project.reviewers.add(user)
+    ProjectAssigneeFactory.create(user=user, project=project, is_reviewer=True)
     res = internal_employee_client.get(url)
     assert res.json()["data"]["attributes"]["is-reviewer"]
 

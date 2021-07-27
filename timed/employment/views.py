@@ -26,6 +26,7 @@ from timed.permissions import (
 )
 from timed.projects.models import Task
 from timed.tracking.models import Absence, Report
+from timed.tracking.views import ReportViewSet
 
 
 class UserViewSet(ModelViewSet):
