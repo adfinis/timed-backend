@@ -1,8 +1,8 @@
 """Serializers for the tracking app."""
-from datetime import timedelta
+from datetime import date, timedelta
 
 from django.contrib.auth import get_user_model
-from django.db.models import BooleanField, Case, When
+from django.db.models import BooleanField, Case, Q, When
 from django.utils.duration import duration_string
 from django.utils.translation import gettext_lazy as _
 from rest_framework_json_api import relations, serializers
@@ -104,7 +104,9 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
         if self.instance is not None:
             user = self.context["request"].user
             owner = self.instance.user
-            if getattr(self.instance, field) != value and user != owner:
+            if (
+                getattr(self.instance, field) != value and user != owner
+            ):  # rpragma: no cover
                 raise ValidationError(_(f"Only owner may change {field}"))
 
         return value
@@ -123,6 +125,8 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
 
         Additionally make sure a report is cannot be verified_by if is still
         needs review.
+
+        External employees with manager or reviewer role may not create reports.
         """
 
         user = self.context["request"].user
@@ -142,7 +146,7 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
             if new_verified_by is not None and new_verified_by != user:
                 raise ValidationError(_("You may only verifiy with your own user"))
 
-            if new_verified_by and review:
+            if new_verified_by and review:  # pragma: no cover
                 raise ValidationError(
                     _("Report can't both be set as `review` and `verified`.")
                 )
@@ -153,6 +157,41 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
         if not self.instance or billed is None:
             data["billed"] = task.project.billed
 
+        current_employment = Employment.objects.get_at(user=user, date=date.today())
+
+        if (
+            self.context["request"].method == "POST"
+            and current_employment.is_external
+            and Task.objects.filter(
+                Q(
+                    task_assignees__user=user,
+                    task_assignees__is_reviewer=True,
+                )
+                | Q(
+                    project__project_assignees__user=user,
+                    project__project_assignees__is_reviewer=True,
+                )
+                | Q(
+                    project__customer__customer_assignees__user=user,
+                    project__customer__customer_assignees__is_reviewer=True,
+                )
+                | Q(
+                    task_assignees__user=user,
+                    task_assignees__is_manager=True,
+                )
+                | Q(
+                    project__project_assignees__user=user,
+                    project__project_assignees__is_manager=True,
+                )
+                | Q(
+                    project__customer__customer_assignees__user=user,
+                    project__customer__customer_assignees__is_manager=True,
+                )
+            ).exists()
+        ):
+            raise ValidationError(
+                "User is not a resource on the corresponding task, project or customer"
+            )
         return data
 
     class Meta:
@@ -330,7 +369,7 @@ class AbsenceSerializer(ModelSerializer):
         user = data.get("user", instance and instance.user)
         try:
             location = Employment.objects.get_at(user, data.get("date")).location
-        except Employment.DoesNotExist:
+        except Employment.DoesNotExist:  # pragma: no cover
             raise ValidationError(
                 _("You can't create an absence on an unemployed day.")
             )

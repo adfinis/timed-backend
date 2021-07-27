@@ -6,7 +6,7 @@ from timed.projects.factories import TaskFactory
 from timed.tracking.factories import ReportFactory
 
 
-def test_task_statistic_list(auth_client, django_assert_num_queries):
+def test_task_statistic_list(internal_employee_client, django_assert_num_queries):
     task_z = TaskFactory.create(name="Z")
     task_test = TaskFactory.create(name="Test")
     ReportFactory.create(duration=timedelta(hours=1), task=task_test)
@@ -14,8 +14,8 @@ def test_task_statistic_list(auth_client, django_assert_num_queries):
     ReportFactory.create(duration=timedelta(hours=2), task=task_z)
 
     url = reverse("task-statistic-list")
-    with django_assert_num_queries(10):
-        result = auth_client.get(
+    with django_assert_num_queries(11):
+        result = internal_employee_client.get(
             url,
             data={
                 "ordering": "task__name",

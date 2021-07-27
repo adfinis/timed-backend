@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from timed.employment.factories import EmploymentFactory
-from timed.projects.factories import TaskFactory
+from timed.projects.factories import ProjectFactory, TaskFactory
 
 
 def test_task_list_not_archived(internal_employee_client, task_factory):
@@ -63,11 +63,11 @@ def test_task_detail(internal_employee_client, task):
 
 
 @pytest.mark.parametrize(
-    "project_assignee__is_resource, project_assignee__is_manager, project_assignee__is_reviewer, customer_assignee__is_reviewer, expected",
+    "project_assignee__is_resource, project_assignee__is_manager, project_assignee__is_reviewer, customer_assignee__is_manager, expected",
     [
-        (True, False, False, False, status.HTTP_400_BAD_REQUEST),
+        (True, False, False, False, status.HTTP_403_FORBIDDEN),
         (False, True, False, False, status.HTTP_201_CREATED),
-        (False, False, True, False, status.HTTP_201_CREATED),
+        (False, False, True, False, status.HTTP_403_FORBIDDEN),
         (False, False, False, True, status.HTTP_201_CREATED),
     ],
 )
@@ -77,7 +77,7 @@ def test_task_create(
     user = auth_client.user
     project_assignee.user = user
     project_assignee.save()
-    if customer_assignee.is_reviewer:
+    if customer_assignee.is_manager:
         customer_assignee.customer = project.customer
         customer_assignee.user = user
         customer_assignee.save()
@@ -98,23 +98,41 @@ def test_task_create(
 
 
 @pytest.mark.parametrize(
-    "task_assignee__is_resource, task_assignee__is_manager, task_assignee__is_reviewer, expected",
+    "task_assignee__is_resource, task_assignee__is_manager, task_assignee__is_reviewer, project_assignee__is_reviewer, project_assignee__is_manager, different_project, expected",
     [
-        (True, False, False, status.HTTP_403_FORBIDDEN),
-        (False, True, False, status.HTTP_200_OK),
-        (False, False, True, status.HTTP_200_OK),
+        (True, False, False, False, False, False, status.HTTP_403_FORBIDDEN),
+        (False, True, False, False, False, False, status.HTTP_200_OK),
+        (False, False, True, False, False, False, status.HTTP_403_FORBIDDEN),
+        (False, False, False, True, False, False, status.HTTP_403_FORBIDDEN),
+        (False, False, False, False, True, False, status.HTTP_200_OK),
+        (False, False, False, False, True, True, status.HTTP_403_FORBIDDEN),
     ],
 )
-def test_task_update(auth_client, task, task_assignee, expected):
+def test_task_update(
+    auth_client, task, task_assignee, project_assignee, different_project, expected
+):
     user = auth_client.user
     EmploymentFactory.create(user=user)
     task_assignee.task = task
     task_assignee.user = user
     task_assignee.save()
+    if different_project:
+        project = ProjectFactory.create()
+        project_assignee.project = project
+    project_assignee.user = user
+    project_assignee.save()
+
+    data = {
+        "data": {
+            "type": "tasks",
+            "id": task.id,
+            "attributes": {"name": "Test Task"},
+        }
+    }
 
     url = reverse("task-detail", args=[task.id])
 
-    response = auth_client.patch(url)
+    response = auth_client.patch(url, data)
     assert response.status_code == expected
 
 

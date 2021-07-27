@@ -13,8 +13,11 @@ from timed.employment.factories import (
 from timed.tracking.factories import AbsenceFactory, ReportFactory
 
 
-@pytest.mark.parametrize("is_external, expected, ", [(True, 0), (False, 1)])
-def test_absence_list_authenticated(auth_client, is_external, expected):
+@pytest.mark.parametrize(
+    "is_external",
+    [True, False],
+)
+def test_absence_list_authenticated(auth_client, is_external):
     absence = AbsenceFactory.create(user=auth_client.user)
 
     # overlapping absence with public holidays need to be hidden
@@ -36,20 +39,9 @@ def test_absence_list_authenticated(auth_client, is_external, expected):
 
     json = response.json()
 
-    assert len(json["data"]) == expected
     if not is_external:
+        assert len(json["data"]) == 1
         assert json["data"][0]["id"] == str(absence.id)
-
-
-def test_absence_list_external_employee(external_employee_client):
-    AbsenceFactory.create_batch(2)
-    AbsenceFactory.create(user=external_employee_client.user)
-
-    url = reverse("absence-list")
-    response = external_employee_client.get(url)
-
-    json = response.json()
-    assert len(json["data"]) == 0
 
 
 def test_absence_list_superuser(superadmin_client):

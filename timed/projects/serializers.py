@@ -1,7 +1,7 @@
 """Serializers for the projects app."""
 from datetime import timedelta
 
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.utils.duration import duration_string
 from rest_framework_json_api.relations import ResourceRelatedField
 from rest_framework_json_api.serializers import ModelSerializer
@@ -114,6 +114,53 @@ class TaskSerializer(ModelSerializer):
             return data
 
         return {}
+
+    def validate(self, data):
+        """Validate the role of the user.
+
+        Check if the user is a manager on the corresponding
+        project or customer when he wants to create a new task.
+
+        Check if the user is a manager on the task or
+        the corresponding project or customer when he wants to update the task.
+        """
+        request = self.context["request"]
+        user = request.user
+        if self.instance:
+            if (
+                models.Task.objects.filter(id=self.instance.id)
+                .filter(
+                    Q(
+                        task_assignees__user=user,
+                        task_assignees__is_manager=True,
+                    )
+                    | Q(
+                        project__project_assignees__user=user,
+                        project__project_assignees__is_manager=True,
+                    )
+                    | Q(
+                        project__customer__customer_assignees__user=user,
+                        project__customer__customer_assignees__is_manager=True,
+                    )
+                )
+                .exists()
+            ):
+                return data
+        elif (
+            models.Project.objects.filter(pk=data["project"].id)
+            .filter(
+                Q(
+                    project_assignees__user=user,
+                    project_assignees__is_manager=True,
+                )
+                | Q(
+                    customer__customer_assignees__user=user,
+                    customer__customer_assignees__is_manager=True,
+                )
+            )
+            .exists()
+        ):
+            return data
 
     class Meta:
         """Meta information for the task serializer."""

@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
 from timed.mixins import AggregateQuerysetMixin
+from timed.permissions import IsAuthenticated, IsInternal, IsSuperUser
 from timed.reports import serializers
 from timed.tracking.filters import ReportFilterSet
 from timed.tracking.models import Report
@@ -27,6 +28,11 @@ class YearStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     filterset_class = ReportFilterSet
     ordering_fields = ("year", "duration")
     ordering = ("year",)
+    permission_classes = [
+        # internal employees or super users may read all customer statistics
+        (IsInternal | IsSuperUser)
+        & IsAuthenticated
+    ]
 
     def get_queryset(self):
         queryset = Report.objects.all()
@@ -43,6 +49,11 @@ class MonthStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     filterset_class = ReportFilterSet
     ordering_fields = ("year", "month", "duration")
     ordering = ("year", "month")
+    permission_classes = [
+        # internal employees or super users may read all customer statistics
+        (IsInternal | IsSuperUser)
+        & IsAuthenticated
+    ]
 
     def get_queryset(self):
         queryset = Report.objects.all()
@@ -62,6 +73,11 @@ class CustomerStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     filterset_class = ReportFilterSet
     ordering_fields = ("task__project__customer__name", "duration")
     ordering = ("task__project__customer__name",)
+    permission_classes = [
+        # internal employees or super users may read all customer statistics
+        (IsInternal | IsSuperUser)
+        & IsAuthenticated
+    ]
 
     def get_queryset(self):
         queryset = Report.objects.all()
@@ -80,6 +96,11 @@ class ProjectStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     filterset_class = ReportFilterSet
     ordering_fields = ("task__project__name", "duration")
     ordering = ("task__project__name",)
+    permission_classes = [
+        # internal employees or super users may read all customer statistics
+        (IsInternal | IsSuperUser)
+        & IsAuthenticated
+    ]
 
     prefetch_related_for_field = {"task__project": ["reviewers"]}
 
@@ -100,6 +121,11 @@ class TaskStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     filterset_class = ReportFilterSet
     ordering_fields = ("task__name", "duration")
     ordering = ("task__name",)
+    permission_classes = [
+        # internal employees or super users may read all customer statistics
+        (IsInternal | IsSuperUser)
+        & IsAuthenticated
+    ]
 
     prefetch_related_for_field = {"task": ["project__reviewers"]}
 
@@ -120,6 +146,11 @@ class UserStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     filterset_class = ReportFilterSet
     ordering_fields = ("user__username", "duration")
     ordering = ("user__username",)
+    permission_classes = [
+        # internal employees or super users may read all customer statistics
+        (IsInternal | IsSuperUser)
+        & IsAuthenticated
+    ]
 
     def get_queryset(self):
         queryset = Report.objects.all()

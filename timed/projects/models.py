@@ -2,8 +2,6 @@
 
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
 from djmoney.models.fields import MoneyField
 
 
@@ -245,37 +243,3 @@ class TaskAssignee(models.Model):
     is_resource = models.BooleanField(default=False)
     is_reviewer = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
-
-
-@receiver(post_save, sender=Project.assignees.through)
-def create_or_update_project_assignee(sender, instance, created, **kwargs):
-    """Create or update current project assignee and corresponding reviewer.
-
-    If the created project assignee should be a reviewer, create a corresponding reviewer object.
-    If a project assignee's is_reviewer attribute is updated, either create a new reviewer object or delete the corresponding one.
-    """
-    if instance.is_reviewer:  # pragma: no cover
-        if not Project.reviewers.through.objects.filter(
-            user=instance.user, project=instance.project
-        ):
-            Project.reviewers.through.objects.create(
-                user=instance.user, project=instance.project
-            )
-    elif not created and not instance.is_reviewer:  # pragma: no cover
-        Project.reviewers.through.objects.get(
-            user=instance.user, project=instance.project
-        ).delete()
-
-
-@receiver(post_delete, sender=Project.assignees.through)
-def delete_project_assignee(sender, instance, **kwargs):
-    """Delete project assignee.
-
-    If the project assignee is also a reviewer, delete the corresponding reviewer object.
-    """
-    if Project.reviewers.through.objects.filter(
-        user=instance.user, project=instance.project
-    ):  # pragma: no cover
-        Project.reviewers.through.objects.get(
-            user=instance.user, project=instance.project
-        ).delete()

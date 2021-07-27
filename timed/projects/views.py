@@ -2,10 +2,18 @@
 
 from datetime import date
 
+from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_json_api.views import PreloadIncludesMixin
 
-from timed.permissions import IsAuthenticated, IsReadOnly, IsReviewer, IsSuperUser
+from timed.employment.models import Employment
+from timed.permissions import (
+    IsAuthenticated,
+    IsInternal,
+    IsManager,
+    IsReadOnly,
+    IsSuperUser,
+)
 from timed.projects import filters, models, serializers
 
 
@@ -24,22 +32,29 @@ class CustomerViewSet(ReadOnlyModelViewSet):
         :return: The customers
         :rtype:  QuerySet
         """
-        all_user_employments = self.request.user.employments.all()
-        current_date = date.today()
+        user = self.request.user
+        current_employment = Employment.objects.get_at(user=user, date=date.today())
+        queryset = models.Customer.objects.prefetch_related("projects")
 
-        for employment in all_user_employments:
-            if not employment.is_external:  # pragma: no cover
-                return models.Customer.objects.prefetch_related("projects")
-            elif not employment.end_date or (
-                employment.start_date <= current_date
-                and employment.end_date >= current_date
-            ):
-                return models.Customer.objects.filter(assignees=self.request.user)
+        if not current_employment.is_external:  # pragma: no cover
+            return queryset
+        else:
+            return queryset.filter(
+                Q(assignees=user)
+                | Q(projects__assignees=user)
+                | Q(projects__tasks__assignees=user)
+            )
 
 
 class BillingTypeViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.BillingTypeSerializer
     ordering = "name"
+    permission_classes = [
+        # superuser may edit all billing types
+        IsSuperUser
+        # internal employees may read all billing types
+        | IsAuthenticated & IsInternal & IsReadOnly
+    ]
 
     def get_queryset(self):
         return models.BillingType.objects.all()
@@ -48,6 +63,12 @@ class BillingTypeViewSet(ReadOnlyModelViewSet):
 class CostCenterViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.CostCenterSerializer
     ordering = "name"
+    permission_classes = [
+        # superuser may edit all cost centers
+        IsSuperUser
+        # internal employees may read all cost centers
+        | IsAuthenticated & IsInternal & IsReadOnly
+    ]
 
     def get_queryset(self):
         return models.CostCenter.objects.all()
@@ -69,21 +90,22 @@ class ProjectViewSet(PreloadIncludesMixin, ReadOnlyModelViewSet):
 
     def get_queryset(self):
         """Get only assigned projects, if an employee is external."""
-        all_user_employments = self.request.user.employments.all()
-        current_date = date.today()
+        user = self.request.user
+        current_employment = Employment.objects.get_at(user=user, date=date.today())
+        queryset = (
+            super()
+            .get_queryset()
+            .select_related("customer", "billing_type", "cost_center")
+        )
 
-        for employment in all_user_employments:
-            if not employment.is_external:  # pragma: no cover
-                queryset = super().get_queryset()
-                return queryset.select_related(
-                    "customer", "billing_type", "cost_center"
-                )
-            elif not employment.end_date or (
-                employment.start_date <= current_date
-                and employment.end_date >= current_date
-            ):
-                queryset = models.Project.objects.filter(assignees=self.request.user)
-                return queryset.select_related("customer")
+        if not current_employment.is_external:  # pragma: no cover
+            return queryset
+        else:
+            return queryset.filter(
+                Q(assignees=user)
+                | Q(tasks__assignees=user)
+                | Q(customer__assignees=user)
+            )
 
 
 class TaskViewSet(ModelViewSet):
@@ -95,8 +117,8 @@ class TaskViewSet(ModelViewSet):
     permission_classes = [
         # superuser may edit all tasks
         IsSuperUser
-        # reviewer may edit all tasks
-        | IsReviewer
+        # managers may edit all tasks
+        | IsManager
         # all authenticated users may read all tasks
         | IsAuthenticated & IsReadOnly
     ]
@@ -111,3 +133,18 @@ class TaskViewSet(ModelViewSet):
             self.ordering = None
 
         return super().filter_queryset(queryset)
+
+    def get_queryset(self):
+        """Get only assigned tasks, if an employee is external."""
+        user = self.request.user
+        current_employment = Employment.objects.get_at(user=user, date=date.today())
+        queryset = super().get_queryset().select_related("project", "cost_center")
+
+        if not current_employment.is_external:  # pragma: no cover
+            return queryset
+        else:
+            return queryset.filter(
+                Q(assignees=user)
+                | Q(project__assignees=user)
+                | Q(project__customer__assignees=user)
+            )

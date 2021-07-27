@@ -8,11 +8,11 @@ from timed.employment.factories import EmploymentFactory
 from timed.tracking.factories import ActivityFactory
 
 
-def test_activity_list(auth_client):
-    activity = ActivityFactory.create(user=auth_client.user)
+def test_activity_list(internal_employee_client):
+    activity = ActivityFactory.create(user=internal_employee_client.user)
     url = reverse("activity-list")
 
-    response = auth_client.get(url)
+    response = internal_employee_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
     json = response.json()
@@ -142,28 +142,28 @@ def test_activity_delete(auth_client, is_external, task_assignee, expected):
     assert response.status_code == expected
 
 
-def test_activity_list_filter_active(auth_client):
-    user = auth_client.user
+def test_activity_list_filter_active(internal_employee_client):
+    user = internal_employee_client.user
     activity1 = ActivityFactory.create(user=user)
     activity2 = ActivityFactory.create(user=user, to_time=None, task=activity1.task)
 
     url = reverse("activity-list")
 
-    response = auth_client.get(url, data={"active": "true"})
+    response = internal_employee_client.get(url, data={"active": "true"})
     assert response.status_code == status.HTTP_200_OK
     json = response.json()
     assert len(json["data"]) == 1
     assert json["data"][0]["id"] == str(activity2.id)
 
 
-def test_activity_list_filter_day(auth_client):
-    user = auth_client.user
+def test_activity_list_filter_day(internal_employee_client):
+    user = internal_employee_client.user
     day = date(2016, 2, 2)
     ActivityFactory.create(date=day - timedelta(days=1), user=user)
     activity = ActivityFactory.create(date=day, user=user)
 
     url = reverse("activity-list")
-    response = auth_client.get(url, data={"day": day.strftime("%Y-%m-%d")})
+    response = internal_employee_client.get(url, data={"day": day.strftime("%Y-%m-%d")})
     assert response.status_code == status.HTTP_200_OK
 
     json = response.json()

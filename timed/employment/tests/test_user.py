@@ -40,6 +40,19 @@ def test_user_list(db, internal_employee_client, django_assert_num_queries):
     assert len(json["data"]) == 3
 
 
+def test_user_list_external_employee(external_employee_client):
+    UserFactory.create_batch(2)
+
+    url = reverse("user-list")
+
+    response = external_employee_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    json = response.json()
+    assert len(json["data"]) == 1
+
+
 def test_user_detail(internal_employee_client):
     user = internal_employee_client.user
 
@@ -148,7 +161,9 @@ def test_user_supervisor_filter(internal_employee_client):
     internal_employee_client.user.supervisees.add(*supervisees)
     internal_employee_client.user.save()
 
-    res = internal_employee_client.get(reverse("user-list"), {"supervisor": internal_employee_client.user.id})
+    res = internal_employee_client.get(
+        reverse("user-list"), {"supervisor": internal_employee_client.user.id}
+    )
 
     assert len(res.json()["data"]) == 5
 

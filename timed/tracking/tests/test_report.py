@@ -872,10 +872,12 @@ def test_report_reset_verified_and_billed_by_reviewer(
     "task_assignee__is_reviewer, task_assignee__is_manager, task_assignee__is_resource, is_external, verified, expected",
     [
         (True, False, False, False, True, status.HTTP_403_FORBIDDEN),
+        (True, False, False, False, False, status.HTTP_204_NO_CONTENT),
+        (False, True, False, False, False, status.HTTP_204_NO_CONTENT),
+        (False, True, False, False, True, status.HTTP_403_FORBIDDEN),
         (False, False, True, False, False, status.HTTP_204_NO_CONTENT),
         (False, False, True, False, True, status.HTTP_403_FORBIDDEN),
-        (False, False, True, False, False, status.HTTP_204_NO_CONTENT),
-        (True, False, False, True, False, status.HTTP_204_NO_CONTENT),
+        (True, False, False, True, False, status.HTTP_403_FORBIDDEN),
         (False, True, False, True, False, status.HTTP_403_FORBIDDEN),
         (False, False, True, True, False, status.HTTP_204_NO_CONTENT),
         (True, False, False, True, True, status.HTTP_403_FORBIDDEN),
@@ -883,7 +885,7 @@ def test_report_reset_verified_and_billed_by_reviewer(
         (False, False, True, True, True, status.HTTP_403_FORBIDDEN),
     ],
 )
-def test_report_delete(
+def test_report_delete_own_report(
     auth_client, report_factory, task_assignee, is_external, verified, expected
 ):
     user = auth_client.user
@@ -903,6 +905,52 @@ def test_report_delete(
     url = reverse("report-detail", args=[report.id])
     response = auth_client.delete(url)
     assert response.status_code == expected
+
+
+@pytest.mark.parametrize(
+    "task_assignee__is_reviewer, task_assignee__is_manager, task_assignee__is_resource, is_external, verified",
+    [
+        (True, False, False, False, True),
+        (True, False, False, False, False),
+        (False, True, False, False, False),
+        (False, True, False, False, True),
+        (False, False, True, False, False),
+        (False, False, True, False, True),
+        (True, False, False, True, False),
+        (True, False, False, True, True),
+        (False, True, False, True, False),
+        (False, True, False, True, True),
+        (False, False, True, True, False),
+        (False, False, True, True, True),
+    ],
+)
+def test_report_delete_not_report_owner(
+    auth_client, report_factory, task_assignee, is_external, verified
+):
+    user = auth_client.user
+    task_assignee.user = user
+    task_assignee.save()
+
+    user2 = UserFactory.create()
+    report = report_factory.create(user=user2, task=task_assignee.task)
+
+    if verified:
+        report.verified_by = UserFactory.create()
+        report.save()
+
+    if is_external:
+        EmploymentFactory.create(user=user, is_external=True)
+    else:
+        EmploymentFactory.create(user=user, is_external=False)
+
+    url = reverse("report-detail", args=[report.id])
+    response = auth_client.delete(url)
+    # status code 404 is expected, when the user cannot see the specific report
+    # otherwise the user shouldn't be allowed to delete it, therefore code 403
+    assert response.status_code in [
+        status.HTTP_403_FORBIDDEN,
+        status.HTTP_404_NOT_FOUND,
+    ]
 
 
 def test_report_round_duration(db, report_factory):

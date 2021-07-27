@@ -5,14 +5,14 @@ from django.urls import reverse
 from timed.tracking.factories import ReportFactory
 
 
-def test_customer_statistic_list(auth_client, django_assert_num_queries):
+def test_customer_statistic_list(internal_employee_client, django_assert_num_queries):
     report = ReportFactory.create(duration=timedelta(hours=1))
     ReportFactory.create(duration=timedelta(hours=2), task=report.task)
     report2 = ReportFactory.create(duration=timedelta(hours=4))
 
     url = reverse("customer-statistic-list")
-    with django_assert_num_queries(5):
-        result = auth_client.get(
+    with django_assert_num_queries(6):
+        result = internal_employee_client.get(
             url, data={"ordering": "duration", "include": "customer"}
         )
     assert result.status_code == 200
@@ -56,7 +56,7 @@ def test_customer_statistic_detail(internal_employee_client, django_assert_num_q
     report = ReportFactory.create(duration=timedelta(hours=1))
 
     url = reverse("customer-statistic-detail", args=[report.task.project.customer.id])
-    with django_assert_num_queries(4):
+    with django_assert_num_queries(6):
         result = internal_employee_client.get(
             url, data={"ordering": "duration", "include": "customer"}
         )

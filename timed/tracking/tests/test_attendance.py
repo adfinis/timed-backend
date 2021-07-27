@@ -5,12 +5,12 @@ from rest_framework import status
 from timed.tracking.factories import AttendanceFactory
 
 
-def test_attendance_list(auth_client):
+def test_attendance_list(internal_employee_client):
     AttendanceFactory.create()
-    attendance = AttendanceFactory.create(user=auth_client.user)
+    attendance = AttendanceFactory.create(user=internal_employee_client.user)
 
     url = reverse("attendance-list")
-    response = auth_client.get(url)
+    response = internal_employee_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
     json = response.json()

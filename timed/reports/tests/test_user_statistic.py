@@ -5,14 +5,16 @@ from django.urls import reverse
 from timed.tracking.factories import ReportFactory
 
 
-def test_user_statistic_list(auth_client):
-    user = auth_client.user
+def test_user_statistic_list(internal_employee_client):
+    user = internal_employee_client.user
     ReportFactory.create(duration=timedelta(hours=1), user=user)
     ReportFactory.create(duration=timedelta(hours=2), user=user)
     report = ReportFactory.create(duration=timedelta(hours=2))
 
     url = reverse("user-statistic-list")
-    result = auth_client.get(url, data={"ordering": "duration", "include": "user"})
+    result = internal_employee_client.get(
+        url, data={"ordering": "duration", "include": "user"}
+    )
     assert result.status_code == 200
 
     json = result.json()

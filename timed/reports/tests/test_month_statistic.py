@@ -5,13 +5,13 @@ from django.urls import reverse
 from timed.tracking.factories import ReportFactory
 
 
-def test_month_statistic_list(auth_client):
+def test_month_statistic_list(internal_employee_client):
     ReportFactory.create(duration=timedelta(hours=1), date=date(2016, 1, 1))
     ReportFactory.create(duration=timedelta(hours=1), date=date(2015, 12, 4))
     ReportFactory.create(duration=timedelta(hours=2), date=date(2015, 12, 31))
 
     url = reverse("month-statistic-list")
-    result = auth_client.get(url, data={"ordering": "year,month"})
+    result = internal_employee_client.get(url, data={"ordering": "year,month"})
     assert result.status_code == 200
 
     json = result.json()
