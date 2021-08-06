@@ -143,7 +143,6 @@ class TaskViewSet(ModelViewSet):
                 | Q(project__customer__assignees=user)
             )
 
-
 class TaskAsssigneeViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.TaskAssigneeSerializer
 

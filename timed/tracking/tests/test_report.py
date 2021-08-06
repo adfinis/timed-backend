@@ -9,7 +9,7 @@ from django.utils.duration import duration_string
 from rest_framework import status
 
 from timed.employment.factories import EmploymentFactory, UserFactory
-from timed.projects.factories import ProjectAssigneeFactory, TaskAssigneeFactory
+from timed.projects.factories import TaskAssigneeFactory
 
 
 def test_report_list(

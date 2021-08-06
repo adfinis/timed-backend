@@ -13,6 +13,10 @@ from timed.tracking.models import Report
 class CustomerSerializer(ModelSerializer):
     """Customer serializer."""
 
+    included_serializers = {
+        "assignees": "timed.employment.serializers.UserSerializer",
+    }
+
     class Meta:
         """Meta information for the customer serializer."""
 
@@ -82,6 +86,7 @@ class ProjectSerializer(ModelSerializer):
             "billing_type",
             "cost_center",
             "customer_visible",
+            "assignees",
         ]
 
 
@@ -94,6 +99,7 @@ class TaskSerializer(ModelSerializer):
         "activities": "timed.tracking.serializers.ActivitySerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
+        "assignees": "timed.employment.serializers.UserSerializer",
     }
 
     def get_root_meta(self, resource, many):
@@ -163,6 +169,7 @@ class TaskSerializer(ModelSerializer):
             "archived",
             "project",
             "cost_center",
+            "assignees",
         ]
 
 

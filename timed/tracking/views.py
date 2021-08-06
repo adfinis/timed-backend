@@ -362,18 +362,6 @@ class AbsenceViewSet(ModelViewSet):
             queryset = models.Absence.objects.select_related("type", "user")
             return queryset
 
-<<<<<<< HEAD
-=======
-        # current_employment = Employment.objects.get_at(user=user, date=date.today())
-
-        # if not current_employment.is_external:
-        #     queryset = models.Absence.objects.select_related("type", "user").filter(
-        #         Q(user=user) | Q(user__in=user.supervisees.all())
-        #     )
-        #     return queryset
-        # else:
-        #     return models.Absence.objects.none()
->>>>>>> feat: rewrite permissions and visibility
         queryset = models.Absence.objects.select_related("type", "user").filter(
             Q(user=user) | Q(user__in=user.supervisees.all())
         )
