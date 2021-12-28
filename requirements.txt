@@ -8,7 +8,7 @@ django-prometheus==2.1.0
 djangorestframework==3.12.4
 djangorestframework-jsonapi[django-filter]==3.1.0
 mozilla-django-oidc==2.0.0
-psycopg2==2.8.6
+psycopg2==2.9.2
 pytz==2021.1
 pyexcel-webio==0.1.4
 pyexcel-io==0.6.4
