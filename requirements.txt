@@ -1,4 +1,4 @@
-python-dateutil==2.8.1
+python-dateutil==2.8.2
 django==3.2.13
 # might remove this once we find out how the jsonapi extras_require work
 django-cors-headers==3.10.1
