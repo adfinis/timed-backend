@@ -116,6 +116,7 @@ class ReportViewSet(ModelViewSet):
         "verified_by__username",
         "review",
         "not_billable",
+        "rejected",
     )
 
     def get_queryset(self):
@@ -172,6 +173,8 @@ class ReportViewSet(ModelViewSet):
         }
         if fields and request.user != instance.user:
             tasks.notify_user_changed_report(instance, fields, request.user)
+        if "rejected" in fields:
+            tasks.notify_user_rejected_report(instance, request.user)
 
         return super().update(request, *args, **kwargs)
 
@@ -264,8 +267,12 @@ class ReportViewSet(ModelViewSet):
                 fields["billed"] = fields["task"].project.billed
 
         if fields:
-            tasks.notify_user_changed_reports(queryset, fields, user)
-            queryset.update(**fields)
+            if "rejected" in fields:
+                tasks.notify_user_rejected_reports(queryset, fields, user)
+                queryset.update(**fields)
+            else:
+                tasks.notify_user_changed_reports(queryset, fields, user)
+                queryset.update(**fields)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -82,6 +82,7 @@ def internal_employee(db):
         password="123qweasd",
         first_name="Test",
         last_name="User",
+        email="test@example.com",
         is_superuser=False,
         is_staff=False,
     )

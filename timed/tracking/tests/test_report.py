@@ -1683,3 +1683,124 @@ def test_report_list_no_employment(
         assert len(json["data"]) == expected
         assert json["data"][0]["id"] == str(report.id)
         assert json["meta"]["total-time"] == "01:00:00"
+
+
+@pytest.mark.parametrize(
+    "report_owner, reviewer, expected, mail_count, status_code",
+    [
+        (True, True, True, 1, status.HTTP_200_OK),
+        (False, True, True, 1, status.HTTP_200_OK),
+        (True, False, False, 0, status.HTTP_400_BAD_REQUEST),
+        (False, False, False, 0, status.HTTP_403_FORBIDDEN),
+    ],
+)
+def test_report_reject(
+    internal_employee_client,
+    report_owner,
+    report_factory,
+    reviewer,
+    expected,
+    status_code,
+    mail_count,
+    mailoutbox,
+):
+    user = internal_employee_client.user
+    user2 = UserFactory.create()
+    report = report_factory.create(user=user2 if not report_owner else user)
+    if reviewer:
+        ProjectAssigneeFactory.create(
+            user=user, is_reviewer=True, project=report.task.project
+        )
+
+    data = {
+        "data": {
+            "type": "reports",
+            "id": report.id,
+            "attributes": {"rejected": True},
+        }
+    }
+
+    url = reverse("report-detail", args=[report.id])
+    response = internal_employee_client.patch(url, data)
+    assert response.status_code == status_code
+
+    report.refresh_from_db()
+    assert report.rejected == expected
+
+    assert len(mailoutbox) == mail_count
+
+    if mail_count:
+        mail = mailoutbox[0]
+        assert mail.to[0] == user2.email if not report_owner else user
+
+
+def test_report_reject_multiple_notify(
+    internal_employee_client,
+    task,
+    task_factory,
+    project,
+    report_factory,
+    user_factory,
+    mailoutbox,
+):
+    reviewer = internal_employee_client.user
+    ProjectAssigneeFactory.create(user=reviewer, project=project, is_reviewer=True)
+
+    user1, user2, user3 = user_factory.create_batch(3)
+    report1_1 = report_factory(user=user1, task=task)
+    report1_2 = report_factory(user=user1, task=task)
+    report2 = report_factory(user=user2, task=task)
+    report3 = report_factory(user=user3, task=task)
+
+    url = reverse("report-bulk")
+
+    data = {
+        "data": {
+            "type": "report-bulks",
+            "id": None,
+            "attributes": {"rejected": True},
+        }
+    }
+
+    query_params = (
+        "?editable=1"
+        f"&reviewer={reviewer.id}"
+        "&id=" + ",".join(str(r.id) for r in [report1_1, report1_2, report2, report3])
+    )
+    response = internal_employee_client.post(url + query_params, data)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    for report in [report1_1, report1_2, report2, report3]:
+        report.refresh_from_db()
+        assert report.rejected
+
+    # every user received one mail
+    assert len(mailoutbox) == 3
+    assert all(True for mail in mailoutbox if len(mail.to) == 1)
+    assert set(mail.to[0] for mail in mailoutbox) == set(
+        user.email for user in [user1, user2, user3]
+    )
+
+
+def test_report_automatic_unreject(internal_employee_client, report_factory, task):
+    user = internal_employee_client.user
+    report = report_factory.create(user=user, rejected=True)
+
+    data = {
+        "data": {
+            "type": "reports",
+            "id": report.id,
+            "attributes": {"comment": "foo bar"},
+            "relationships": {
+                "project": {"data": {"type": "projects", "id": task.project.id}},
+                "task": {"data": {"type": "tasks", "id": task.id}},
+            },
+        }
+    }
+
+    url = reverse("report-detail", args=[report.id])
+    response = internal_employee_client.patch(url, data)
+    assert response.status_code == status.HTTP_200_OK
+
+    report.refresh_from_db()
+    assert not report.rejected

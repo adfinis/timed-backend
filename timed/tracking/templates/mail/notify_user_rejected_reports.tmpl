@@ -1,0 +1,11 @@
+{% load tracking_extras %}
+Some of your reports have been rejected.
+
+Reviewer: {{reviewer.first_name }} {{ reviewer.last_name }}
+{% for changeset in user_changes %}
+
+Date: {{ changeset.report.date|date:"SHORT_DATE_FORMAT" }}
+Duration: {{ changeset.report.duration|duration }}
+Task: {{ changeset.report.task }}
+Comment: {{ changeset.report.comment }}
+---{% endfor %}

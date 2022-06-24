@@ -2,13 +2,16 @@ from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
 from django.template.loader import get_template
 
-template = get_template("mail/notify_user_changed_reports.tmpl", using="text")
 
-
-def _send_notification_emails(changes, reviewer):
+def _send_notification_emails(changes, reviewer, rejected=False):
     """Send email for each user."""
 
-    subject = "[Timed] Your reports have been changed"
+    if rejected:
+        subject = "[Timed] Your reports have been rejected"
+        template = get_template("mail/notify_user_rejected_reports.tmpl", using="text")
+    else:
+        template = get_template("mail/notify_user_changed_reports.tmpl", using="text")
+        subject = "[Timed] Your reports have been changed"
     from_email = settings.DEFAULT_FROM_EMAIL
     connection = get_connection()
 
@@ -86,3 +89,22 @@ def notify_user_changed_reports(queryset, fields, reviewer):
         user_changes.append({"user": user, "changes": changes})
 
     _send_notification_emails(user_changes, reviewer)
+
+
+def notify_user_rejected_report(report, reviewer):
+    user_changes = {"user": report.user, "changes": [{"report": report}]}
+    _send_notification_emails([user_changes], reviewer, True)
+
+
+def notify_user_rejected_reports(queryset, fields, reviewer):
+    users = [report.user for report in queryset.order_by("user").distinct("user")]
+    user_changes = []
+
+    for user in users:
+        changes = []
+        for report in queryset.filter(user=user).order_by("date"):
+            changeset = {"report": report}
+            changes.append(changeset)
+        user_changes.append({"user": user, "changes": changes})
+
+    _send_notification_emails(user_changes, reviewer, True)

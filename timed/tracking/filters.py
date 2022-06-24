@@ -98,6 +98,7 @@ class ReportFilterSet(FilterSet):
     billing_type = NumberFilter(field_name="task__project__billing_type")
     user = NumberFilter(field_name="user_id")
     cost_center = NumberFilter(method="filter_cost_center")
+    rejected = NumberFilter(field_name="rejected")
 
     def filter_has_reviewer(self, queryset, name, value):
         if not value:  # pragma: no cover

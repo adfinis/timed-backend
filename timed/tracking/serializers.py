@@ -127,6 +127,15 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
 
         return value
 
+    def validate_rejected(self, value):
+        """Only reviewers are allowed to change rejected field."""
+        if self.instance is not None:
+            user = self.context["request"].user
+            if not user.is_reviewer and (self.instance.rejected != value):
+                raise ValidationError(_("Only reviewers may reject reports."))
+
+        return value
+
     def validate(self, data):
         """
         Validate that verified by is only set by reviewer or superuser.
@@ -236,6 +245,7 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
             "activity",
             "user",
             "verified_by",
+            "rejected",
         ]
 
 
@@ -250,6 +260,7 @@ class ReportBulkSerializer(Serializer):
     not_billable = serializers.BooleanField(required=False, allow_null=True)
     billed = serializers.BooleanField(required=False, allow_null=True)
     verified = serializers.BooleanField(required=False, allow_null=True)
+    rejected = serializers.BooleanField(required=False)
 
     class Meta:
         resource_name = "report-bulks"
