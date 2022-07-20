@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.db.models import Q, Sum
 from django.utils.duration import duration_string
 from rest_framework_json_api.relations import ResourceRelatedField
-from rest_framework_json_api.serializers import ModelSerializer
+from rest_framework_json_api.serializers import ModelSerializer, ValidationError
 
 from timed.projects import models
 from timed.tracking.models import Report
@@ -67,6 +67,30 @@ class ProjectSerializer(ModelSerializer):
 
         return {}
 
+    def validate_remaining_effort_tracking(self, value):
+        user = self.context["request"].user
+        project = self.instance
+        if not (
+            user.is_superuser
+            or user.is_accountant
+            or models.Project.objects.filter(
+                Q(
+                    project_assignees__user=user,
+                    project_assignees__is_manager=True,
+                    project_assignees__project=project,
+                )
+                | Q(
+                    customer__customer_assignees__user=user,
+                    customer__customer_assignees__is_manager=True,
+                    customer__customer_assignees__customer=project.customer,
+                )
+            ).exists()
+        ):
+            raise ValidationError(
+                "Only managers, accountants and superuser may activate remaining effort tracking!"
+            )
+        return value
+
     class Meta:
         """Meta information for the project serializer."""
 
@@ -82,6 +106,8 @@ class ProjectSerializer(ModelSerializer):
             "billing_type",
             "cost_center",
             "customer_visible",
+            "remaining_effort_tracking",
+            "total_remaining_effort",
         ]
 
 
@@ -116,9 +142,11 @@ class TaskSerializer(ModelSerializer):
         """
         request = self.context["request"]
         user = request.user
+        # check if user is manager when updating a task
         if self.instance:
             if (
-                models.Task.objects.filter(id=self.instance.id)
+                user.is_superuser
+                or models.Task.objects.filter(id=self.instance.id)
                 .filter(
                     Q(
                         task_assignees__user=user,
@@ -136,8 +164,10 @@ class TaskSerializer(ModelSerializer):
                 .exists()
             ):
                 return data
+        # check if user is manager when creating a task
         elif (
-            models.Project.objects.filter(pk=data["project"].id)
+            user.is_superuser
+            or models.Project.objects.filter(pk=data["project"].id)
             .filter(
                 Q(
                     project_assignees__user=user,
@@ -163,6 +193,7 @@ class TaskSerializer(ModelSerializer):
             "archived",
             "project",
             "cost_center",
+            "most_recent_remaining_effort",
         ]
 
 

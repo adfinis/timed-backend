@@ -1804,3 +1804,101 @@ def test_report_automatic_unreject(internal_employee_client, report_factory, tas
 
     report.refresh_from_db()
     assert not report.rejected
+
+
+@pytest.mark.parametrize(
+    "is_external, remaining_effort_active, is_superuser, expected",
+    [
+        (True, True, False, status.HTTP_403_FORBIDDEN),
+        (True, False, False, status.HTTP_403_FORBIDDEN),
+        (False, True, False, status.HTTP_200_OK),
+        (False, False, False, status.HTTP_400_BAD_REQUEST),
+        (False, False, True, status.HTTP_400_BAD_REQUEST),
+        (False, True, True, status.HTTP_200_OK),
+    ],
+)
+def test_report_set_remaining_effort(
+    auth_client,
+    is_external,
+    remaining_effort_active,
+    expected,
+    is_superuser,
+    report_factory,
+):
+    user = auth_client.user
+    EmploymentFactory.create(user=user, is_external=is_external)
+    report = report_factory.create(user=user)
+
+    if remaining_effort_active:
+        report.task.project.remaining_effort_tracking = True
+        report.task.project.save()
+
+    if is_superuser:
+        user.is_superuser = True
+        user.save()
+
+    data = {
+        "data": {
+            "type": "reports",
+            "id": report.id,
+            "attributes": {
+                "comment": "foo bar",
+                "remaining_effort": "01:00:00",
+            },
+        }
+    }
+
+    url = reverse("report-detail", args=[report.id])
+
+    response = auth_client.patch(url, data)
+    assert response.status_code == expected
+
+
+def test_report_remaining_effort_total(
+    internal_employee_client,
+    report_factory,
+):
+    user = internal_employee_client.user
+    report = report_factory.create(user=user)
+    task_2 = TaskFactory.create(project=report.task.project)
+    report_2 = report_factory.create(user=user, task=task_2)
+    report.task.project.remaining_effort_tracking = True
+    report.task.project.save()
+
+    data = {
+        "data": {
+            "type": "reports",
+            "id": report.id,
+            "attributes": {
+                "remaining_effort": "01:00:00",
+            },
+        }
+    }
+
+    url = reverse("report-detail", args=[report.id])
+
+    response = internal_employee_client.patch(url, data)
+    assert response.status_code == status.HTTP_200_OK
+
+    report.task.refresh_from_db()
+    assert report.task.most_recent_remaining_effort == timedelta(hours=1)
+    assert report.task.project.total_remaining_effort == timedelta(hours=1)
+
+    data = {
+        "data": {
+            "type": "reports",
+            "id": report_2.id,
+            "attributes": {
+                "remaining_effort": "03:00:00",
+            },
+        }
+    }
+
+    url = reverse("report-detail", args=[report_2.id])
+
+    response = internal_employee_client.patch(url, data)
+    assert response.status_code == status.HTTP_200_OK
+
+    task_2.refresh_from_db()
+    assert task_2.most_recent_remaining_effort == timedelta(hours=3)
+    assert task_2.project.total_remaining_effort == timedelta(hours=4)

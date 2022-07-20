@@ -4,8 +4,6 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 
 
 class Activity(models.Model):
@@ -103,6 +101,7 @@ class Report(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     rejected = models.BooleanField(default=False)
+    remaining_effort = models.DurationField(default=timedelta(0))
 
     def save(self, *args, **kwargs):
         """Save the report with some custom functionality.
@@ -187,13 +186,3 @@ class Absence(models.Model):
         """Meta informations for the absence model."""
 
         unique_together = ("date", "user")
-
-
-@receiver(pre_save, sender=Report)
-def update_rejected_on_reports(sender, instance, **kwargs):
-    """Unreject report when the task changes."""
-    # Check if the report is being created or updated
-    if instance.pk and instance.rejected:
-        report = Report.objects.get(id=instance.id)
-        if report.task_id != instance.task_id:
-            instance.rejected = False

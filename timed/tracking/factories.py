@@ -24,7 +24,7 @@ class AttendanceFactory(DjangoModelFactory):
 
 
 class ReportFactory(DjangoModelFactory):
-    """Task factory."""
+    """Report factory."""
 
     comment = Faker("sentence")
     date = Faker("date")

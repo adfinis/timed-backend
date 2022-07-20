@@ -8,3 +8,7 @@ class TrackingConfig(AppConfig):
 
     name = "timed.tracking"
     label = "tracking"
+
+    def ready(self):
+        # Implicitly connect signal handlers decorated with @receiver.
+        from . import signals  # noqa: F401

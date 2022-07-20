@@ -251,6 +251,25 @@ class IsManager(IsAuthenticated):
                 )
                 .exists()
             )
+        elif isinstance(obj, projects_models.Project):
+            return (
+                projects_models.Project.objects.filter(pk=obj.pk)
+                .filter(
+                    Q(
+                        tasks__task_assignees__user=user,
+                        tasks__task_assignees__is_manager=True,
+                    )
+                    | Q(
+                        project_assignees__user=user,
+                        project_assignees__is_manager=True,
+                    )
+                    | Q(
+                        customer__customer_assignees__user=user,
+                        customer__customer_assignees__is_manager=True,
+                    )
+                )
+                .exists()
+            )
         else:  # pragma: no cover
             raise RuntimeError("IsManager permission called on unsupported model")
 

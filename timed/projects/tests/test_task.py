@@ -76,9 +76,9 @@ def test_task_detail(internal_employee_client, task):
     ],
 )
 def test_task_create(
-    auth_client, project, project_assignee, customer_assignee, expected
+    internal_employee_client, project, project_assignee, customer_assignee, expected
 ):
-    user = auth_client.user
+    user = internal_employee_client.user
     project_assignee.user = user
     project_assignee.save()
     if customer_assignee.is_manager:
@@ -97,7 +97,7 @@ def test_task_create(
             "type": "tasks",
         }
     }
-    response = auth_client.post(url, data=data)
+    response = internal_employee_client.post(url, data=data)
     assert response.status_code == expected
 
 
@@ -110,6 +110,7 @@ def test_task_create(
         (False, False, False, True, False, False, status.HTTP_403_FORBIDDEN),
         (False, False, False, False, True, False, status.HTTP_200_OK),
         (False, False, False, False, True, True, status.HTTP_403_FORBIDDEN),
+        (False, False, False, False, False, False, status.HTTP_403_FORBIDDEN),
     ],
 )
 def test_task_update(

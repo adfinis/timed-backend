@@ -10,6 +10,8 @@ from timed.projects.factories import (
     CustomerAssigneeFactory,
     ProjectAssigneeFactory,
     ProjectFactory,
+    TaskAssigneeFactory,
+    TaskFactory,
 )
 from timed.projects.serializers import ProjectSerializer
 
@@ -36,7 +38,7 @@ def test_project_list_include(
 
     url = reverse("project-list")
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(5):
         response = internal_employee_client.get(
             url,
             data={"include": ",".join(ProjectSerializer.included_serializers.keys())},
@@ -96,21 +98,21 @@ def test_project_create(auth_client):
     url = reverse("project-list")
 
     response = auth_client.post(url)
-    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_project_update(auth_client, project):
     url = reverse("project-detail", args=[project.id])
 
     response = auth_client.patch(url)
-    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_project_delete(auth_client, project):
     url = reverse("project-detail", args=[project.id])
 
     response = auth_client.delete(url)
-    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.parametrize("is_assigned, expected", [(True, 1), (False, 0)])
@@ -193,3 +195,43 @@ def test_project_list_no_employment(auth_client, project, is_customer, expected)
 
     json = response.json()
     assert len(json["data"]) == expected
+
+
+@pytest.mark.parametrize(
+    "assignee_level, status_code",
+    [
+        ("customer", status.HTTP_200_OK),
+        ("project", status.HTTP_200_OK),
+        ("task", status.HTTP_400_BAD_REQUEST),
+        (None, status.HTTP_403_FORBIDDEN),
+    ],
+)
+def test_project_activate_remaining_effort(
+    internal_employee_client, assignee_level, status_code
+):
+    task = TaskFactory.create()
+    user = internal_employee_client.user
+
+    if assignee_level == "customer":
+        CustomerAssigneeFactory(
+            user=user, customer=task.project.customer, is_manager=True
+        )
+    elif assignee_level == "project":
+        ProjectAssigneeFactory(user=user, project=task.project, is_manager=True)
+    elif assignee_level == "task":
+        TaskAssigneeFactory(user=user, task=task, is_manager=True)
+
+    data = {
+        "data": {
+            "type": "projects",
+            "id": task.project.id,
+            "attributes": {
+                "remaining_effort_tracking": True,
+            },
+        }
+    }
+
+    url = reverse("project-detail", args=[task.project.id])
+
+    response = internal_employee_client.patch(url, data)
+    assert response.status_code == status_code

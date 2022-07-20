@@ -57,6 +57,7 @@ class EmploymentFactory(DjangoModelFactory):
     percentage = Faker("random_int", min=50, max=100)
     start_date = Faker("date_object")
     end_date = None
+    is_external = False
 
     @lazy_attribute
     def worktime_per_day(self):

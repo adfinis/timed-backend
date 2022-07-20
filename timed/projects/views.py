@@ -4,12 +4,14 @@ from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from timed.permissions import (
+    IsAccountant,
     IsAuthenticated,
     IsCustomer,
     IsInternal,
     IsManager,
     IsReadOnly,
     IsSuperUser,
+    IsUpdateOnly,
 )
 from timed.projects import filters, models, serializers
 
@@ -108,7 +110,7 @@ class CostCenterViewSet(ReadOnlyModelViewSet):
         return models.CostCenter.objects.all()
 
 
-class ProjectViewSet(ReadOnlyModelViewSet):
+class ProjectViewSet(ModelViewSet):
     """Project view set."""
 
     serializer_class = serializers.ProjectSerializer
@@ -116,6 +118,16 @@ class ProjectViewSet(ReadOnlyModelViewSet):
     ordering_fields = ("customer__name", "name")
     ordering = "name"
     queryset = models.Project.objects.all()
+    permission_classes = [
+        # superuser may edit all projects
+        IsSuperUser
+        # accountants may edit all projects
+        | IsAccountant
+        # managers may edit only assigned projects
+        | IsManager & IsUpdateOnly
+        # all authenticated users may read all tasks
+        | IsAuthenticated & IsReadOnly
+    ]
 
     def get_queryset(self):
         """Get only assigned projects, if an employee is external."""
@@ -149,6 +161,7 @@ class TaskViewSet(ModelViewSet):
     serializer_class = serializers.TaskSerializer
     filterset_class = filters.TaskFilterSet
     queryset = models.Task.objects.select_related("project", "cost_center")
+    ordering = "name"
     permission_classes = [
         # superuser may edit all tasks
         IsSuperUser
@@ -157,7 +170,6 @@ class TaskViewSet(ModelViewSet):
         # all authenticated users may read all tasks
         | IsAuthenticated & IsReadOnly
     ]
-    ordering = "name"
 
     def filter_queryset(self, queryset):
         """Specific filter queryset options."""

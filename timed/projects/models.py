@@ -1,5 +1,7 @@
 """Models for the projects app."""
 
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -111,6 +113,8 @@ class Project(models.Model):
         through="ProjectAssignee",
         related_name="assigned_to_projects",
     )
+    remaining_effort_tracking = models.BooleanField(default=False)
+    total_remaining_effort = models.DurationField(default=timedelta(0))
 
     def __str__(self):
         """Represent the model as a string.
@@ -156,6 +160,7 @@ class Task(models.Model):
         through="TaskAssignee",
         related_name="assigned_to_tasks",
     )
+    most_recent_remaining_effort = models.DurationField(blank=True, null=True)
 
     def __str__(self):
         """Represent the model as a string.

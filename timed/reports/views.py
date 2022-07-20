@@ -107,7 +107,10 @@ class ProjectStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
         queryset = Report.objects.all()
         queryset = queryset.values("task__project")
         queryset = queryset.annotate(duration=Sum("duration"))
-        queryset = queryset.annotate(pk=F("task__project"))
+        queryset = queryset.annotate(
+            pk=F("task__project"),
+            sum_remaining=F("task__project__total_remaining_effort"),
+        )
 
         return queryset
 
@@ -129,7 +132,10 @@ class TaskStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
         queryset = Report.objects.all()
         queryset = queryset.values("task")
         queryset = queryset.annotate(duration=Sum("duration"))
-        queryset = queryset.annotate(pk=F("task"))
+        queryset = queryset.annotate(
+            pk=F("task"),
+            most_recent_remaining_effort=F("task__most_recent_remaining_effort"),
+        )
 
         return queryset
 
