@@ -1,7 +1,7 @@
 # Contributing
 
-Contributions to Timed backend are very welcome! Best have a look at the open [issues](https://github.com/adfinis-sygroup/timed-backend)
-and open a [GitHub pull request](https://github.com/adfinis-sygroup/timed-backend/compare). See instructions below how to setup development
+Contributions to Timed backend are very welcome! Best have a look at the open [issues](https://github.com/adfinis/timed-backend)
+and open a [GitHub pull request](https://github.com/adfinis/timed-backend/compare). See instructions below how to setup development
 environment. Before writing any code, best discuss your proposed change in a GitHub issue to see if the proposed change makes sense for the project.
 
 ## Setup development environment
@@ -11,7 +11,7 @@ environment. Before writing any code, best discuss your proposed change in a Git
 To work on Timed backend you first need to clone
 
 ```bash
-git clone https://github.com/adfinis-sygroup/timed-backend.git
+git clone https://github.com/adfinis/timed-backend.git
 cd timed-backend
 ```
 

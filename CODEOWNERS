@@ -1,3 +1,3 @@
 # Code owners for the Timed backend. We include our backend dev team here.
 # Since this is a split project (backend/frontend) it's rather simple
-* @adfinis-sygroup/dev-backend
+* @adfinis/dev-backend

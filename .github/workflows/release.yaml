@@ -20,7 +20,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ghcr.io/adfinis-sygroup/timed-backend
+          images: ghcr.io/adfinis/timed-backend
           flavor: |
             latest=auto
           labels: |

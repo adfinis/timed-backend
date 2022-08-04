@@ -1,9 +1,9 @@
 # Timed Backend
 
-[![Build Status](https://github.com/adfinis-sygroup/timed-backend/workflows/Test/badge.svg)](https://github.com/adfinis-sygroup/timed-backend/actions?query=workflow%3A%22Test%22)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/adfinis-sygroup/timed-backend/blob/master/setup.cfg)
-[![Pyup](https://pyup.io/repos/github/adfinis-sygroup/timed-backend/shield.svg)](https://pyup.io/account/repos/github/adfinis-sygroup/timed-backend/)
-[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/adfinis-sygroup/timed-backend)
+[![Build Status](https://github.com/adfinis/timed-backend/workflows/Test/badge.svg)](https://github.com/adfinis/timed-backend/actions?query=workflow%3A%22Test%22)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/adfinis/timed-backend/blob/master/setup.cfg)
+[![Pyup](https://pyup.io/repos/github/adfinis/timed-backend/shield.svg)](https://pyup.io/account/repos/github/adfinis/timed-backend/)
+[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/adfinis/timed-backend)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 Timed timetracking software REST API built with Django
@@ -28,7 +28,7 @@ Then just start the docker-compose setup:
 make start
 ```
 
-This brings up complete local installation, including our [Timed Frontend](https://github.com/adfinis-sygroup/timed-frontend) project.
+This brings up complete local installation, including our [Timed Frontend](https://github.com/adfinis/timed-frontend) project.
 
 You can visit it at [http://timed.local](http://timed.local).
 
