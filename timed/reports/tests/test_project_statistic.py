@@ -42,7 +42,7 @@ def test_project_statistic_list(
     url = reverse("project-statistic-list")
     with django_assert_num_queries(expected):
         result = auth_client.get(
-            url, data={"ordering": "duration", "include": "project,project.customer"}
+            url, data={"ordering": "duration", "include": "project"}
         )
     assert result.status_code == status_code
 
@@ -71,5 +71,5 @@ def test_project_statistic_list(
             },
         ]
         assert json["data"] == expected_json
-        assert len(json["included"]) == 4
+        assert len(json["included"]) == 2
         assert json["meta"]["total-time"] == "07:00:00"

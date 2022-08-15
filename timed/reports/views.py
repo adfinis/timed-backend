@@ -15,7 +15,9 @@ from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
 from timed.mixins import AggregateQuerysetMixin
 from timed.permissions import IsAuthenticated, IsInternal, IsSuperUser
+from timed.projects.models import Customer, Project, Task
 from timed.reports import serializers
+from timed.reports.filters import TaskStatisticFilterSet
 from timed.tracking.filters import ReportFilterSet
 from timed.tracking.models import Report
 from timed.tracking.views import ReportViewSet
@@ -72,9 +74,9 @@ class CustomerStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Customer statistics calculates total reported time per customer."""
 
     serializer_class = serializers.CustomerStatisticSerializer
-    filterset_class = ReportFilterSet
-    ordering_fields = ("task__project__customer__name", "duration")
-    ordering = ("task__project__customer__name",)
+    filterset_class = TaskStatisticFilterSet
+    ordering_fields = ("project__customer__name", "duration")
+    ordering = ("project__customer__name",)
     permission_classes = [
         # internal employees or super users may read all customer statistics
         (IsInternal | IsSuperUser)
@@ -82,10 +84,12 @@ class CustomerStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ]
 
     def get_queryset(self):
-        queryset = Report.objects.all()
-        queryset = queryset.values("task__project__customer")
-        queryset = queryset.annotate(duration=Sum("duration"))
-        queryset = queryset.annotate(pk=F("task__project__customer"))
+        queryset = Task.objects.all()
+        queryset = queryset.values("project__customer")
+        queryset = queryset.annotate(
+            duration=Sum("reports__duration"),
+            pk=F("project__customer"),
+        )
 
         return queryset
 
@@ -94,9 +98,9 @@ class ProjectStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Project statistics calculates total reported time per project."""
 
     serializer_class = serializers.ProjectStatisticSerializer
-    filterset_class = ReportFilterSet
-    ordering_fields = ("task__project__name", "duration")
-    ordering = ("task__project__name",)
+    filterset_class = TaskStatisticFilterSet
+    ordering_fields = ("project__name", "duration")
+    ordering = ("project__name",)
     permission_classes = [
         # internal employees or super users may read all customer statistics
         (IsInternal | IsSuperUser)
@@ -104,12 +108,12 @@ class ProjectStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ]
 
     def get_queryset(self):
-        queryset = Report.objects.all()
-        queryset = queryset.values("task__project")
-        queryset = queryset.annotate(duration=Sum("duration"))
+        queryset = Task.objects.all()
+        queryset = queryset.values("project")
         queryset = queryset.annotate(
-            pk=F("task__project"),
-            sum_remaining=F("task__project__total_remaining_effort"),
+            duration=Sum("reports__duration"),
+            pk=F("project"),
+            sum_remaining_effort=F("project__total_remaining_effort")
         )
 
         return queryset
@@ -119,9 +123,9 @@ class TaskStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     """Task statistics calculates total reported time per task."""
 
     serializer_class = serializers.TaskStatisticSerializer
-    filterset_class = ReportFilterSet
-    ordering_fields = ("task__name", "duration")
-    ordering = ("task__name",)
+    filterset_class = TaskStatisticFilterSet
+    ordering_fields = ("name", "duration")
+    ordering = ("name",)
     permission_classes = [
         # internal employees or super users may read all customer statistics
         (IsInternal | IsSuperUser)
@@ -129,12 +133,13 @@ class TaskStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ]
 
     def get_queryset(self):
-        queryset = Report.objects.all()
-        queryset = queryset.values("task")
-        queryset = queryset.annotate(duration=Sum("duration"))
+        queryset = Task.objects.all()
+        queryset = queryset.values("id")
         queryset = queryset.annotate(
-            pk=F("task"),
-            most_recent_remaining_effort=F("task__most_recent_remaining_effort"),
+            duration=Sum("reports__duration"),
+            pk=F("id"),
+            project=F("project"),
+            most_recent_remaining_effort=F("most_recent_remaining_effort")
         )
 
         return queryset

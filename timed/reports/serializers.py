@@ -26,7 +26,7 @@ class MonthStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
 class CustomerStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
     duration = DurationField()
     customer = relations.ResourceRelatedField(
-        source="task__project__customer", model=Customer, read_only=True
+        source="project__customer", model=Customer, read_only=True
     )
 
     included_serializers = {"customer": "timed.projects.serializers.CustomerSerializer"}
@@ -38,7 +38,7 @@ class CustomerStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
 class ProjectStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
     duration = DurationField()
     project = relations.ResourceRelatedField(
-        source="task__project", model=Project, read_only=True
+        model=Project, read_only=True
     )
 
     included_serializers = {"project": "timed.projects.serializers.ProjectSerializer"}
@@ -49,9 +49,9 @@ class ProjectStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
 
 class TaskStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
     duration = DurationField(read_only=True)
-    task = relations.ResourceRelatedField(model=Task, read_only=True)
+    project = relations.ResourceRelatedField(model=Project, read_only=True)
 
-    included_serializers = {"task": "timed.projects.serializers.TaskSerializer"}
+    included_serializers = {"project": "timed.projects.serializers.ProjectSerializer"}
 
     class Meta:
         resource_name = "task-statistics"
