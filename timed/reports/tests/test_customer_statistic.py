@@ -7,6 +7,7 @@ from rest_framework import status
 from timed.conftest import setup_customer_and_employment_status
 from timed.employment.factories import EmploymentFactory
 from timed.tracking.factories import ReportFactory
+from timed.projects.models import Customer
 
 
 @pytest.mark.parametrize(
@@ -56,12 +57,7 @@ def test_customer_statistic_list(
                 "id": str(report.task.project.customer.id),
                 "attributes": {"duration": "03:00:00"},
                 "relationships": {
-                    "customer": {
-                        "data": {
-                            "id": str(report.task.project.customer.id),
-                            "type": "customers",
-                        }
-                    }
+                    "customer": {"data": {"id": str(report.task.project.customer.id), "type": "customers"}}
                 },
             },
             {
@@ -69,17 +65,11 @@ def test_customer_statistic_list(
                 "id": str(report2.task.project.customer.id),
                 "attributes": {"duration": "04:00:00"},
                 "relationships": {
-                    "customer": {
-                        "data": {
-                            "id": str(report2.task.project.customer.id),
-                            "type": "customers",
-                        }
-                    }
+                    "customer": {"data": {"id": str(report2.task.project.customer.id), "type": "customers"}}
                 },
             },
         ]
         assert json["data"] == expected_data
-        assert len(json["included"]) == 2
         assert json["meta"]["total-time"] == "07:00:00"
 
 
@@ -100,7 +90,7 @@ def test_customer_statistic_detail(
     url = reverse("customer-statistic-detail", args=[report.task.project.customer.id])
     with django_assert_num_queries(expected):
         result = auth_client.get(
-            url, data={"ordering": "duration", "include": "customer"}
+            url, data={"ordering": "duration"}
         )
     assert result.status_code == status_code
     if status_code == status.HTTP_200_OK:

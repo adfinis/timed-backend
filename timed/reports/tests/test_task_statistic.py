@@ -47,8 +47,8 @@ def test_task_statistic_list(
         result = auth_client.get(
             url,
             data={
-                "ordering": "task__name",
-                "include": "task,task.project,task.project.customer",
+                "ordering": "name",
+                "include": "project,project.customer",
             },
         )
     assert result.status_code == status_code
@@ -61,7 +61,7 @@ def test_task_statistic_list(
                 "id": str(task_test.id),
                 "attributes": {"duration": "03:00:00"},
                 "relationships": {
-                    "task": {"data": {"id": str(task_test.id), "type": "tasks"}}
+                    "project": {"data": {"id": str(task_test.project.id), "type": "projects"}}
                 },
             },
             {
@@ -69,10 +69,10 @@ def test_task_statistic_list(
                 "id": str(task_z.id),
                 "attributes": {"duration": "02:00:00"},
                 "relationships": {
-                    "task": {"data": {"id": str(task_z.id), "type": "tasks"}}
+                    "project": {"data": {"id": str(task_z.project.id), "type": "projects"}}
                 },
             },
         ]
         assert json["data"] == expected_json
-        assert len(json["included"]) == 6
+        assert len(json["included"]) == 4
         assert json["meta"]["total-time"] == "05:00:00"
