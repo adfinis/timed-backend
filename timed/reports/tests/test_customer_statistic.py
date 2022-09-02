@@ -6,8 +6,8 @@ from rest_framework import status
 
 from timed.conftest import setup_customer_and_employment_status
 from timed.employment.factories import EmploymentFactory
-from timed.tracking.factories import ReportFactory
 from timed.projects.models import Customer
+from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.parametrize(
@@ -15,9 +15,9 @@ from timed.projects.models import Customer
     [
         (False, True, False, 1, status.HTTP_403_FORBIDDEN),
         (False, True, True, 1, status.HTTP_403_FORBIDDEN),
-        (True, False, False, 4, status.HTTP_200_OK),
-        (True, True, False, 4, status.HTTP_200_OK),
-        (True, True, True, 4, status.HTTP_200_OK),
+        (True, False, False, 3, status.HTTP_200_OK),
+        (True, True, False, 3, status.HTTP_200_OK),
+        (True, True, True, 3, status.HTTP_200_OK),
     ],
 )
 def test_customer_statistic_list(
@@ -55,17 +55,17 @@ def test_customer_statistic_list(
             {
                 "type": "customer-statistics",
                 "id": str(report.task.project.customer.id),
-                "attributes": {"duration": "03:00:00"},
-                "relationships": {
-                    "customer": {"data": {"id": str(report.task.project.customer.id), "type": "customers"}}
+                "attributes": {
+                    "duration": "03:00:00",
+                    "name": report.task.project.customer.name,
                 },
             },
             {
                 "type": "customer-statistics",
                 "id": str(report2.task.project.customer.id),
-                "attributes": {"duration": "04:00:00"},
-                "relationships": {
-                    "customer": {"data": {"id": str(report2.task.project.customer.id), "type": "customers"}}
+                "attributes": {
+                    "duration": "04:00:00",
+                    "name": report2.task.project.customer.name,
                 },
             },
         ]
@@ -76,7 +76,7 @@ def test_customer_statistic_list(
 @pytest.mark.parametrize(
     "is_employed, expected, status_code",
     [
-        (True, 5, status.HTTP_200_OK),
+        (True, 4, status.HTTP_200_OK),
         (False, 1, status.HTTP_403_FORBIDDEN),
     ],
 )
@@ -89,9 +89,7 @@ def test_customer_statistic_detail(
 
     url = reverse("customer-statistic-detail", args=[report.task.project.customer.id])
     with django_assert_num_queries(expected):
-        result = auth_client.get(
-            url, data={"ordering": "duration"}
-        )
+        result = auth_client.get(url, data={"ordering": "duration"})
     assert result.status_code == status_code
     if status_code == status.HTTP_200_OK:
         json = result.json()

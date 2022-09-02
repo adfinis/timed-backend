@@ -5,7 +5,14 @@ from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssigne
 from timed.projects.models import Task
 
 
-class TaskStatisticFilterSet(FilterSet):
+class MultiQSFilterMixin():
+    def filter_queryset(self, queryset):
+        qs = super().filter_queryset(queryset)
+        return qs._finalize()
+
+
+
+class TaskStatisticFilterSet(MultiQSFilterMixin, FilterSet):
     """Filter set for the customer, project and task statistic endpoint."""
 
     id = BaseInFilter()
@@ -140,6 +147,7 @@ class TaskStatisticFilterSet(FilterSet):
             Q(cost_center=value)
             | Q(project__cost_center=value) & Q(cost_center__isnull=True)
         )
+
 
     class Meta:
         """Meta information for the task statistic filter set."""
