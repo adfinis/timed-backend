@@ -7,7 +7,7 @@ from rest_framework_json_api.serializers import (
     Serializer,
 )
 
-from timed.projects.models import Customer, Project, Task
+from timed.projects.models import Project
 from timed.serializers import TotalTimeRootMetaMixin
 
 

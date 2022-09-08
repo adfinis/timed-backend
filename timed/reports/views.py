@@ -165,8 +165,18 @@ class MultiQS(QuerySet):
 
         return new_self
 
+    def _validate_q(self, q_object):
+        if isinstance(q_object, tuple):
+            assert not q_object[0].startswith(
+                "reports__"
+            ), "Filtering of reports not possible"
+        else:
+            for child in q_object.children:
+                self._validate_q(child)
+
     def _apply(self, method, *args, **kwargs):
-        assert not args, "Q object filtering currently not supported"
+        for arg in args:
+            self._validate_q(arg)
 
         new_self = self._clone()
         task_filters = {}
@@ -182,6 +192,8 @@ class MultiQS(QuerySet):
             new_self._reports = getattr(new_self._reports, method)(**report_filters)
         if task_filters:
             new_self._tasks = getattr(new_self._tasks, method)(**task_filters)
+        if args:
+            new_self._tasks = getattr(new_self._tasks, method)(*args)
         return new_self
 
     def filter(self, *args, **kwargs):

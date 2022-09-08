@@ -1,11 +1,12 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 import pytest
 from django.urls import reverse
 from rest_framework import status
 
 from timed.conftest import setup_customer_and_employment_status
-from timed.projects.factories import TaskFactory
+from timed.employment.factories import UserFactory
+from timed.projects.factories import CostCenterFactory, TaskAssigneeFactory, TaskFactory
 from timed.tracking.factories import ReportFactory
 
 
@@ -91,7 +92,7 @@ def test_task_statistic_list(
 
 @pytest.mark.parametrize(
     "filter, expected_result",
-    [("from_date", 5), ("customer", 3)],
+    [("from_date", 5), ("customer", 3), ("cost_center", 3), ("reviewer", 3)],
 )
 def test_task_statistic_filtered(
     auth_client,
@@ -108,8 +109,10 @@ def test_task_statistic_filtered(
         is_external=False,
     )
 
-    task_z = TaskFactory.create(name="Z")
+    cost_center = CostCenterFactory()
+    task_z = TaskFactory.create(name="Z", cost_center=cost_center)
     task_test = TaskFactory.create(name="Test")
+    reviewer = TaskAssigneeFactory(user=UserFactory(), task=task_test, is_reviewer=True)
 
     ReportFactory.create(duration=timedelta(hours=1), date="2022-08-05", task=task_test)
     ReportFactory.create(duration=timedelta(hours=2), date="2022-08-30", task=task_test)
@@ -118,6 +121,8 @@ def test_task_statistic_filtered(
     filter_values = {
         "from_date": "2022-08-20",  # last two reports
         "customer": str(task_test.project.customer.pk),  # first two
+        "cost_center": str(cost_center.pk),  # first two
+        "reviewer": str(reviewer.user.pk),  # first two
     }
     the_filter = {filter: filter_values[filter]}
 

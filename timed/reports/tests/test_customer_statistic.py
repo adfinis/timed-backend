@@ -6,7 +6,6 @@ from rest_framework import status
 
 from timed.conftest import setup_customer_and_employment_status
 from timed.employment.factories import EmploymentFactory
-from timed.projects.models import Customer
 from timed.tracking.factories import ReportFactory
 
 
