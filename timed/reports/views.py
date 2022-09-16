@@ -86,8 +86,6 @@ class CustomerStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = MultiQS(
             start=Customer,
-            #            Task.objects.all(),
-            #            Report.objects.all(),
             annotations={
                 "customer_id": F("pk"),
                 "name": F("name"),
