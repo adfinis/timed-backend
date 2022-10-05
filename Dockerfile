@@ -16,10 +16,7 @@ ENV DJANGO_SETTINGS_MODULE timed.settings
 ENV STATIC_ROOT /var/www/static
 ENV WAITFORIT_TIMEOUT 0
 
-ENV UWSGI_INI /app/uwsgi.ini
-ENV UWSGI_MAX_REQUESTS 2000
-ENV UWSGI_HARAKIRI 5
-ENV UWSGI_PROCESSES 4
+ENV HURRICANE_REQ_QUEUE_LEN 250
 
 COPY requirements.txt requirements-dev.txt /app/
 RUN pip install --upgrade --no-cache-dir --requirement $REQUIREMENTS --disable-pip-version-check
