@@ -3,6 +3,7 @@ django==3.2.13
 # might remove this once we find out how the jsonapi extras_require work
 django-cors-headers==3.13.0
 django-filter==21.1
+django-hurricane==1.3.3
 django-multiselectfield==0.1.12
 django-prometheus==2.2.0
 djangorestframework==3.13.1
