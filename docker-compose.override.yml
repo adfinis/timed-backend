@@ -14,7 +14,7 @@ services:
       - DJANGO_OIDC_USERNAME_CLAIM=preferred_username
     volumes:
       - ./:/app
-    command: /bin/sh -c "wait-for-it.sh -t 60 db:5432 -- ./manage.py migrate && ./manage.py serve --port 80 --req-queue-len=200 --autoreload --static"
+    command: /bin/sh -c "wait-for-it.sh -t 60 db:5432 -- ./manage.py migrate && ./manage.py serve --port 80 --req-queue-len=${HURRICANE_REQ_QUEUE_LEN:-250} --autoreload --static"
     ports:
       - "81:81"
     networks:

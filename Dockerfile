@@ -16,7 +16,7 @@ ENV DJANGO_SETTINGS_MODULE timed.settings
 ENV STATIC_ROOT /var/www/static
 ENV WAITFORIT_TIMEOUT 0
 
-ENV REQ_QUEUE_LEN 250
+ENV HURRICANE_REQ_QUEUE_LEN 250
 
 COPY requirements.txt requirements-dev.txt /app/
 RUN pip install --upgrade --no-cache-dir --requirement $REQUIREMENTS --disable-pip-version-check
