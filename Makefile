@@ -22,7 +22,7 @@ format-code: ## Format the backend code
 
 .PHONY: test
 test: ## Test the project
-	@docker-compose exec backend sh -c "poetry run black . && poetry run isort . && poetry run pytest --no-cov-on-fail --cov
+	@docker-compose exec backend sh -c "poetry run black . && poetry run isort . && poetry run pytest --no-cov-on-fail --cov"
 
 .PHONY: bash
 bash: ## Shell into the backend
@@ -42,7 +42,7 @@ makemigrations: ## Make django migrations
 
 .PHONY: migrate
 migrate: ## Migrate django
-	@docker-compose backend poetry run python manage.py migrate
+	@docker-compose exec backend poetry run python manage.py migrate
 
 .PHONY: debug-backend
 debug-backend: ## Start backend container with service ports for debugging
