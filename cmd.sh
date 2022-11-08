@@ -1,9 +1,14 @@
 #!/bin/sh
 
-GUNICORN_WORKERS="${GUNICORN_WORKERS:-8}"
+# All parameters to the script are appended as arguments to `manage.py serve`
 
-./manage.py collectstatic --noinput
+set -x
 
-wait-for-it.sh "${DJANGO_DATABASE_HOST}":"${DJANGO_DATABASE_PORT}" -t "${WAITFORIT_TIMEOUT}" -- \
-    ./manage.py migrate --no-input && \
-    gunicorn --workers=$GUNICORN_WORKERS --bind=0.0.0.0:80 timed.wsgi:application
+python manage.py collectstatic --noinput
+
+set -e
+
+wait-for-it.sh "${DJANGO_DATABASE_HOST}":"${DJANGO_DATABASE_PORT}" -t "${WAITFORIT_TIMEOUT}"
+python manage.py migrate --no-input
+python manage.py serve --static --port 80 --req-queue-len "${HURRICANE_REQ_QUEUE_LEN:-250}" "$@"
+
