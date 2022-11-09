@@ -20,8 +20,7 @@ RUN pip install -U poetry
 
 ARG INSTALL_DEV_DEPENDENCIES=false
 COPY pyproject.toml poetry.lock /app/
-RUN poetry config virtualenvs.create false \
-  && if [ "$INSTALL_DEV_DEPENDENCIES" = "true" ]; then poetry install; else poetry install --no-dev; fi
+RUN if [ "$INSTALL_DEV_DEPENDENCIES" = "true" ]; then poetry install; else poetry install --no-dev; fi
 
 COPY . /app
 
