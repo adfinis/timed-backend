@@ -5,6 +5,9 @@ from django.contrib.auth import get_user_model
 from django.core.mail import EmailMessage, get_connection
 from django.core.management.base import BaseCommand
 from django.template.loader import get_template
+from django.utils.timezone import now
+
+from timed.notifications.models import Notification
 
 template = get_template("mail/notify_supervisor_shorttime.txt", using="text")
 
@@ -145,3 +148,6 @@ class Command(BaseCommand):
         if len(mails) > 0:
             connection = get_connection()
             connection.send_messages(mails)
+            Notification.objects.create(
+                notification_type=Notification.SUPERVISORS_SHORTTIME, sent_at=now()
+            )

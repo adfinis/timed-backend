@@ -5,6 +5,7 @@ from dateutil.rrule import DAILY, FR, MO, rrule
 from django.core.management import call_command
 
 from timed.employment.factories import EmploymentFactory, UserFactory
+from timed.notifications.models import Notification
 from timed.projects.factories import TaskFactory
 from timed.tracking.factories import ReportFactory
 
@@ -44,6 +45,7 @@ def test_notify_supervisors(db, mailoutbox):
         supervisee.get_full_name()
     )
     assert expected in body
+    assert Notification.objects.count() == 1
 
 
 def test_notify_supervisors_no_employment(db, mailoutbox):
@@ -55,3 +57,4 @@ def test_notify_supervisors_no_employment(db, mailoutbox):
     call_command("notify_supervisors_shorttime")
 
     assert len(mailoutbox) == 0
+    assert Notification.objects.count() == 0

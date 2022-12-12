@@ -3,6 +3,9 @@ import datetime
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import get_template, render_to_string
+from django.utils.timezone import now
+
+from timed.notifications.models import Notification
 
 
 def prepare_and_send_email(project, order_duration):
@@ -54,3 +57,6 @@ def prepare_and_send_email(project, order_duration):
 
     messages.append(message)
     connection.send_messages(messages)
+    Notification.objects.create(
+        notification_type=Notification.REVIEWER_UNVERIFIED, sent_at=now()
+    )

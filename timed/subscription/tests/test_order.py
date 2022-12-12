@@ -4,6 +4,7 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
+from timed.notifications.models import Notification
 from timed.projects.factories import CustomerAssigneeFactory, ProjectFactory
 from timed.subscription import factories
 
@@ -204,6 +205,7 @@ def test_order_create(
         assert str(project.name) in mail.body
         assert "0:30:00" in mail.body
         assert url in mail.alternatives[0][0]
+        assert Notification.objects.count() == 1
 
 
 @pytest.mark.parametrize(

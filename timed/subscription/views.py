@@ -2,6 +2,7 @@ from django.db.models import Q
 from rest_framework import decorators, exceptions, response, status, viewsets
 from rest_framework_json_api.serializers import ValidationError
 
+from timed.notifications import notify_admin
 from timed.permissions import (
     IsAccountant,
     IsAuthenticated,
@@ -13,7 +14,7 @@ from timed.permissions import (
 from timed.projects.filters import ProjectFilterSet
 from timed.projects.models import CustomerAssignee, Project
 
-from . import filters, models, notify_admin, serializers
+from . import filters, models, serializers
 
 
 class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):

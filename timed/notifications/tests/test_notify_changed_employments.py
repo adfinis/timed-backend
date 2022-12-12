@@ -3,6 +3,7 @@ from datetime import date
 from django.core.management import call_command
 
 from timed.employment.factories import EmploymentFactory
+from timed.notifications.models import Notification
 
 
 def test_notify_changed_employments(db, mailoutbox, freezer):
@@ -27,3 +28,4 @@ def test_notify_changed_employments(db, mailoutbox, freezer):
     print(mail.body)
     assert "80% {0}".format(finished.user.get_full_name()) in mail.body
     assert "None       100% {0}".format(new.user.get_full_name()) in mail.body
+    assert Notification.objects.all().count() == 1

@@ -7,6 +7,7 @@ from django.template.loader import get_template
 from django.utils import timezone
 
 from timed.employment.models import Employment
+from timed.notifications.models import Notification
 
 template = get_template("mail/notify_changed_employments.txt", using="text")
 
@@ -57,3 +58,7 @@ class Command(BaseCommand):
                 headers=settings.EMAIL_EXTRA_HEADERS,
             )
             message.send()
+            Notification.objects.create(
+                notification_type=Notification.CHANGED_EMPLOYMENT,
+                sent_at=timezone.now(),
+            )

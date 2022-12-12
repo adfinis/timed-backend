@@ -7,7 +7,9 @@ from django.core.mail import EmailMessage, get_connection
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.template.loader import get_template
+from django.utils.timezone import now
 
+from timed.notifications.models import Notification
 from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssignee
 from timed.tracking.models import Report
 
@@ -177,3 +179,6 @@ class Command(BaseCommand):
                 messages.append(message)
         if len(messages) > 0:
             connection.send_messages(messages)
+            Notification.objects.create(
+                notification_type=Notification.REVIEWER_UNVERIFIED, sent_at=now()
+            )

@@ -4,6 +4,7 @@ import pytest
 from django.core.management import call_command
 
 from timed.employment.factories import UserFactory
+from timed.notifications.models import Notification
 from timed.projects.factories import (
     ProjectAssigneeFactory,
     ProjectFactory,
@@ -87,6 +88,7 @@ def test_notify_reviewers(db, mailoutbox):
         "toDate=2017-07-31&reviewer=%d&editable=1"
     ) % reviewer_work.id
     assert url in mail.body
+    assert Notification.objects.count() == 1
 
 
 @pytest.mark.freeze_time("2017-8-4")
