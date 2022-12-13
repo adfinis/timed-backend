@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "timed-backend"
-version = "2.0.0"
+version = "3.0.0"
 description = "Timetracking software"
 repository = "https://github.com/adfinis/timed-backend"
 authors = ["Adfinis AG"]

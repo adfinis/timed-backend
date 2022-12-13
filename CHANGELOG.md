@@ -1,3 +1,25 @@
+# v3.0.0
+
+### Feature
+* **notifications:** Project budget check notifications ([`b81e28e`](https://github.com/adfinis/timed-backend/commit/b81e28e9d0b8386e54caf57b90960e392d5811c0))
+* **statistics:** Show amount offered and invoiced in project statistics ([`144444b`](https://github.com/adfinis/timed-backend/commit/144444b298f2139f44a8ca291ca34ccfb3f66899))
+* **redmine:** Import project expenditure from redmine ([`766f79b`](https://github.com/adfinis/timed-backend/commit/766f79bc17ce927a05217e9bacc18c478404e6f6))
+* **redmine:** Update expenditures on redmine projects ([`0aa9da6`](https://github.com/adfinis/timed-backend/commit/0aa9da69e8432a4d9537b65dd935bebe23fd4c72))
+* **filters:** Allow filtering of tasks and reports in statistics ([`b5b9c8d`](https://github.com/adfinis/timed-backend/commit/b5b9c8d633a4d6fc8633594349feec7ee59fb8d0))
+* **employment:** Add is_external filter for user endpoint ([`8a1b272`](https://github.com/adfinis/timed-backend/commit/8a1b2723147c9775cb06abd090ec307610a2d254))
+* **admin:** Add searchable dropdowns for user lists in admin ([`4c01054`](https://github.com/adfinis/timed-backend/commit/4c010542ce3b3544c3e87f1dd2ca7ff8ec4df245))
+* Track remaining effort on tasks ([`3d045f2`](https://github.com/adfinis/timed-backend/commit/3d045f21ed7fd2147b49c6190dc3e1474c69decb))
+* **tracking:** Reject reports ([`a4e8983`](https://github.com/adfinis/timed-backend/commit/a4e8983265d0b87101a6151982fbb8a802e4cd9a))
+
+### Fix
+* **projects:** Ignore signal when loading a fixture ([`21e5dd7`](https://github.com/adfinis/timed-backend/commit/21e5dd7861a52793cf4b40e94c04de78a64ca3ec))
+* **container:** Executable bit for cmd.sh ([`34f2751`](https://github.com/adfinis/timed-backend/commit/34f27517c896577ddca3e1355cdc3ba5b8233d29))
+* **filters:** Allow Q filtering for MultiQS querysets ([`b629c9d`](https://github.com/adfinis/timed-backend/commit/b629c9d97cec7d4779baaa94f6eb628b394a3c53))
+* **reports:** Refactor statistics ([`21d3677`](https://github.com/adfinis/timed-backend/commit/21d36774816467977f6a45bab0641d7abf4d6ec5))
+
+### Refactor
+* **app-server:** replace uWSGI with Django Hurricane ([`c7c14f0`](https://github.com/adfinis/timed-backend/pull/903/commits/c7c14f016cc238831602f280bcd0e335337b4313))
+
 # v2.0.0
 
 ### Breaking
