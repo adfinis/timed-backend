@@ -267,6 +267,10 @@ def update_billed_flag_on_reports(sender, instance, **kwargs):
     The billed flag should primarily be set in frontend.
     This is only a quicker way for the accountants to update all reports at once.
     """
+    # ignore signal when loading a fixture
+    if kwargs.get("raw", False):  # pragma: no cover
+        return
+
     # check whether the project was created or is being updated
     if instance.pk:
         if instance.billed != Project.objects.get(id=instance.id).billed:
