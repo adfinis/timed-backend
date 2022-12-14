@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "hurricane",
     "rest_framework",
     "django_filters",
     "djmoney.apps.MoneyConfig",
@@ -355,23 +354,6 @@ TRACKING_REPORT_VERIFIED_CHANGES = env.list(
     "DJANGO_TRACKING_REPORT_VERIFIED_CHANGES",
     default=["task", "comment", "not_billable"],
 )
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": env.str("DJANGO_LOG_LEVEL", "INFO"),
-        },
-        "hurricane": {
-            "handlers": ["console"],
-            "level": os.getenv("HURRICANE_LOG_LEVEL", "INFO"),
-            "propagate": False,
-        },
-    },
-}
 
 # Sentry error tracking
 if env.str("DJANGO_SENTRY_DSN", default=""):  # pragma: no cover
