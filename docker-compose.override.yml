@@ -14,9 +14,7 @@ services:
       - DJANGO_OIDC_USERNAME_CLAIM=preferred_username
     volumes:
       - ./:/app
-    command: /bin/sh cmd.sh --autoreload --static
-    ports:
-      - "81:81"
+    command: /bin/sh -c "wait-for-it.sh -t 60 db:5432 -- poetry run python manage.py migrate && poetry run python manage.py runserver 0.0.0.0:80"
     networks:
       - timed.local
 
