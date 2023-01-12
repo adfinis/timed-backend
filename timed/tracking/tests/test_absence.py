@@ -7,6 +7,7 @@ from rest_framework import status
 from timed.employment.factories import (
     AbsenceTypeFactory,
     EmploymentFactory,
+    LocationFactory,
     PublicHolidayFactory,
     UserFactory,
 )
@@ -410,3 +411,50 @@ def test_absence_detail_unemployed(internal_employee_client):
 
     json = res.json()
     assert json["data"]["attributes"]["duration"] == "00:00:00"
+
+
+def test_absence_on_public_holiday_with_different_locations(auth_client):
+    """Test creation of absence on public holiday with different locations.
+
+    This test verifies that the absence is created on the public holiday
+    that only happens at the location of an previous employment.
+    """
+    date = datetime.date(2022, 5, 16)
+    user = auth_client.user
+    absence_type = AbsenceTypeFactory.create()
+    location_1, location_2 = LocationFactory.create_batch(2)
+    # previous employment
+    EmploymentFactory.create(
+        user=user,
+        start_date=datetime.date(2020, 5, 16),
+        end_date=datetime.date(2022, 5, 15),
+        worktime_per_day=datetime.timedelta(hours=8),
+        location=location_1,
+        is_external=False,
+    )
+    # active employment
+    EmploymentFactory.create(
+        user=user,
+        start_date=date,
+        worktime_per_day=datetime.timedelta(hours=8),
+        location=location_2,
+        is_external=False,
+    )
+    PublicHolidayFactory.create(location=location_1, date=date)
+    data = {
+        "data": {
+            "type": "absences",
+            "id": None,
+            "attributes": {"date": date.strftime("%Y-%m-%d")},
+            "relationships": {
+                "absence_type": {
+                    "data": {"type": "absence-types", "id": absence_type.id}
+                }
+            },
+        }
+    }
+
+    url = reverse("absence-list")
+
+    response = auth_client.post(url, data)
+    assert response.status_code == status.HTTP_201_CREATED
