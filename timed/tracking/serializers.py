@@ -136,14 +136,6 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
 
         return value
 
-    def validate_remaining_effort(self, value):
-        """Only update remaining effort when tracking is active on the corresponding project."""
-        if not self.instance.task.project.remaining_effort_tracking:
-            raise ValidationError(
-                "Remaining effort tracking is not active on this project!"
-            )
-        return value
-
     def validate(self, data):
         """
         Validate that verified by is only set by reviewer or superuser.
@@ -152,6 +144,8 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
         needs review.
 
         External employees with manager or reviewer role may not create reports.
+
+        Check if remaing effort tracking is active on the corresponding project.
         """
 
         user = self.context["request"].user
@@ -180,6 +174,12 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
                 )
             ).exists()
         )
+
+        # check if remaining effort tracking is active on the corresponding project
+        if not task.project.remaining_effort_tracking and data.get("remaining_effort"):
+            raise ValidationError(
+                "Remaining effort tracking is not active on this project!"
+            )
 
         if new_verified_by != current_verified_by:
             if not is_reviewer:
@@ -303,6 +303,7 @@ class ReportIntersectionSerializer(Serializer):
     not_billable = SerializerMethodField()
     billed = SerializerMethodField()
     verified = SerializerMethodField()
+    rejected = SerializerMethodField()
 
     def _intersection(self, instance, field, model=None):
         """Get intersection of given field.
@@ -355,6 +356,9 @@ class ReportIntersectionSerializer(Serializer):
         )
         instance["queryset"] = queryset
         return self._intersection(instance, "verified")
+
+    def get_rejected(self, instance):
+        return self._intersection(instance, "rejected")
 
     def get_root_meta(self, resource, many):
         """Add number of results to meta."""

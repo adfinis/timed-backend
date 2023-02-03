@@ -64,6 +64,7 @@ def test_task_statistic_list(
                     "duration": "03:00:00",
                     "name": str(task_test.name),
                     "most-recent-remaining-effort": None,
+                    "estimated-time": "00:00:00",
                 },
                 "relationships": {
                     "project": {
@@ -78,6 +79,7 @@ def test_task_statistic_list(
                     "duration": "02:00:00",
                     "name": str(task_z.name),
                     "most-recent-remaining-effort": None,
+                    "estimated-time": "00:00:00",
                 },
                 "relationships": {
                     "project": {

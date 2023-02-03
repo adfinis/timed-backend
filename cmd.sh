@@ -4,7 +4,7 @@
 
 set -x
 
-./manage.py manage.py collectstatic --noinput
+./manage.py collectstatic --noinput
 
 set -e
 
