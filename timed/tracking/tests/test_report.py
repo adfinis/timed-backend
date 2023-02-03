@@ -83,6 +83,7 @@ def test_report_intersection_full(
                 "verified": False,
                 "review": False,
                 "billed": False,
+                "rejected": False,
             },
             "relationships": {
                 "customer": {
@@ -129,6 +130,7 @@ def test_report_intersection_partial(
                 "verified": None,
                 "review": None,
                 "billed": None,
+                "rejected": False,
             },
             "relationships": {
                 "customer": {"data": None},
@@ -173,6 +175,7 @@ def test_report_intersection_accountant_editable(
                 "verified": False,
                 "review": True,
                 "billed": None,
+                "rejected": False,
             },
             "relationships": {
                 "customer": {"data": None},
@@ -217,6 +220,7 @@ def test_report_intersection_accountant_not_editable(
                 "verified": None,
                 "review": None,
                 "billed": None,
+                "rejected": None,
             },
             "relationships": {
                 "customer": {"data": None},
@@ -1852,6 +1856,54 @@ def test_report_set_remaining_effort(
 
     response = auth_client.patch(url, data)
     assert response.status_code == expected
+
+
+@pytest.mark.parametrize(
+    "remaining_effort_active, expected",
+    [
+        (True, status.HTTP_201_CREATED),
+        (False, status.HTTP_400_BAD_REQUEST),
+    ],
+)
+def test_report_create_remaining_effort(
+    internal_employee_client,
+    report_factory,
+    project_factory,
+    task_factory,
+    remaining_effort_active,
+    expected,
+):
+    user = internal_employee_client.user
+    project = project_factory.create(
+        billed=True, remaining_effort_tracking=remaining_effort_active
+    )
+    task = task_factory.create(project=project)
+
+    data = {
+        "data": {
+            "type": "reports",
+            "id": None,
+            "attributes": {
+                "comment": "foo",
+                "duration": "00:15:00",
+                "date": "2022-02-01",
+                "remaining_effort": "01:00:00",
+            },
+            "relationships": {
+                "task": {"data": {"type": "tasks", "id": task.id}},
+            },
+        }
+    }
+
+    url = reverse("report-list")
+
+    response = internal_employee_client.post(url, data)
+    assert response.status_code == expected
+
+    if expected == status.HTTP_201_CREATED:
+        json = response.json()
+        assert json["data"]["relationships"]["user"]["data"]["id"] == str(user.id)
+        assert json["data"]["relationships"]["task"]["data"]["id"] == str(task.id)
 
 
 def test_report_remaining_effort_total(

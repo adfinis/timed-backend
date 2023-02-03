@@ -8,6 +8,7 @@ from mozilla_django_oidc.contrib.drf import OIDCAuthentication
 from requests.exceptions import HTTPError
 from rest_framework import exceptions, status
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.reverse import reverse
 
 from timed.employment.factories import UserFactory
 
@@ -144,3 +145,22 @@ def test_authentication_no_client(db, rf, requests_mock, settings):
     request = rf.get("/openid", HTTP_AUTHORIZATION="Bearer Token")
     with pytest.raises(AuthenticationFailed):
         OIDCAuthentication().authenticate(request)
+
+
+@pytest.mark.parametrize("check_introspect", [True, False])
+def test_userinfo_introspection_failure(
+    db, client, rf, requests_mock, settings, check_introspect
+):
+    settings.OIDC_CHECK_INTROSPECT = check_introspect
+    requests_mock.get(
+        settings.OIDC_OP_USER_ENDPOINT, status_code=status.HTTP_401_UNAUTHORIZED
+    )
+    requests_mock.post(
+        settings.OIDC_OP_INTROSPECT_ENDPOINT, status_code=status.HTTP_403_FORBIDDEN
+    )
+    resp = client.get(reverse("user-me"), HTTP_AUTHORIZATION="Bearer Token")
+    assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+    request = rf.get("/openid", HTTP_AUTHORIZATION="Bearer Token")
+    with pytest.raises(AuthenticationFailed):
+        OIDCAuthentication().authenticate(request)
+    cache.clear()

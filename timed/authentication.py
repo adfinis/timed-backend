@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.core.exceptions import SuspiciousOperation
 from django.utils.encoding import force_bytes
 from mozilla_django_oidc.auth import LOGGER, OIDCAuthenticationBackend
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class TimedOIDCAuthenticationBackend(OIDCAuthenticationBackend):
@@ -37,20 +38,29 @@ class TimedOIDCAuthenticationBackend(OIDCAuthenticationBackend):
             claims = self.cached_request(
                 self.get_userinfo, access_token, "auth.userinfo"
             )
+            return claims
         except requests.HTTPError as e:
-            if not (
-                e.response.status_code in [401, 403] and settings.OIDC_CHECK_INTROSPECT
-            ):
+            if e.response.status_code not in [401, 403]:
                 raise e
-
-            # check introspection if userinfo fails (confidental client)
-            claims = self.cached_request(
-                self.get_introspection, access_token, "auth.introspection"
-            )
-            if "client_id" not in claims:
-                raise SuspiciousOperation("client_id not present in introspection")
-
-        return claims
+            if settings.OIDC_CHECK_INTROSPECT:
+                try:
+                    # check introspection if userinfo fails (confidential client)
+                    claims = self.cached_request(
+                        self.get_introspection, access_token, "auth.introspection"
+                    )
+                    if "client_id" not in claims:
+                        raise SuspiciousOperation(
+                            "client_id not present in introspection"
+                        )
+                    return claims
+                except requests.HTTPError as e:
+                    # if the authorization fails it's not a valid client or
+                    # the token is expired and permission is denied.
+                    # Handing on the 401 Client Error would be transformed into
+                    # a 500 by Django's exception handling. But that's not what we want.
+                    if e.response.status_code not in [401, 403]:  # pragma: no cover
+                        raise e
+            raise AuthenticationFailed()
 
     def get_or_create_user(self, access_token, id_token, payload):
         """Verify claims and return user, otherwise raise an Exception."""
