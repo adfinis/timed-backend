@@ -58,8 +58,8 @@ The username and password are identical.
 To access the Django admin interface you will have to change the admin password in Django directly:
 
 ```console
-$ make shell
-root@0a036a10f3c4:/app# peotry run python manage.py changepassword admin
+$ make bash
+root@0a036a10f3c4:/app# poetry run python manage.py changepassword admin
 Changing password for user 'admin'
 Password: 
 Password (again): 
