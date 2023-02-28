@@ -100,6 +100,7 @@ filterwarnings = [
     "ignore:distutils Version classes are deprecated:DeprecationWarning", # deprecation in pytest-freezegun
     "ignore:django.conf.urls.url().*:django.utils.deprecation.RemovedInDjango40Warning",
     "ignore:.*is deprecated in favour of new moneyed.l10n.format_money.*",
+    "ignore:.*invalid escape sequence.*",
 ]
 
 [tool.coverage.run]
