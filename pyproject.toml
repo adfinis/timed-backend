@@ -123,6 +123,7 @@ omit = [
     "timed/wsgi.py",
     "timed/forms.py",
     "setup.py",
+    "timed/reports/*",
 ]
 show_missing = true
 
