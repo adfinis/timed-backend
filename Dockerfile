@@ -2,10 +2,7 @@ FROM python:3.9
 
 WORKDIR /app
 
-RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -P /usr/local/bin \
-  && chmod +x /usr/local/bin/wait-for-it.sh
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends wait-for-it \
   libpq-dev \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /app
