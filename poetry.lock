@@ -1802,20 +1802,21 @@ pytest = ">=2.6.0"
 
 [[package]]
 name = "pytest-factoryboy"
-version = "2.1.0"
+version = "2.5.1"
 description = "Factory Boy support for pytest."
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "pytest-factoryboy-2.1.0.tar.gz", hash = "sha256:23bc562ab32cc39eddfbbbf70e618a1b30e834a4cfa451c4bedc36216f0a7b19"},
-    {file = "pytest_factoryboy-2.1.0-py3-none-any.whl", hash = "sha256:10c02d2736cb52c7af28065db9617e7f50634e95eaa07eeb9a007026aa3dc0a8"},
+    {file = "pytest_factoryboy-2.5.1-py3-none-any.whl", hash = "sha256:41e3465935322188daefc8720f83cebb16bf3d3a430356dc91151c55f31d99c7"},
+    {file = "pytest_factoryboy-2.5.1.tar.gz", hash = "sha256:7275a52299b20c0f58b63fdf7326b3fd2b7cbefbdaa90fdcfc776bbe92197484"},
 ]
 
 [package.dependencies]
-factory-boy = ">=2.10.0"
+factory_boy = ">=2.10.0"
 inflection = "*"
-pytest = ">=4.6"
+pytest = ">=5.0.0"
+typing_extensions = "*"
 
 [[package]]
 name = "pytest-freezegun"
@@ -2324,4 +2325,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "b95888749831a6e394548b5e999e940a9ae252d4109387f887d79e711e64ee86"
+content-hash = "390be6d78455fc82bc36e7bdf03cf7e20cec012725b664d11601d42f7d0bf27a"
