@@ -56,11 +56,11 @@ class Command(BaseCommand):
             issue.estimated_hours = estimated_hours
 
             amount_offered = (
-                project.amount_offered and project.amount_offered.amount
-            ) or "0.00"
+                project.amount_offered and float(project.amount_offered.amount)
+            ) or 0.0
             amount_invoiced = (
-                project.amount_invoiced and project.amount_invoiced.amount
-            ) or "0.00"
+                project.amount_invoiced and float(project.amount_invoiced.amount)
+            ) or 0.0
 
             # fields not active in Redmine projects settings won't be saved
             issue.custom_fields = [

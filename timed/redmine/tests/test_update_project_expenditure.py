@@ -28,7 +28,7 @@ def test_update_project_expenditure(
 
     call_command("update_project_expenditure", pretend=pretend)
 
-    offered = (project.amount_offered and project.amount_offered.amount) or "0.00"
+    offered = (project.amount_offered and project.amount_offered.amount) or 0.0
 
     if not pretend:
         redmine_instance.issue.get.assert_called_once_with(1000)
