@@ -1,3 +1,8 @@
+# v3.0.7
+
+### Fix
+* **redmine:** Convert Decimal objects to floats ([`5f613d1`](https://github.com/adfinis/timed-backend/commit/5f613d1e83f007270228c109846fb6a525eced71))
+
 # v3.0.6
 
 ### Feature
