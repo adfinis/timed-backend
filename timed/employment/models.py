@@ -1,6 +1,7 @@
 """Models for the employment app."""
 
 from datetime import date, timedelta
+from turtle import mode
 
 from dateutil import rrule
 from django.conf import settings
@@ -13,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from timed.models import WeekdaysField
 from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssignee
 from timed.tracking.models import Absence
-
+from timed.employment.scheduls import get_schedule
 
 class Location(models.Model):
     """Location model.
@@ -259,54 +260,11 @@ class Employment(models.Model):
         :returns:     tuple of 3 values reported, expected and delta in given
                       time frame
         """
-        from timed.tracking.models import Absence, Report
 
-        # shorten time frame to employment
-        start = max(start, self.start_date)
-        end = min(self.end_date or date.today(), end)
-
-        # workdays is in isoweekday, byweekday expects Monday to be zero
-        week_workdays = [int(day) - 1 for day in self.location.workdays]
-        workdays = rrule.rrule(
-            rrule.DAILY, dtstart=start, until=end, byweekday=week_workdays
-        ).count()
-
-        # converting workdays as db expects 1 (Sunday) to 7 (Saturday)
-        workdays_db = [
-            # special case for Sunday
-            int(day) == 7 and 1 or int(day) + 1
-            for day in self.location.workdays
-        ]
-        holidays = PublicHoliday.objects.filter(
-            location=self.location,
-            date__gte=start,
-            date__lte=end,
-            date__week_day__in=workdays_db,
-        ).count()
-
-        expected_worktime = self.worktime_per_day * (workdays - holidays)
-
-        overtime_credit_data = OvertimeCredit.objects.filter(
-            user=self.user_id, date__gte=start, date__lte=end
-        ).aggregate(total_duration=Sum("duration"))
-        overtime_credit = overtime_credit_data["total_duration"] or timedelta()
-
-        reported_worktime_data = Report.objects.filter(
-            user=self.user_id, date__gte=start, date__lte=end
-        ).aggregate(duration_total=Sum("duration"))
-        reported_worktime = reported_worktime_data["duration_total"] or timedelta()
-
-        absences = sum(
-            [
-                absence.calculate_duration(self)
-                for absence in Absence.objects.filter(
-                    user=self.user_id, date__gte=start, date__lte=end
-                ).select_related("absence_type")
-            ],
-            timedelta(),
-        )
-
-        reported = reported_worktime + absences + overtime_credit
+        schedule = get_schedule(start,end,self.employment)
+    
+        expected_worktime = self.worktime_per_day * (schedule(0) - schedule(1))
+        reported = schedule(3) + schedule(4) + schedule(2)
 
         return (reported, expected_worktime, reported - expected_worktime)
 
@@ -414,3 +372,63 @@ class User(AbstractUser):
             return current_employment
         except Employment.DoesNotExist:
             return None
+
+class EmploymentChange(models.Model):
+
+    """ Employment  working time percentage change, It can be 
+    1- Increasing the working time percentage 
+    2- Decreasing the working time percentage
+    """
+
+    change_choices = [
+        ('increase','Increase'),
+        ('decrease','Decrease')
+    ]
+
+    employment = models.ForeignKey(Employment,on_delete=models.PROTECT,related_name="employment_change")
+    start_date = models.DateField()
+    end_date = models.DateField()
+    change_type = models.CharField(max_length=15, choices=change_choices)
+    change_percentage = models.FloatField()
+
+
+
+    def calculate_employment_change(self, start, end):
+        """
+        Calculate employment working time change 
+        """
+        
+        #Get employment schedule
+        schedule = get_schedule(start,end,self.employment)
+  
+        # new working time percentage 
+        if self.change_type == 'increase':
+            new_percentage = self.employment.percentage + self.change_percentage
+        else:
+            new_percentage = self.employment.percentage - self.change_percentage
+
+        new_worktime = (self.employment.worktime_per_day * new_percentage)/100
+        expected_worktime = new_worktime * (schedule(0) - schedule(1))
+        reported = schedule(3) + schedule(4) + schedule(2)
+
+        return (reported, expected_worktime, reported - expected_worktime)
+
+
+
+
+        
+
+        
+
+
+            
+            
+
+
+        
+
+
+
+    
+
+
