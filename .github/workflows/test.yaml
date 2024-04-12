@@ -22,8 +22,8 @@ jobs:
           docker-compose up -d --build backend
       - name: Lint the code
         run: |
-          docker-compose exec -T backend black --check .
-          docker-compose exec -T backend flake8
-          docker-compose exec -T backend python manage.py makemigrations --check --dry-run --no-input
+          docker-compose run --rm backend black --check .
+          docker-compose run --rm backend flake8
+          docker-compose run --rm backend python manage.py makemigrations --check --dry-run --no-input
       - name: Run pytest
-        run: docker-compose exec -T backend pytest --no-cov-on-fail --cov --create-db -vv
+        run: docker-compose run --rm backend pytest --no-cov-on-fail --cov --create-db -vv
