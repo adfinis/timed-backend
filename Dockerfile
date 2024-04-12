@@ -11,7 +11,7 @@ ENV DJANGO_SETTINGS_MODULE=timed.settings \
   STATIC_ROOT=/var/www/static \
   HURRICANE_REQ_QUEUE_LEN=200
 
-EXPOSE 80
+EXPOSE 8080
 
 FROM base AS build
 
@@ -40,9 +40,10 @@ FROM build as dev
 
 WORKDIR /app
 
-RUN apk update --no-cache && apk add wait4ports --no-cache
-
-RUN apk add gcc python3-dev musl-dev linux-headers && poetry config virtualenvs.create false && poetry install && apk del gcc python3-dev musl-dev linux-headers --no-cache
+RUN apk update --no-cache && \
+ apk add gcc python3-dev musl-dev linux-headers wait4ports && \
+ poetry config virtualenvs.create false && poetry install && \
+ apk del gcc python3-dev musl-dev linux-headers --no-cache
 
 USER 1001
 
@@ -54,7 +55,9 @@ COPY --from=build-prod /tmp/*.whl /tmp/
 
 COPY cmd.sh /usr/local/bin
 
-RUN apk add gcc python3-dev musl-dev linux-headers --no-cache && pip install /tmp/*.whl --no-cache-dir && rm /tmp/*.whl && apk del gcc python3-dev musl-dev linux-headers --no-cache
+RUN apk add gcc python3-dev musl-dev linux-headers --no-cache && \
+ pip install /tmp/*.whl --no-cache-dir && rm /tmp/*.whl && \
+ apk del gcc python3-dev musl-dev linux-headers --no-cache
 
 USER 1001
 
