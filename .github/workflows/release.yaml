@@ -2,7 +2,6 @@
 name: Release Container Image
 
 on:
-  pull_request:
   push:
     branches:
       - main
@@ -38,7 +37,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ github.event_name != 'pull_request' }}
 
       - name: Build and push
         id: docker_build_ghcr
