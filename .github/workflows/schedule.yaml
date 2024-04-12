@@ -1,0 +1,14 @@
+---
+name: Schedule
+
+on:
+  schedule:
+    - cron: 11 15 * * *
+  workflow_dispatch:
+
+jobs:
+  scan-backend:
+    name: Scan backend image
+    uses: ./.github/workflows/trivy-scan.yaml
+    with:
+      image-ref: ghcr.io/adfinis/timed-backend
