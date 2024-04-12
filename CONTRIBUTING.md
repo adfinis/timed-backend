@@ -32,9 +32,9 @@ etc.
 
 ```bash
 # linting
-flake8
+ruff check
 # format code
-black .
+ruff format .
 # running tests
 pytest
 # create migrations
