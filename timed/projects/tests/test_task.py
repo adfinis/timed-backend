@@ -1,4 +1,5 @@
 """Tests for the tasks endpoint."""
+
 from datetime import date, timedelta
 
 import pytest

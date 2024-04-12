@@ -1,4 +1,5 @@
 """Tests for the projects endpoint."""
+
 from datetime import timedelta
 
 import pytest
