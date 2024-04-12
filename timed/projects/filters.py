@@ -1,4 +1,5 @@
 """Filters for filtering the data of the projects app endpoints."""
+
 from datetime import date, timedelta
 
 from django.db.models import Count, Q

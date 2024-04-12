@@ -1,4 +1,5 @@
 """Serializers for the tracking app."""
+
 from datetime import date, timedelta
 
 from django.contrib.auth import get_user_model

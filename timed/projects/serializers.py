@@ -1,4 +1,5 @@
 """Serializers for the projects app."""
+
 from datetime import timedelta
 
 from django.db.models import Q, Sum

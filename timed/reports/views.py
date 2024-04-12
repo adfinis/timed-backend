@@ -33,8 +33,7 @@ class YearStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ordering = ("year",)
     permission_classes = [
         # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser)
-        & IsAuthenticated
+        (IsInternal | IsSuperUser) & IsAuthenticated
     ]
 
     def get_queryset(self):
@@ -55,8 +54,7 @@ class MonthStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ordering = ("year", "month")
     permission_classes = [
         # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser)
-        & IsAuthenticated
+        (IsInternal | IsSuperUser) & IsAuthenticated
     ]
 
     def get_queryset(self):
@@ -152,8 +150,7 @@ class CustomerStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ordering = ("name",)
     permission_classes = [
         # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser)
-        & IsAuthenticated
+        (IsInternal | IsSuperUser) & IsAuthenticated
     ]
 
     def get_queryset(self):
@@ -174,8 +171,7 @@ class ProjectStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ordering = ("name",)
     permission_classes = [
         # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser)
-        & IsAuthenticated
+        (IsInternal | IsSuperUser) & IsAuthenticated
     ]
 
     def get_queryset(self):
@@ -196,8 +192,7 @@ class TaskStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ordering = ("name",)
     permission_classes = [
         # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser)
-        & IsAuthenticated
+        (IsInternal | IsSuperUser) & IsAuthenticated
     ]
 
     def get_queryset(self):
@@ -213,8 +208,7 @@ class UserStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     ordering = ("user__username",)
     permission_classes = [
         # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser)
-        & IsAuthenticated
+        (IsInternal | IsSuperUser) & IsAuthenticated
     ]
 
     def get_queryset(self):

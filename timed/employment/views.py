@@ -1,4 +1,5 @@
 """Viewsets for the employment app."""
+
 import datetime
 
 from django.contrib.auth import get_user_model
