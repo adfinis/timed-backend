@@ -19,7 +19,7 @@ jobs:
             peotry-
       - name: Build the project
         run: |
-          echo "ENV=dev" > .env
+          echo -e "ENV=dev\nUID=$UID" > .env
           docker-compose up -d --build backend
       - name: Lint the code
         run: |
