@@ -807,13 +807,13 @@ pycodestyle = "*"
 
 [[package]]
 name = "flake8-deprecated"
-version = "2.0.1"
-description = "Warns about deprecated method calls."
+version = "2.2.1"
+description = "Warns about deprecated method calls"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "flake8-deprecated-2.0.1.tar.gz", hash = "sha256:c7659a530aa76c3ad8be0c1e8331ed56d882ef8bfba074501a545bb3352b0c23"},
-    {file = "flake8_deprecated-2.0.1-py3-none-any.whl", hash = "sha256:8c61d2cb8d487118b6c20392b25f08ba1ec49c759e4ea562c7a60172912bc7ee"},
+    {file = "flake8_deprecated-2.2.1-py3-none-any.whl", hash = "sha256:3819ed2badb68631593312edb9c4881d974b995d96a4427566ddb1593a4c8fea"},
+    {file = "flake8_deprecated-2.2.1.tar.gz", hash = "sha256:ee96ca001d1ca0561fa8e46f23e2d2460b18a86696373cab644e102ae0ff2aa2"},
 ]
 
 [package.dependencies]
@@ -2236,4 +2236,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "fe8ae9569d817222767604c7d9eac055d2e9d9c59b9b22a56f52db70fda0aa81"
+content-hash = "ccad00475804c7bc9c6ac4c887efece542ce60d13cdb20a548d77a1134a56fc0"
