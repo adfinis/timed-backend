@@ -22,8 +22,8 @@ jobs:
           docker-compose up -d --build backend
       - name: Lint the code
         run: |
-          docker-compose run --rm backend black --check .
-          docker-compose run --rm backend flake8
+          docker-compose run --rm backend ruff format --check
+          docker-compose run --rm backend ruff check . --output-format=github
       - name: Check for missing migrations
         run: docker-compose run --rm backend python manage.py makemigrations --check --dry-run --no-input
       - name: Run pytest
