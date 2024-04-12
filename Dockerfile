@@ -1,28 +1,61 @@
-FROM python:3.9
+FROM python:3.11-alpine AS base
+
+RUN apk update --no-cache && apk upgrade --no-cache && apk add shadow --no-cache && useradd -m -r -u 1001 timed && apk del shadow && rm -rf /var/cache/apk/*
+
+RUN mkdir -p /var/www/static && chown timed:timed /var/www/static
+
+COPY manage.py /usr/local/bin
+
+ENV DJANGO_SETTINGS_MODULE=timed.settings \
+  PYTHONUNBUFFERED=1 \
+  STATIC_ROOT=/var/www/static \
+  HURRICANE_REQ_QUEUE_LEN=200
+
+EXPOSE 80
+
+FROM base AS build
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends wait-for-it \
-  libpq-dev \
-  && rm -rf /var/lib/apt/lists/* \
-  && mkdir -p /app
-
-ENV DJANGO_SETTINGS_MODULE timed.settings
-ENV STATIC_ROOT /var/www/static
-ENV WAITFORIT_TIMEOUT 0
-
-ENV HURRICANE_REQ_QUEUE_LEN 250
+ENV PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random \
+    PYTHONDONTWRITEBYTECODE=1 \
+    # pip:
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    # poetry:
+    POETRY_NO_INTERACTION=1
 
 RUN pip install -U poetry
 
-ARG INSTALL_DEV_DEPENDENCIES=false
-COPY pyproject.toml poetry.lock /app/
-RUN poetry config virtualenvs.create false \
-  && if [ "$INSTALL_DEV_DEPENDENCIES" = "true" ]; then poetry install; else poetry install --no-dev; fi
+COPY . ./
 
-COPY . /app
+FROM build as build-prod
 
-RUN mkdir -p /var/www/static
+WORKDIR /app
 
-EXPOSE 80
-CMD ./cmd.sh
+RUN poetry build -f wheel && mv ./dist/*.whl /tmp/
+
+FROM build as dev
+
+WORKDIR /app
+
+RUN apk update --no-cache && apk add wait4ports --no-cache
+
+RUN apk add gcc python3-dev musl-dev linux-headers && poetry config virtualenvs.create false && poetry install && apk del gcc python3-dev musl-dev linux-headers --no-cache
+
+USER 1001
+
+CMD ["sh", "-c", "wait4ports -s 15 tcp://${DJANGO_DATABASE_HOST:db}:${DJANGO_DATABASE_PORT:5432}; ./cmd.sh --autoreload --static"]
+
+FROM base as prod
+
+COPY --from=build-prod /tmp/*.whl /tmp/
+
+COPY cmd.sh /usr/local/bin
+
+RUN apk add gcc python3-dev musl-dev linux-headers --no-cache && pip install /tmp/*.whl --no-cache-dir && rm /tmp/*.whl && apk del gcc python3-dev musl-dev linux-headers --no-cache
+
+USER 1001
+
+CMD ["cmd.sh"]

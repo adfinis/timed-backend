@@ -22,7 +22,7 @@ format-code: ## Format the backend code
 
 .PHONY: test
 test: ## Test the project
-	@docker-compose run --rm backend sh -c "ruff format . && ruff lint . --fix && pytest --no-cov-on-fail --cov"
+	@docker-compose run --rm backend sh -c "ruff format . && ruff check . --fix && pytest --no-cov-on-fail --cov"
 
 .PHONY: bash
 bash: ## Shell into the backend

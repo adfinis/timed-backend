@@ -2,19 +2,18 @@ version: "3.7"
 
 services:
   backend:
+    user: "${UID:?Set UID env variable to your user id}"
     build:
       context: .
-      args:
-        INSTALL_DEV_DEPENDENCIES: "true"
+      target: dev
     depends_on:
       - mailhog
     environment:
-      - PYTHONDONTWRITEBYTECODE=1
+      - ENV=dev
       - EMAIL_URL=smtp://mailhog:1025
       - DJANGO_OIDC_USERNAME_CLAIM=preferred_username
     volumes:
       - ./:/app
-    command: /bin/sh cmd.sh --autoreload --static
     ports:
       - "81:81"
     networks:
@@ -31,7 +30,7 @@ services:
       - timed.local
 
   keycloak:
-    image: jboss/keycloak:10.0.1
+    image: quay.io/keycloak/keycloak:10.0.1
     volumes:
       - ./dev-config/keycloak-config.json:/etc/keycloak/keycloak-config.json:rw
     depends_on:
@@ -47,7 +46,14 @@ services:
       - KEYCLOAK_PASSWORD=admin
     # start keycloak with the following command to perform an export of the `timed` realm.
     #command: ["-Dkeycloak.migration.action=export", "-Dkeycloak.migration.realmName=timed", "-Dkeycloak.migration.provider=singleFile", "-Dkeycloak.migration.file=/etc/keycloak/keycloak-config.json", "-b", "0.0.0.0"]
-    command: ["-Dkeycloak.migration.action=import", "-Dkeycloak.migration.provider=singleFile", "-Dkeycloak.migration.file=/etc/keycloak/keycloak-config.json", "-b", "0.0.0.0"]
+    command:
+      [
+        "-Dkeycloak.migration.action=import",
+        "-Dkeycloak.migration.provider=singleFile",
+        "-Dkeycloak.migration.file=/etc/keycloak/keycloak-config.json",
+        "-b",
+        "0.0.0.0",
+      ]
     networks:
       - timed.local
 

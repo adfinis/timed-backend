@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "timed-backend"
+name = "timed"
 version = "3.0.7"
 description = "Timetracking software"
 repository = "https://github.com/adfinis/timed-backend"
@@ -19,7 +19,7 @@ classifiers = [
 include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
 python-dateutil = "^2.9.0"
 django = "^3.2.19"
 # might remove this once we find out how the jsonapi extras_require work
