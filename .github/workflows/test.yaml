@@ -24,6 +24,7 @@ jobs:
         run: |
           docker-compose run --rm backend black --check .
           docker-compose run --rm backend flake8
-          docker-compose run --rm backend python manage.py makemigrations --check --dry-run --no-input
+      - name: Check for missing migrations
+        run: docker-compose run --rm backend python manage.py makemigrations --check --dry-run --no-input
       - name: Run pytest
         run: docker-compose run --rm backend pytest --no-cov-on-fail --cov --create-db -vv
