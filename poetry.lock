@@ -978,13 +978,13 @@ traitlets = "*"
 
 [[package]]
 name = "mozilla-django-oidc"
-version = "3.0.0"
+version = "4.0.1"
 description = "A lightweight authentication and access management library for integration with OpenID Connect enabled authentication services."
 optional = false
 python-versions = "*"
 files = [
-    {file = "mozilla-django-oidc-3.0.0.tar.gz", hash = "sha256:a7d447af83cb5aa1671a24009b0ce6b2f0d259e9c58d8c88c7a8d0c27c05c04d"},
-    {file = "mozilla_django_oidc-3.0.0-py2.py3-none-any.whl", hash = "sha256:f535eeddf03698ad9fd89dd87037828e9c7d503771acef21f0509f6cc42fc875"},
+    {file = "mozilla-django-oidc-4.0.1.tar.gz", hash = "sha256:4ff8c64069e3e05c539cecf9345e73225a99641a25e13b7a5f933ec897b58918"},
+    {file = "mozilla_django_oidc-4.0.1-py2.py3-none-any.whl", hash = "sha256:04ef58759be69f22cdc402d082480aaebf193466cad385dc9e4f8df2a0b187ca"},
 ]
 
 [package.dependencies]
@@ -2020,4 +2020,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "d17befa375b4ec38205e479a6b959ff5fe38d6376c45fb1e93384c025873b15b"
+content-hash = "541e5513d1c93ad4baf6798a15885eff3569fc633ffde19a8c3a387b53a0db51"
