@@ -15,7 +15,7 @@ services:
     volumes:
       - ./:/app
     ports:
-      - "81:81"
+      - "8081:8081"
     networks:
       - timed.local
 

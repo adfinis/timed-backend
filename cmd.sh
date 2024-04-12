@@ -9,4 +9,4 @@ manage.py collectstatic --noinput
 set -e
 
 manage.py migrate --no-input
-manage.py serve --static --port 80 --req-queue-len "${HURRICANE_REQ_QUEUE_LEN:-250}" "$@"
+manage.py serve --static --port 8080 --req-queue-len "${HURRICANE_REQ_QUEUE_LEN:-250}" "$@"
