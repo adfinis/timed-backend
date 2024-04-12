@@ -49,7 +49,7 @@ openpyxl = "3.0.10" # TODO: dependency of `pyexcel-xlsx` Remove as soon as https
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.7"
-coverage = "7.2.7"
+coverage = "7.4.4"
 django-extensions = "3.2.3"
 factory-boy = "3.3.0"
 ipdb = "0.13.13"
