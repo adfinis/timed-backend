@@ -14,15 +14,15 @@ stop: ## Stop the development server
 
 .PHONY: lint
 lint: ## Lint the project
-	@docker-compose exec backend sh -c "ruff format --check . && ruff check . --output-format=full"
+	@docker-compose run --rm backend sh -c "ruff format --check . && ruff check . --output-format=full"
 
 .PHONY: format-code
 format-code: ## Format the backend code
-	@docker-compose exec backend sh -c "ruff format . && ruff check . --fix"
+	@docker-compose run --rm backend sh -c "ruff format . && ruff check . --fix"
 
 .PHONY: test
 test: ## Test the project
-	@docker-compose exec backend sh -c "ruff format . && ruff lint . --fix && pytest --no-cov-on-fail --cov"
+	@docker-compose run --rm backend sh -c "ruff format . && ruff lint . --fix && pytest --no-cov-on-fail --cov"
 
 .PHONY: bash
 bash: ## Shell into the backend
