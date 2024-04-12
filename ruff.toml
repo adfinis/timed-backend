@@ -1,0 +1,37 @@
+line-length = 88
+exclude = [
+    "migrations",
+    "snapshots"
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 88
+
+[lint]
+select = ["E", "F", "W", "I", "BLE", "T10"]
+ignore = [
+    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    "W191",
+    "E111",
+    "E114",
+    "E117",
+    "E501",
+    "D206",
+    "D300",
+    "Q000",
+    "Q001",
+    "Q002",
+    "Q003",
+    "COM812",
+    "COM819",
+    "ISC001",
+    "ISC002"
+]
+
+[lint.isort]
+known-first-party = ["timed"]
+known-third-party = ["pytest_factoryboy"]
+combine-as-imports = true
