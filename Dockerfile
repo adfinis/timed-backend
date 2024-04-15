@@ -1,4 +1,4 @@
-FROM python:3.11-alpine AS base
+FROM python:3.12-alpine AS base
 
 RUN apk update --no-cache && apk upgrade --no-cache && apk add shadow --no-cache && useradd -m -r -u 1001 timed && apk del shadow && rm -rf /var/cache/apk/*
 
