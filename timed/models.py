@@ -2,6 +2,7 @@
 
 from django.utils.translation import gettext_lazy as _
 from multiselectfield import MultiSelectField
+from multiselectfield.utils import get_max_length
 
 
 class WeekdaysField(MultiSelectField):
@@ -27,4 +28,5 @@ class WeekdaysField(MultiSelectField):
     def __init__(self, *args, **kwargs):
         """Initialize multi select with choices weekdays."""
         kwargs["choices"] = self.WEEKDAYS
+        kwargs["max_length"] = get_max_length(self.WEEKDAYS, None)
         super().__init__(*args, **kwargs)
