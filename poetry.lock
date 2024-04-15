@@ -1600,22 +1600,20 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "requests-mock"
-version = "1.9.3"
+version = "1.12.1"
 description = "Mock out responses from the requests package"
 optional = false
-python-versions = "*"
+python-versions = ">=3.5"
 files = [
-    {file = "requests-mock-1.9.3.tar.gz", hash = "sha256:8d72abe54546c1fc9696fa1516672f1031d72a55a1d66c85184f972a24ba0eba"},
-    {file = "requests_mock-1.9.3-py2.py3-none-any.whl", hash = "sha256:0a2d38a117c08bb78939ec163522976ad59a6b7fdd82b709e23bb98004a44970"},
+    {file = "requests-mock-1.12.1.tar.gz", hash = "sha256:e9e12e333b525156e82a3c852f22016b9158220d2f47454de9cae8a77d371401"},
+    {file = "requests_mock-1.12.1-py2.py3-none-any.whl", hash = "sha256:b1e37054004cdd5e56c84454cc7df12b25f90f382159087f4b6915aaeef39563"},
 ]
 
 [package.dependencies]
-requests = ">=2.3,<3"
-six = "*"
+requests = ">=2.22,<3"
 
 [package.extras]
 fixture = ["fixtures"]
-test = ["fixtures", "mock", "purl", "pytest", "sphinx", "testrepository (>=0.0.18)", "testtools"]
 
 [[package]]
 name = "ruff"
@@ -1945,4 +1943,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "bfa992f835cd86023751b71b41258f9e4b108ed9c3c54b8649bd2d568490f656"
+content-hash = "cfdda7a963728bd6d297723395c20b3b1c0f4d3a714b029068cf553fd1738634"
