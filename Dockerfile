@@ -47,7 +47,7 @@ RUN apk update --no-cache && \
 
 USER 1001
 
-CMD ["sh", "-c", "wait4ports -s 15 tcp://${DJANGO_DATABASE_HOST:db}:${DJANGO_DATABASE_PORT:5432}; ./cmd.sh --autoreload --static"]
+CMD ["sh", "-c", "wait4ports -s 15 tcp://${DJANGO_DATABASE_HOST:db}:${DJANGO_DATABASE_PORT:5432}; manage.py migrate --no-input && ./cmd.sh --autoreload --static"]
 
 FROM base as prod
 
