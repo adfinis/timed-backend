@@ -75,10 +75,9 @@ env = [
 filterwarnings = [
     "error::DeprecationWarning",
     "error::PendingDeprecationWarning",
-    "ignore:Using a non-boolean value for an isnull lookup is deprecated, use True or False instead.:django.utils.deprecation.RemovedInDjango40Warning",
+    "ignore: The USE_L10N setting is deprecated. Starting with Django 5.0, localized formatting of data will always be enabled.:django.utils.deprecation.RemovedInDjango50Warning",
     # following is needed beceause of https://github.com/mozilla/mozilla-django-oidc/pull/371
     "ignore:distutils Version classes are deprecated:DeprecationWarning", # deprecation in pytest-freezegun
-    "ignore:django.conf.urls.url().*:django.utils.deprecation.RemovedInDjango40Warning",
     "ignore:.*is deprecated in favour of new moneyed.l10n.format_money.*",
     "ignore:.*invalid escape sequence.*",
     "ignore:pkg_resources is deprecated as an API:DeprecationWarning",
