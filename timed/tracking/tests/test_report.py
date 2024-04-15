@@ -122,7 +122,7 @@ def test_report_intersection_partial(
     json = response.json()
     expected = {
         "data": {
-            "id": "",
+            "id": None,
             "type": "report-intersections",
             "attributes": {
                 "comment": "test",
