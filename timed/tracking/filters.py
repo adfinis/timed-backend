@@ -6,6 +6,7 @@ from django.db.models import Q
 from django_filters.constants import EMPTY_VALUES
 from django_filters.rest_framework import (
     BaseInFilter,
+    BooleanFilter,
     DateFilter,
     Filter,
     FilterSet,
@@ -90,7 +91,7 @@ class ReportFilterSet(FilterSet):
     editable = NumberFilter(method="filter_editable")
     not_billable = NumberFilter(field_name="not_billable")
     billed = NumberFilter(field_name="billed")
-    verified = NumberFilter(
+    verified = BooleanFilter(
         field_name="verified_by_id", lookup_expr="isnull", exclude=True
     )
     reviewer = NumberFilter(method="filter_has_reviewer")
