@@ -7,24 +7,29 @@ on:
   pull_request:
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the prod image
+        run: |
+          docker build .
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint the code
+        run: |
+          echo -e "ENV=dev\nUID=$UID" > .env
+          docker-compose run --rm backend ruff format --check
+          docker-compose run --rm backend ruff check . --output-format=github
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock')}}
-          restore-keys: |
-            peotry-
-      - name: Build the project
-        run: |
-          echo -e "ENV=dev\nUID=$UID" > .env
-          docker-compose up -d --build backend
-      - name: Lint the code
-        run: |
-          docker-compose run --rm backend ruff format --check
-          docker-compose run --rm backend ruff check . --output-format=github
+      - name: Set ENV vars
+        run: echo -e "ENV=dev\nUID=$UID" > .env
       - name: Check for missing migrations
         run: docker-compose run --rm backend python manage.py makemigrations --check --dry-run --no-input
       - name: Run pytest
