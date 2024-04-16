@@ -11,27 +11,95 @@ docstring-code-format = true
 docstring-code-line-length = 88
 
 [lint]
-select = ["E", "F", "W", "I", "BLE", "T10"]
+select = [
+	"F",       # pyflakes
+	"E",       # pycodestyle errors
+	"I",       # isort
+	"C90",     # mccabe
+	"N",       # pep8-naming
+	"D",       # pydocstyle
+	"UP",      # pyupgrade
+	"ANN",     # flake8-annotations
+	"ASYNC",   # flake8-async
+	"S",       # flake8-bandit
+	"BLE",     # flake8-blind-exception
+	"FBT",     # flake8-boolean-trap
+	"B",       # flake8-bugbear
+	"A",       # flake8-builtins
+	"COM",     # flake8-commas
+	"C4",      # flake8-comprehensions
+	"T10",     # flake8-debugger
+	"DJ",      # flake8-django
+	"EM",      # flake8-errmsg
+	"EXE",     # flake8-executable
+	"FA",      # flake8-future-annotations
+	"ISC",     # flake8-implicit-str-concat
+	"ICN",     # flake8-import-conventions
+	"G",       # flake8-logging-format
+	"INP",     # flake8-no-pep420
+	"PIE",     # flake8-pie
+	"T20",     # flake8-print
+	"PYI",     # flake8-pyi
+	"PT",      # flake8-pytest-style
+	"Q",       # flake8-quotes
+	"RSE",     # flake8-raise
+	"RET",     # flake8-return
+	"SLF",     # flake8-self
+	"SLOT",    # flake8-slots
+	"SIM",     # flake8-simplify
+	"TID",     # flake8-tidy-imports
+	"TCH",     # flake8-type-checking
+	"INT",     # flake8-gettext
+	"ARG",     # flake8-unused-arguments
+	"PTH",     # flake8-use-pathlib
+	"TD",      # flake8-todos
+	"ERA",     # eradicate
+	"PGH",     # pygrep-hooks
+	"PL",      # pylint
+	"TRY",     # tryceratops
+	"PERF",    # perflint
+	"RUF",     # ruff specific rules
+	"W605",    # invalid escape sequence
+]
 ignore = [
-    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-    "W191",
-    "E111",
-    "E114",
-    "E117",
-    "E501",
-    "D206",
-    "D300",
-    "Q000",
-    "Q001",
-    "Q002",
-    "Q003",
-    "COM812",
-    "COM819",
-    "ISC001",
-    "ISC002"
+	"ANN101",  # this is deprecated and annotating self is unnecessary
+	"D203",    # we prefer blank-line-before-class (D211) for black compat
+	"D213",    # we prefer multi-line-summary-first-line (D212)
+	"COM812",  # ignore due to conflict with formatter
+	"ISC001",  # ignore due to conflict with formatter
+	"E501",    # managed by formatter
+	"D100",    # don't enforce existance of docstrings
+	"D101",    # don't enforce existance of docstrings
+	"D102",    # don't enforce existance of docstrings
+	"D103",    # don't enforce existance of docstrings
+	"D104",    # don't enforce existance of docstrings
+	"D105",    # don't enforce existance of docstrings
+	"D106",    # don't enforce existance of docstrings
+	"D107",    # don't enforce existance of docstrings
+]
+
+[lint.per-file-ignores]
+"**/{conftest.py,tests/*.py}" = [
+	"D",       # pydocstyle is optional for tests
+	"ANN",     # flake8-annotations are optional for tests
+	"S101",    # assert is allow in tests
+	"S105",    # tests may have hardcoded secrets
+	"S106",    # tests may have hardcoded passwords
+	"S311",    # tests may use pseudo-random generators
+	"S108",    # /tmp is allowed in tests since it's expected to be mocked
+	"DTZ00",   # tests often run in UTC
+	"INP001",  # tests do not need a dunder init
+	"PLR0913", # tests can have a lot of arguments (fixtures)
+	"PLR2004", # tests can use magic values
+]
+"**/*/factories.py" = [
+	"S311",    # factories may use pseudo-random generators
 ]
 
 [lint.isort]
 known-first-party = ["timed"]
 known-third-party = ["pytest_factoryboy"]
 combine-as-imports = true
+
+[lint.flake8-annotations]
+ignore-fully-untyped = true
