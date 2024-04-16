@@ -27,6 +27,9 @@ class Location(models.Model):
     Workdays defined per location, default is Monday - Friday
     """
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         """Represent the model as a string.
 
@@ -34,9 +37,6 @@ class Location(models.Model):
         :rtype:  str
         """
         return self.name
-
-    class Meta:
-        ordering = ("name",)
 
 
 class PublicHoliday(models.Model):
@@ -52,19 +52,19 @@ class PublicHoliday(models.Model):
         Location, on_delete=models.CASCADE, related_name="public_holidays"
     )
 
+    class Meta:
+        """Meta information for the public holiday model."""
+
+        indexes = (models.Index(fields=["date"]),)
+        ordering = ("date",)
+
     def __str__(self):
         """Represent the model as a string.
 
         :return: The string representation
         :rtype:  str
         """
-        return "{0} {1}".format(self.name, self.date.strftime("%Y"))
-
-    class Meta:
-        """Meta information for the public holiday model."""
-
-        indexes = [models.Index(fields=["date"])]
-        ordering = ("date",)
+        return "{} {}".format(self.name, self.date.strftime("%Y"))
 
 
 class AbsenceType(models.Model):
@@ -77,6 +77,9 @@ class AbsenceType(models.Model):
     name = models.CharField(max_length=50)
     fill_worktime = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         """Represent the model as a string.
 
@@ -86,25 +89,21 @@ class AbsenceType(models.Model):
         return self.name
 
     def calculate_credit(self, user, start, end):
-        """
-        Calculate approved days of type for user in given time frame.
+        """Calculate approved days of type for user in given time frame.
 
         For absence types which fill worktime this will be None.
         """
         if self.fill_worktime:
             return None
 
-        credits = AbsenceCredit.objects.filter(
+        credits = AbsenceCredit.objects.filter(  # noqa: A001
             user=user, absence_type=self, date__range=[start, end]
         )
         data = credits.aggregate(credit=Sum("days"))
-        credit = data["credit"] or 0
-
-        return credit
+        return data["credit"] or 0
 
     def calculate_used_days(self, user, start, end):
-        """
-        Calculate used days of type for user in given time frame.
+        """Calculate used days of type for user in given time frame.
 
         For absence types which fill worktime this will be None.
         """
@@ -114,11 +113,7 @@ class AbsenceType(models.Model):
         absences = Absence.objects.filter(
             user=user, absence_type=self, date__range=[start, end]
         )
-        used_days = absences.count()
-        return used_days
-
-    class Meta:
-        ordering = ("name",)
+        return absences.count()
 
 
 class AbsenceCredit(models.Model):
@@ -219,11 +214,17 @@ class Employment(models.Model):
     worktime_per_day = models.DurationField()
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
-    objects = EmploymentManager()
 
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     is_external = models.BooleanField(default=False)
+
+    objects = EmploymentManager()
+
+    class Meta:
+        """Meta information for the employment model."""
+
+        indexes = (models.Index(fields=["start_date", "end_date"]),)
 
     def __str__(self):
         """Represent the model as a string.
@@ -231,7 +232,7 @@ class Employment(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return "{0} ({1} - {2})".format(
+        return "{} ({} - {})".format(
             self.user.username,
             self.start_date.strftime("%d.%m.%Y"),
             self.end_date.strftime("%d.%m.%Y") if self.end_date else "today",
@@ -274,7 +275,7 @@ class Employment(models.Model):
         # converting workdays as db expects 1 (Sunday) to 7 (Saturday)
         workdays_db = [
             # special case for Sunday
-            int(day) == 7 and 1 or int(day) + 1
+            int(day) == 7 and 1 or int(day) + 1  # noqa: PLR2004
             for day in self.location.workdays
         ]
         holidays = PublicHoliday.objects.filter(
@@ -309,11 +310,6 @@ class Employment(models.Model):
         reported = reported_worktime + absences + overtime_credit
 
         return (reported, expected_worktime, reported - expected_worktime)
-
-    class Meta:
-        """Meta information for the employment model."""
-
-        indexes = [models.Index(fields=["start_date", "end_date"])]
 
 
 class UserManager(UserManager):
@@ -410,7 +406,6 @@ class User(AbstractUser):
         If the user doesn't have a return None.
         """
         try:
-            current_employment = Employment.objects.get_at(user=self, date=date.today())
-            return current_employment
+            return Employment.objects.get_at(user=self, date=date.today())
         except Employment.DoesNotExist:
             return None

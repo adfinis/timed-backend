@@ -1,6 +1,7 @@
 """Serializers for the tracking app."""
 
 from datetime import date, timedelta
+from typing import ClassVar
 
 from django.contrib.auth import get_user_model
 from django.db.models import BooleanField, Case, Q, When
@@ -27,7 +28,7 @@ class ActivitySerializer(ModelSerializer):
 
     user = CurrentUserResourceRelatedField()
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "task": "timed.projects.serializers.TaskSerializer",
         "user": "timed.employment.serializers.UserSerializer",
     }
@@ -74,13 +75,15 @@ class AttendanceSerializer(ModelSerializer):
 
     user = CurrentUserResourceRelatedField()
 
-    included_serializers = {"user": "timed.employment.serializers.UserSerializer"}
+    included_serializers: ClassVar = {
+        "user": "timed.employment.serializers.UserSerializer"
+    }
 
     class Meta:
         """Meta information for the attendance serializer."""
 
         model = models.Attendance
-        fields = ["date", "from_time", "to_time", "user"]
+        fields = ("date", "from_time", "to_time", "user")
 
 
 class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
@@ -95,7 +98,7 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
         queryset=get_user_model().objects, required=False, allow_null=True
     )
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "task": "timed.projects.serializers.TaskSerializer",
         "user": "timed.employment.serializers.UserSerializer",
         "verified_by": "timed.employment.serializers.UserSerializer",
@@ -106,7 +109,7 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
             user = self.context["request"].user
             owner = self.instance.user
             if getattr(self.instance, field) != value and user != owner:
-                raise ValidationError(_(f"Only owner may change {field}"))
+                raise ValidationError(_("Only owner may change %s") % field)
 
         return value
 
@@ -120,11 +123,12 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
 
     def validate_billed(self, value):
         """Only accountants may bill reports."""
-        if self.instance is not None:
-            if not self.context["request"].user.is_accountant and (
-                self.instance.billed != value
-            ):
-                raise ValidationError(_("Only accountants may bill reports."))
+        if (
+            self.instance is not None
+            and not self.context["request"].user.is_accountant
+            and (self.instance.billed != value)
+        ):
+            raise ValidationError(_("Only accountants may bill reports."))
 
         return value
 
@@ -140,8 +144,7 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
         return value
 
     def validate(self, data):
-        """
-        Validate that verified by is only set by reviewer or superuser.
+        """Validate that verified by is only set by reviewer or superuser.
 
         Additionally make sure a report is cannot be verified_by if is still
         needs review.
@@ -150,7 +153,6 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
 
         Check if remaing effort tracking is active on the corresponding project.
         """
-
         user = self.context["request"].user
         current_verified_by = self.instance and self.instance.verified_by
         new_verified_by = data.get("verified_by")
@@ -180,9 +182,8 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
 
         # check if remaining effort tracking is active on the corresponding project
         if not task.project.remaining_effort_tracking and data.get("remaining_effort"):
-            raise ValidationError(
-                "Remaining effort tracking is not active on this project!"
-            )
+            msg = "Remaining effort tracking is not active on this project!"
+            raise ValidationError(msg)
 
         if new_verified_by != current_verified_by:
             if not is_reviewer:
@@ -202,9 +203,12 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
 
         # update billed flag on reports that are being moved to a different project
         # according to the billed flag of the project the report was moved to
-        if self.instance and data.get("task"):
-            if self.instance.task.id != data.get("task").id:
-                data["billed"] = data.get("task").project.billed
+        if (
+            self.instance
+            and data.get("task")
+            and self.instance.task.id != data.get("task").id
+        ):
+            data["billed"] = data.get("task").project.billed
 
         current_employment = Employment.objects.get_at(user=user, date=date.today())
 
@@ -238,14 +242,15 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
                 )
             ).exists()
         ):
-            raise ValidationError(
+            msg = (
                 "User is not a resource on the corresponding task, project or customer"
             )
+            raise ValidationError(msg)
         return data
 
     class Meta:
         model = models.Report
-        fields = [
+        fields = (
             "comment",
             "date",
             "duration",
@@ -258,7 +263,7 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
             "verified_by",
             "rejected",
             "remaining_effort",
-        ]
+        )
 
 
 class ReportBulkSerializer(Serializer):
@@ -279,8 +284,7 @@ class ReportBulkSerializer(Serializer):
 
 
 class ReportIntersectionSerializer(Serializer):
-    """
-    Serializer of report intersections.
+    """Serializer of report intersections.
 
     Serializes a representation of all fields which are the same
     in given Report objects. If values of one field are not the same
@@ -368,7 +372,7 @@ class ReportIntersectionSerializer(Serializer):
         queryset = self.instance["queryset"]
         return {"count": queryset.count()}
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "customer": "timed.projects.serializers.CustomerSerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
         "task": "timed.projects.serializers.TaskSerializer",
@@ -386,7 +390,7 @@ class AbsenceSerializer(ModelSerializer):
     absence_type = ResourceRelatedField(queryset=AbsenceType.objects.all())
     user = CurrentUserResourceRelatedField()
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "user": "timed.employment.serializers.UserSerializer",
         "absence_type": "timed.employment.serializers.AbsenceTypeSerializer",
     }
@@ -435,7 +439,7 @@ class AbsenceSerializer(ModelSerializer):
         except Employment.DoesNotExist:  # pragma: no cover
             raise ValidationError(
                 _("You can't create an absence on an unemployed day.")
-            )
+            ) from None
 
         if PublicHoliday.objects.filter(
             location_id=location.id, date=data.get("date")
@@ -452,4 +456,4 @@ class AbsenceSerializer(ModelSerializer):
         """Meta information for the absence serializer."""
 
         model = models.Absence
-        fields = ["comment", "date", "duration", "absence_type", "user"]
+        fields = ("comment", "date", "duration", "absence_type", "user")

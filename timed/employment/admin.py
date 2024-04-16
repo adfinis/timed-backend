@@ -32,7 +32,7 @@ class SupervisorForm(forms.ModelForm):
     class Meta:
         """Meta information for the supervisor form."""
 
-        fields = "__all__"
+        fields = "__all__"  # noqa: DJ007
         model = models.User.supervisors.through
 
 
@@ -51,12 +51,12 @@ class SuperviseeForm(forms.ModelForm):
     class Meta:
         """Meta information for the supervisee form."""
 
-        fields = "__all__"
+        fields = "__all__"  # noqa: DJ007
         model = models.User.supervisors.through
 
 
 class SupervisorInline(admin.TabularInline):
-    autocomplete_fields = ["to_user"]
+    autocomplete_fields = ("to_user",)
     form = SupervisorForm
     model = models.User.supervisors.through
     extra = 0
@@ -66,7 +66,7 @@ class SupervisorInline(admin.TabularInline):
 
 
 class SuperviseeInline(admin.TabularInline):
-    autocomplete_fields = ["from_user"]
+    autocomplete_fields = ("from_user",)
     form = SuperviseeForm
     model = models.User.supervisors.through
     extra = 0
@@ -101,11 +101,9 @@ class EmploymentForm(forms.ModelForm):
             raise ValidationError(_("The end date must be after the start date"))
 
         if any(
-            [
-                e.start_date <= (data.get("end_date") or datetime.date.today())
-                and data.get("start_date") <= (e.end_date or datetime.date.today())
-                for e in employments
-            ]
+            e.start_date <= (data.get("end_date") or datetime.date.today())
+            and data.get("start_date") <= (e.end_date or datetime.date.today())
+            for e in employments
         ):
             raise ValidationError(
                 _("A user can't have multiple employments at the same time")
@@ -116,7 +114,7 @@ class EmploymentForm(forms.ModelForm):
     class Meta:
         """Meta information for the employment form."""
 
-        fields = "__all__"
+        fields = "__all__"  # noqa: DJ007
         model = models.Employment
 
 
@@ -146,22 +144,22 @@ class AbsenceCreditInline(admin.TabularInline):
 class UserAdmin(UserAdmin):
     """Timed specific user admin."""
 
-    inlines = [
+    inlines = (
         SupervisorInline,
         SuperviseeInline,
         EmploymentInline,
         OvertimeCreditInline,
         AbsenceCreditInline,
-    ]
+    )
     list_display = ("username", "first_name", "last_name", "is_staff", "is_active")
-    search_fields = ["username"]
+    search_fields = ("username",)
 
-    actions = [
+    actions = (
         "disable_users",
         "enable_users",
         "disable_staff_status",
         "enable_staff_status",
-    ]
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -197,8 +195,8 @@ class UserAdmin(UserAdmin):
 class LocationAdmin(admin.ModelAdmin):
     """Location admin view."""
 
-    list_display = ["name"]
-    search_fields = ["name"]
+    list_display = ("name",)
+    search_fields = ("name",)
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.employments.exists()
@@ -208,15 +206,15 @@ class LocationAdmin(admin.ModelAdmin):
 class PublicHolidayAdmin(admin.ModelAdmin):
     """Public holiday admin view."""
 
-    list_display = ["__str__", "date", "location"]
-    list_filter = ["location"]
+    list_display = ("__str__", "date", "location")
+    list_filter = ("location",)
 
 
 @admin.register(models.AbsenceType)
 class AbsenceTypeAdmin(admin.ModelAdmin):
     """Absence type admin view."""
 
-    list_display = ["name"]
+    list_display = ("name",)
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.absences.exists() and not obj.absencecredit_set.exists()

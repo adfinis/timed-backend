@@ -27,7 +27,7 @@ class PublicHolidayFilterSet(FilterSet):
         """Meta information for the public holiday filter set."""
 
         model = models.PublicHoliday
-        fields = ["year", "location", "date", "from_date", "to_date"]
+        fields = ("year", "location", "date", "from_date", "to_date")
 
 
 class AbsenceTypeFilterSet(FilterSet):
@@ -37,7 +37,7 @@ class AbsenceTypeFilterSet(FilterSet):
         """Meta information for the public holiday filter set."""
 
         model = models.AbsenceType
-        fields = ["fill_worktime"]
+        fields = ("fill_worktime",)
 
 
 class UserFilterSet(FilterSet):
@@ -63,29 +63,30 @@ class UserFilterSet(FilterSet):
 
     class Meta:
         model = models.User
-        fields = [
+        fields = (
             "active",
             "supervisor",
             "is_reviewer",
             "is_supervisor",
             "is_accountant",
-        ]
+        )
 
 
 class EmploymentFilterSet(FilterSet):
     date = DateFilter(method="filter_date")
 
     def filter_date(self, queryset, name, value):
-        queryset = queryset.filter(
+        return queryset.filter(
             Q(start_date__lte=value)
             & Q(Q(end_date__gte=value) | Q(end_date__isnull=True))
         )
 
-        return queryset
-
     class Meta:
         model = models.Employment
-        fields = ["user", "location"]
+        fields = (
+            "user",
+            "location",
+        )
 
 
 class OvertimeCreditFilterSet(FilterSet):
@@ -95,7 +96,13 @@ class OvertimeCreditFilterSet(FilterSet):
 
     class Meta:
         model = models.OvertimeCredit
-        fields = ["year", "user", "date", "from_date", "to_date"]
+        fields = (
+            "year",
+            "user",
+            "date",
+            "from_date",
+            "to_date",
+        )
 
 
 class AbsenceCreditFilterSet(FilterSet):
@@ -105,19 +112,23 @@ class AbsenceCreditFilterSet(FilterSet):
 
     class Meta:
         model = models.AbsenceCredit
-        fields = ["year", "user", "date", "from_date", "to_date", "absence_type"]
+        fields = (
+            "year",
+            "user",
+            "date",
+            "from_date",
+            "to_date",
+            "absence_type",
+        )
 
 
 class WorktimeBalanceFilterSet(FilterSet):
     user = NumberFilter(field_name="id")
     supervisor = NumberFilter(field_name="supervisors")
-    # additional filters analyzed in WorktimeBalanceView
-    # date = DateFilter()
-    # last_reported_date = NumberFilter()
 
     class Meta:
         model = models.User
-        fields = ["user"]
+        fields = ("user",)
 
 
 class AbsenceBalanceFilterSet(FilterSet):
@@ -125,4 +136,4 @@ class AbsenceBalanceFilterSet(FilterSet):
 
     class Meta:
         model = models.AbsenceType
-        fields = ["absence_type"]
+        fields = ("absence_type",)

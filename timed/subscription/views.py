@@ -18,8 +18,7 @@ from . import filters, models, serializers
 
 
 class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Subscription specific project view.
+    """Subscription specific project view.
 
     Subscription projects are not archived projects
     which have a billing type with packages.
@@ -58,14 +57,16 @@ class PackageViewSet(viewsets.ReadOnlyModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.OrderSerializer
     filterset_class = filters.OrderFilter
-    permission_classes = [
-        # superuser and accountants may edit all orders
-        (IsSuperUser | IsAccountant)
-        # customers may only create orders
-        | IsCustomer & IsCreateOnly
-        # all authenticated users may read all orders
-        | IsAuthenticated & IsReadOnly
-    ]
+    permission_classes = (
+        (
+            # superuser and accountants may edit all orders
+            (IsSuperUser | IsAccountant)
+            # customers may only create orders
+            | IsCustomer & IsCreateOnly
+            # all authenticated users may read all orders
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
 
     def create(self, request, *args, **kwargs):
         """Override so we can issue emails on creation."""
@@ -75,7 +76,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             and request.data.get("acknowledged")
             and not (request.user.is_accountant or request.user.is_superuser)
         ):
-            raise ValidationError("User can not create confirmed orders!")
+            msg = "User can not create confirmed orders!"
+            raise ValidationError(msg)
 
         project = Project.objects.get(id=request.data.get("project")["id"])
         order_duration = request.data.get("duration")
@@ -84,9 +86,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         # don't allow customers to create orders with negative duration
         if not (request.user.is_accountant or request.user.is_superuser):
             if "-" in request.data.get("duration"):
-                raise ValidationError(
-                    "Customer can not create orders with negative duration!"
-                )
+                msg = "Customer can not create orders with negative duration!"
+                raise ValidationError(msg)
             notify_admin.prepare_and_send_email(project, order_duration)
         return super().create(request, *args, **kwargs)
 
@@ -96,8 +97,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         permission_classes=[IsSuperUser | IsAccountant],
     )
     def confirm(self, request, pk=None):
-        """
-        Confirm order.
+        """Confirm order.
 
         Only allowed by staff members
         """
@@ -115,7 +115,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         if instance.acknowledged:
             # acknowledge orders may not be deleted
-            raise exceptions.PermissionDenied()
+            raise exceptions.PermissionDenied
 
         instance.delete()
         return response.Response(status=status.HTTP_204_NO_CONTENT)

@@ -4,8 +4,7 @@ from timed.projects.models import Project
 
 
 class RedmineProject(models.Model):
-    """
-    Definition of a Redmine Project.
+    """Definition of a Redmine Project.
 
     Defines what Timed project belongs to what Redmine issue.
     """

@@ -13,24 +13,23 @@ from rest_framework.reverse import reverse
 from timed.employment.factories import UserFactory
 
 
+@pytest.mark.django_db()
 @pytest.mark.parametrize("is_id_token", [True, False])
 @pytest.mark.parametrize(
-    "authentication_header,authenticated,error",
+    ("authentication_header", "error"),
     [
-        ("", False, False),
-        ("Bearer", False, True),
-        ("Bearer Too many params", False, True),
-        ("Basic Auth", False, True),
-        ("Bearer Token", True, False),
+        ("", False),
+        ("Bearer", True),
+        ("Bearer Too many params", True),
+        ("Basic Auth", True),
+        ("Bearer Token", False),
     ],
 )
 @pytest.mark.parametrize("user__username", ["1"])
 def test_authentication(
-    db,
     user,
     rf,
     authentication_header,
-    authenticated,
     error,
     is_id_token,
     requests_mock,
@@ -64,12 +63,13 @@ def test_authentication(
             )
 
 
+@pytest.mark.django_db()
 @pytest.mark.parametrize(
-    "create_user,username,expected_count",
+    ("create_user", "username", "expected_count"),
     [(False, "", 0), (True, "", 1), (True, "foo@example.com", 1)],
 )
 def test_authentication_new_user(
-    db, rf, requests_mock, settings, create_user, username, expected_count
+    rf, requests_mock, settings, create_user, username, expected_count
 ):
     settings.OIDC_CREATE_USER = create_user
     user_model = get_user_model()
@@ -90,7 +90,8 @@ def test_authentication_new_user(
     assert user_model.objects.count() == expected_count
 
 
-def test_authentication_update_user_data(db, rf, requests_mock, settings):
+@pytest.mark.django_db()
+def test_authentication_update_user_data(rf, requests_mock, settings):
     user_model = get_user_model()
     user = UserFactory.create()
 
@@ -113,7 +114,8 @@ def test_authentication_update_user_data(db, rf, requests_mock, settings):
     assert user.email == "test@localhost"
 
 
-def test_authentication_idp_502(db, rf, requests_mock, settings):
+@pytest.mark.django_db()
+def test_authentication_idp_502(rf, requests_mock, settings):
     requests_mock.get(
         settings.OIDC_OP_USER_ENDPOINT, status_code=status.HTTP_502_BAD_GATEWAY
     )
@@ -123,7 +125,8 @@ def test_authentication_idp_502(db, rf, requests_mock, settings):
         OIDCAuthentication().authenticate(request)
 
 
-def test_authentication_idp_missing_claim(db, rf, requests_mock, settings):
+@pytest.mark.django_db()
+def test_authentication_idp_missing_claim(rf, requests_mock, settings):
     settings.OIDC_USERNAME_CLAIM = "missing"
     userinfo = {"preferred_username": "1"}
     requests_mock.get(settings.OIDC_OP_USER_ENDPOINT, text=json.dumps(userinfo))
@@ -133,7 +136,8 @@ def test_authentication_idp_missing_claim(db, rf, requests_mock, settings):
         OIDCAuthentication().authenticate(request)
 
 
-def test_authentication_no_client(db, rf, requests_mock, settings):
+@pytest.mark.django_db()
+def test_authentication_no_client(rf, requests_mock, settings):
     requests_mock.get(
         settings.OIDC_OP_USER_ENDPOINT, status_code=status.HTTP_401_UNAUTHORIZED
     )
@@ -147,9 +151,10 @@ def test_authentication_no_client(db, rf, requests_mock, settings):
         OIDCAuthentication().authenticate(request)
 
 
+@pytest.mark.django_db()
 @pytest.mark.parametrize("check_introspect", [True, False])
 def test_userinfo_introspection_failure(
-    db, client, rf, requests_mock, settings, check_introspect
+    client, rf, requests_mock, settings, check_introspect
 ):
     settings.OIDC_CHECK_INTROSPECT = check_introspect
     requests_mock.get(

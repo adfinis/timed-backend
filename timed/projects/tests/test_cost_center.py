@@ -7,7 +7,7 @@ from timed.projects.factories import CostCenterFactory
 
 
 @pytest.mark.parametrize(
-    "is_employed, is_customer_assignee, is_customer, status_code",
+    ("is_employed", "is_customer_assignee", "is_customer", "status_code"),
     [
         (False, True, False, HTTP_403_FORBIDDEN),
         (False, True, True, HTTP_403_FORBIDDEN),

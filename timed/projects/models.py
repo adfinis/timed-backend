@@ -31,6 +31,11 @@ class Customer(models.Model):
         related_name="assigned_to_customers",
     )
 
+    class Meta:
+        """Meta informations for the customer model."""
+
+        ordering = ("name",)
+
     def __str__(self):
         """Represent the model as a string.
 
@@ -39,11 +44,6 @@ class Customer(models.Model):
         """
         return self.name
 
-    class Meta:
-        """Meta informations for the customer model."""
-
-        ordering = ["name"]
-
 
 class CostCenter(models.Model):
     """Cost center defining how cost of projects and tasks are allocated."""
@@ -51,11 +51,11 @@ class CostCenter(models.Model):
     name = models.CharField(max_length=255, unique=True)
     reference = models.CharField(max_length=255, blank=True, null=True)
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ["name"]
 
 
 class BillingType(models.Model):
@@ -64,11 +64,11 @@ class BillingType(models.Model):
     name = models.CharField(max_length=255, unique=True)
     reference = models.CharField(max_length=255, blank=True, null=True)
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ["name"]
 
 
 class Project(models.Model):
@@ -116,16 +116,16 @@ class Project(models.Model):
     remaining_effort_tracking = models.BooleanField(default=False)
     total_remaining_effort = models.DurationField(default=timedelta(0))
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         """Represent the model as a string.
 
         :return: The string representation
         :rtype:  str
         """
-        return "{0} > {1}".format(self.customer, self.name)
-
-    class Meta:
-        ordering = ["name"]
+        return f"{self.customer} > {self.name}"
 
 
 class Task(models.Model):
@@ -162,18 +162,18 @@ class Task(models.Model):
     )
     most_recent_remaining_effort = models.DurationField(blank=True, null=True)
 
+    class Meta:
+        """Meta informations for the task model."""
+
+        ordering = ("name",)
+
     def __str__(self):
         """Represent the model as a string.
 
         :return: The string representation
         :rtype:  str
         """
-        return "{0} > {1}".format(self.project, self.name)
-
-    class Meta:
-        """Meta informations for the task model."""
-
-        ordering = ["name"]
+        return f"{self.project} > {self.name}"
 
 
 class TaskTemplate(models.Model):
@@ -185,6 +185,9 @@ class TaskTemplate(models.Model):
 
     name = models.CharField(max_length=255)
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         """Represent the model as a string.
 
@@ -192,9 +195,6 @@ class TaskTemplate(models.Model):
         :rtype:  str
         """
         return self.name
-
-    class Meta:
-        ordering = ["name"]
 
 
 class CustomerAssignee(models.Model):
@@ -272,8 +272,5 @@ def update_billed_flag_on_reports(sender, instance, **kwargs):
         return
 
     # check whether the project was created or is being updated
-    if instance.pk:
-        if instance.billed != Project.objects.get(id=instance.id).billed:
-            Report.objects.filter(Q(task__project=instance)).update(
-                billed=instance.billed
-            )
+    if instance.pk and instance.billed != Project.objects.get(id=instance.id).billed:
+        Report.objects.filter(Q(task__project=instance)).update(billed=instance.billed)

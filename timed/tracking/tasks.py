@@ -5,7 +5,6 @@ from django.template.loader import get_template
 
 def _send_notification_emails(changes, reviewer, rejected=False):
     """Send email for each user."""
-
     if rejected:
         subject = "[Timed] Your reports have been rejected"
         template = get_template("mail/notify_user_rejected_reports.tmpl", using="text")
@@ -47,7 +46,7 @@ def _get_report_changeset(report, fields):
         "report": report,
         "changes": {
             key: {"old": getattr(report, key), "new": fields[key]}
-            for key in fields.keys()
+            for key in fields
             # skip if field is not changed or just a reviewer field
             if getattr(report, key) != fields[key]
             and key in settings.TRACKING_REPORT_VERIFIED_CHANGES

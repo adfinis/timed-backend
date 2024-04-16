@@ -17,8 +17,7 @@ template = get_template("mail/notify_reviewers_unverified.txt", using="text")
 
 
 class Command(BaseCommand):
-    """
-    Notify reviewers of projects with unverified reports.
+    """Notify reviewers of projects with unverified reports.
 
     Notifications will be sent when reviewer has projects with reports
     which are unverified in given time frame.
@@ -83,8 +82,7 @@ class Command(BaseCommand):
         self._notify_reviewers(start, end, reports, message, cc)
 
     def _get_unverified_reports(self, start, end):
-        """
-        Get unverified reports.
+        """Get unverified reports.
 
         Unverified reports are reports on project which have a reviewer
         assigned but are not verified in given time frame.

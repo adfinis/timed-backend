@@ -11,16 +11,16 @@ class Notification(models.Model):
     SUPERVISORS_SHORTTIME = "supervisors_shorttime"
     NOTIFY_ACCOUNTANTS = "notify_accountants"
 
-    NOTIFICATION_TYPE_CHOICES = [
+    NOTIFICATION_TYPE_CHOICES = (
         (BUDGET_CHECK_30, "project budget exceeded 30%"),
         (BUDGET_CHECK_70, "project budget exceeded 70%"),
         (CHANGED_EMPLOYMENT, "recently changed employment"),
         (REVIEWER_UNVERIFIED, "reviewer has reports to verify"),
         (SUPERVISORS_SHORTTIME, "supervisor has supervisees with short time"),
         (NOTIFY_ACCOUNTANTS, "notify accountats"),
-    ]
+    )
 
-    NOTIFICATION_TYPES = [n for n, _ in NOTIFICATION_TYPE_CHOICES]
+    NOTIFICATION_TYPES = tuple(n for n, _ in NOTIFICATION_TYPE_CHOICES)
 
     sent_at = models.DateTimeField(null=True)
     project = models.ForeignKey(

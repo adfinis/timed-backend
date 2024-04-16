@@ -27,7 +27,7 @@ def test_attendance_detail(internal_employee_client):
 
 
 @pytest.mark.parametrize(
-    "is_external, task_assignee__is_resource, expected",
+    ("is_external", "task_assignee__is_resource", "expected"),
     [
         (False, False, status.HTTP_201_CREATED),
         (True, True, status.HTTP_201_CREATED),

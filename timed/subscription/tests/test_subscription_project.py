@@ -16,7 +16,7 @@ from timed.subscription.factories import OrderFactory, PackageFactory
 from timed.tracking.factories import ReportFactory
 
 
-@pytest.mark.parametrize("is_external, expected", [(True, 0), (False, 1)])
+@pytest.mark.parametrize(("is_external", "expected"), [(True, 0), (False, 1)])
 def test_subscription_project_list(auth_client, is_external, expected):
     employment = EmploymentFactory.create(user=auth_client.user, is_external=False)
     if is_external:
@@ -64,7 +64,7 @@ def test_subscription_project_list(auth_client, is_external, expected):
 
 
 @pytest.mark.parametrize(
-    "is_customer, project_of_customer, has_employment, is_external, expected",
+    ("is_customer", "project_of_customer", "has_employment", "is_external", "expected"),
     [
         (True, True, False, False, HTTP_200_OK),
         (True, False, False, False, HTTP_404_NOT_FOUND),

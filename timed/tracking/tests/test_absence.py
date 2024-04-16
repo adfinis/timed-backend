@@ -107,7 +107,7 @@ def test_absence_detail(internal_employee_client):
 
 
 @pytest.mark.parametrize(
-    "is_external, expected",
+    ("is_external", "expected"),
     [(False, status.HTTP_201_CREATED), (True, status.HTTP_403_FORBIDDEN)],
 )
 def test_absence_create(auth_client, is_external, expected):

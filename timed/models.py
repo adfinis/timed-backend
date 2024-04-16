@@ -6,8 +6,7 @@ from multiselectfield.utils import get_max_length
 
 
 class WeekdaysField(MultiSelectField):
-    """
-    Multi select field using weekdays as choices.
+    """Multi select field using weekdays as choices.
 
     Stores weekdays as comma-separated values in database as
     iso week day (MON = 1, SUN = 7).

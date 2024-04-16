@@ -100,6 +100,7 @@ omit = [
     "*/apps.py",
     "*/admin.py",
     "manage.py",
+    "timed/redmine/management/commands/import_project_data.py",
     "timed/settings_*.py",
     "timed/wsgi.py",
     "timed/forms.py",

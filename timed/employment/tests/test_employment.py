@@ -136,7 +136,8 @@ def test_employment_list_supervisor(auth_client):
     assert len(json["data"]) == 2
 
 
-def test_employment_unique_active(db):
+@pytest.mark.django_db()
+def test_employment_unique_active():
     """Should only be able to have one active employment per user."""
     user = UserFactory.create()
     EmploymentFactory.create(user=user, end_date=None)
@@ -147,7 +148,8 @@ def test_employment_unique_active(db):
         form.save()
 
 
-def test_employment_start_before_end(db):
+@pytest.mark.django_db()
+def test_employment_start_before_end():
     employment = EmploymentFactory.create()
     form = EmploymentForm(
         {"start_date": date(2009, 1, 1), "end_date": date(2016, 1, 1)},
@@ -158,7 +160,8 @@ def test_employment_start_before_end(db):
         form.save()
 
 
-def test_employment_get_at(db):
+@pytest.mark.django_db()
+def test_employment_get_at():
     """Should return the right employment on a date."""
     user = UserFactory.create()
     employment = EmploymentFactory.create(user=user)
@@ -173,7 +176,8 @@ def test_employment_get_at(db):
         Employment.objects.get_at(user, employment.start_date + timedelta(days=21))
 
 
-def test_worktime_balance_partial(db):
+@pytest.mark.django_db()
+def test_worktime_balance_partial():
     """
     Test partial calculation of worktime balance.
 
@@ -219,7 +223,8 @@ def test_worktime_balance_partial(db):
     assert balance == expected_balance
 
 
-def test_worktime_balance_longer(db):
+@pytest.mark.django_db()
+def test_worktime_balance_longer():
     """Test calculation of worktime when frame is longer than employment."""
     employment = factories.EmploymentFactory.create(
         start_date=date(2017, 3, 21),
@@ -272,7 +277,8 @@ def test_worktime_balance_longer(db):
     assert balance == expected_balance
 
 
-def test_employment_for_user(db):
+@pytest.mark.django_db()
+def test_employment_for_user():
     user = factories.UserFactory.create()
     # employment overlapping time frame (early start)
     factories.EmploymentFactory.create(

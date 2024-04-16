@@ -7,7 +7,7 @@ from timed.employment.factories import AbsenceTypeFactory, EmploymentFactory
 
 
 @pytest.mark.parametrize(
-    "is_employed, is_customer_assignee, is_customer, expected",
+    ("is_employed", "is_customer_assignee", "is_customer", "expected"),
     [
         (False, True, True, 0),
         (False, True, False, 0),
@@ -51,7 +51,7 @@ def test_absence_type_list_filter_fill_worktime(internal_employee_client):
 
 
 @pytest.mark.parametrize(
-    "is_employed, expected",
+    ("is_employed", "expected"),
     [
         (True, status.HTTP_200_OK),
         (False, status.HTTP_404_NOT_FOUND),

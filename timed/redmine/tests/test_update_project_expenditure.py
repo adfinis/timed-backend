@@ -7,10 +7,11 @@ from redminelib.exceptions import ResourceNotFoundError
 from timed.redmine.models import RedmineProject
 
 
+@pytest.mark.django_db()
 @pytest.mark.parametrize("pretend", [True, False])
 @pytest.mark.parametrize("amount_offered", [None, 100.00, 0])
 def test_update_project_expenditure(
-    db, mocker, capsys, report_factory, pretend, amount_offered
+    mocker, capsys, report_factory, pretend, amount_offered
 ):
     redmine_instance = mocker.MagicMock()
     issue = mocker.MagicMock()
@@ -43,8 +44,9 @@ def test_update_project_expenditure(
         assert f"amount invoiced {project.amount_invoiced.amount}" in out
 
 
+@pytest.mark.django_db()
 def test_update_project_expenditure_invalid_issue(
-    db, freezer, mocker, capsys, report_factory
+    freezer, mocker, capsys, report_factory
 ):
     redmine_instance = mocker.MagicMock()
     redmine_class = mocker.patch("redminelib.Redmine")

@@ -66,7 +66,10 @@ class ActivityFilterSet(FilterSet):
         """Meta information for the activity filter set."""
 
         model = models.Activity
-        fields = ["active", "day"]
+        fields = (
+            "active",
+            "day",
+        )
 
 
 class AttendanceFilterSet(FilterSet):
@@ -76,7 +79,7 @@ class AttendanceFilterSet(FilterSet):
         """Meta information for the attendance filter set."""
 
         model = models.Attendance
-        fields = ["date"]
+        fields = ("date",)
 
 
 class ReportFilterSet(FilterSet):
@@ -186,25 +189,22 @@ class ReportFilterSet(FilterSet):
             if user.is_superuser:
                 # superuser may edit all reports
                 return queryset
-            elif user.is_accountant:
+            if user.is_accountant:
                 return queryset.filter(unfinished_filter)
             # only owner, reviewer or supervisor may change unverified reports
-            queryset = queryset.filter(editable_filter).distinct()
+            return queryset.filter(editable_filter).distinct()
 
-            return queryset
-        else:  # not editable
-            if user.is_superuser:
-                # no reports which are not editable
-                return queryset.none()
-            elif user.is_accountant:
-                return queryset.exclude(unfinished_filter)
+        # not editable
+        if user.is_superuser:
+            # no reports which are not editable
+            return queryset.none()
+        if user.is_accountant:
+            return queryset.exclude(unfinished_filter)
 
-            queryset = queryset.exclude(editable_filter)
-            return queryset
+        return queryset.exclude(editable_filter)
 
     def filter_cost_center(self, queryset, name, value):
-        """
-        Filter report by cost center.
+        """Filter report by cost center.
 
         Cost center on task has higher priority over project cost
         center.
@@ -243,4 +243,4 @@ class AbsenceFilterSet(FilterSet):
         """Meta information for the absence filter set."""
 
         model = models.Absence
-        fields = ["date", "from_date", "to_date", "user"]
+        fields = ("date", "from_date", "to_date", "user")

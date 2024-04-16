@@ -9,7 +9,7 @@ from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.parametrize(
-    "is_employed, is_customer_assignee, is_customer, expected",
+    ("is_employed", "is_customer_assignee", "is_customer", "expected"),
     [
         (False, True, False, status.HTTP_403_FORBIDDEN),
         (False, True, True, status.HTTP_403_FORBIDDEN),

@@ -55,7 +55,7 @@ def test_customer_delete(auth_client):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-@pytest.mark.parametrize("is_assigned, expected", [(True, 1), (False, 0)])
+@pytest.mark.parametrize(("is_assigned", "expected"), [(True, 1), (False, 0)])
 def test_customer_list_external_employee(
     external_employee_client, is_assigned, expected
 ):
@@ -74,7 +74,7 @@ def test_customer_list_external_employee(
 
 
 @pytest.mark.parametrize(
-    "is_customer, expected",
+    ("is_customer", "expected"),
     [(True, 1), (False, 0)],
 )
 def test_customer_list_no_employment(auth_client, is_customer, expected):

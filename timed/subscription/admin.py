@@ -14,5 +14,5 @@ class PackageForm(forms.ModelForm):
 
 @admin.register(models.Package)
 class PackageAdmin(admin.ModelAdmin):
-    list_display = ["billing_type", "duration", "price"]
+    list_display = ("billing_type", "duration", "price")
     form = PackageForm

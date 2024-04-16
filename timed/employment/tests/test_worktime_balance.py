@@ -34,7 +34,7 @@ def test_worktime_balance_no_employment(auth_client, django_assert_num_queries):
     json = result.json()
     assert len(json["data"]) == 1
     data = json["data"][0]
-    assert data["id"] == "{0}_2017-01-01".format(auth_client.user.id)
+    assert data["id"] == f"{auth_client.user.id}_2017-01-01"
     assert data["attributes"]["balance"] == "00:00:00"
 
 
@@ -86,7 +86,7 @@ def test_worktime_balance_with_employments(auth_client, django_assert_num_querie
 
     url = reverse(
         "worktime-balance-detail",
-        args=["{0}_{1}".format(auth_client.user.id, end_date.strftime("%Y-%m-%d"))],
+        args=["{}_{}".format(auth_client.user.id, end_date.strftime("%Y-%m-%d"))],
     )
 
     with django_assert_num_queries(11):

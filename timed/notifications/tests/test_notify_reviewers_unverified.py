@@ -14,9 +14,10 @@ from timed.projects.factories import (
 from timed.tracking.factories import ReportFactory
 
 
+@pytest.mark.django_db()
 @pytest.mark.freeze_time("2017-8-4")
 @pytest.mark.parametrize(
-    "cc,message",
+    ("cc", "message"),
     [
         ("", ""),
         ("example@example.com", ""),
@@ -24,7 +25,7 @@ from timed.tracking.factories import ReportFactory
         ("", "This is a test"),
     ],
 )
-def test_notify_reviewers_with_cc_and_message(db, mailoutbox, cc, message):
+def test_notify_reviewers_with_cc_and_message(mailoutbox, cc, message):
     """Test time range 2017-7-1 till 2017-7-31."""
     # a reviewer which will be notified
     reviewer_work = UserFactory.create()
@@ -48,8 +49,8 @@ def test_notify_reviewers_with_cc_and_message(db, mailoutbox, cc, message):
 
     call_command(
         "notify_reviewers_unverified",
-        "--cc={0}".format(cc),
-        "--message={0}".format(message),
+        f"--cc={cc}",
+        f"--message={message}",
     )
 
     # checks
@@ -65,8 +66,9 @@ def test_notify_reviewers_with_cc_and_message(db, mailoutbox, cc, message):
     assert mail.cc[0] == cc
 
 
+@pytest.mark.django_db()
 @pytest.mark.freeze_time("2017-8-4")
-def test_notify_reviewers(db, mailoutbox):
+def test_notify_reviewers(mailoutbox):
     """Test time range 2017-7-1 till 2017-7-31."""
     # a reviewer which will be notified
     reviewer_work = UserFactory.create()
@@ -91,8 +93,9 @@ def test_notify_reviewers(db, mailoutbox):
     assert Notification.objects.count() == 1
 
 
+@pytest.mark.django_db()
 @pytest.mark.freeze_time("2017-8-4")
-def test_notify_reviewers_reviewer_hierarchy(db, mailoutbox):
+def test_notify_reviewers_reviewer_hierarchy(mailoutbox):
     """Test notification with reviewer hierarchy.
 
     Test if only the lowest in reviewer hierarchy gets notified.

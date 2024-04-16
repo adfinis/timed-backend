@@ -12,19 +12,19 @@ from timed.redmine.admin import RedmineProjectInline
 
 
 class CustomerAssigneeInline(admin.TabularInline):
-    autocomplete_fields = ["user"]
+    autocomplete_fields = ("user",)
     model = models.CustomerAssignee
     extra = 0
 
 
 class ProjectAssigneeInline(NestedStackedInline):
-    autocomplete_fields = ["user"]
+    autocomplete_fields = ("user",)
     model = models.ProjectAssignee
     extra = 0
 
 
 class TaskAssigneeInline(NestedStackedInline):
-    autocomplete_fields = ["user"]
+    autocomplete_fields = ("user",)
     model = models.TaskAssignee
     extra = 1
 
@@ -33,9 +33,9 @@ class TaskAssigneeInline(NestedStackedInline):
 class CustomerAdmin(admin.ModelAdmin):
     """Customer admin view."""
 
-    list_display = ["name"]
-    search_fields = ["name"]
-    inlines = [CustomerAssigneeInline]
+    list_display = ("name",)
+    search_fields = ("name",)
+    inlines = (CustomerAssigneeInline,)
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.projects.exists()
@@ -43,19 +43,21 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(models.BillingType)
 class BillingType(admin.ModelAdmin):
-    list_display = ["name"]
-    search_fields = ["name"]
+    list_display = ("name",)
+    search_fields = ("name",)
 
 
 @admin.register(models.CostCenter)
 class CostCenter(admin.ModelAdmin):
-    list_display = ["name", "reference"]
-    search_fields = ["name"]
+    list_display = (
+        "name",
+        "reference",
+    )
+    search_fields = ("name",)
 
 
 class TaskForm(forms.ModelForm):
-    """
-    Task form making sure that initial forms are marked as changed.
+    """Task form making sure that initial forms are marked as changed.
 
     Otherwise when saving project default tasks would not be saved.
     """
@@ -91,7 +93,7 @@ class TaskInline(NestedStackedInline):
     form = TaskForm
     model = models.Task
     extra = 0
-    inlines = [TaskAssigneeInline]
+    inlines = (TaskAssigneeInline,)
 
     def has_delete_permission(self, request, obj=None):
         # for some reason obj is parent object and not task
@@ -112,11 +114,14 @@ class ProjectAdmin(NestedModelAdmin):
     """Project admin view."""
 
     form = ProjectForm
-    list_display = ["name", "customer"]
-    list_filter = ["customer"]
-    search_fields = ["name", "customer__name"]
+    list_display = (
+        "name",
+        "customer",
+    )
+    list_filter = ("customer",)
+    search_fields = ("name", "customer__name")
 
-    inlines = [TaskInline, RedmineProjectInline, ProjectAssigneeInline]
+    inlines = (TaskInline, RedmineProjectInline, ProjectAssigneeInline)
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.tasks.exists()
@@ -126,4 +131,4 @@ class ProjectAdmin(NestedModelAdmin):
 class TaskTemplateAdmin(admin.ModelAdmin):
     """Task template admin view."""
 
-    list_display = ["name"]
+    list_display = ("name",)

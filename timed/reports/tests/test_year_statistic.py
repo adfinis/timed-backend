@@ -10,7 +10,7 @@ from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.parametrize(
-    "is_employed, is_customer_assignee, is_customer, expected",
+    ("is_employed", "is_customer_assignee", "is_customer", "expected"),
     [
         (False, True, False, status.HTTP_403_FORBIDDEN),
         (False, True, True, status.HTTP_403_FORBIDDEN),
@@ -58,7 +58,7 @@ def test_year_statistic_list(
 
 
 @pytest.mark.parametrize(
-    "is_employed, expected",
+    ("is_employed", "expected"),
     [
         (True, status.HTTP_200_OK),
         (False, status.HTTP_403_FORBIDDEN),

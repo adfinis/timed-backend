@@ -51,7 +51,8 @@ def test_project_list_include(
     assert json["data"][0]["id"] == str(project.id)
 
 
-def test_project_detail_no_auth(db, client, project):
+@pytest.mark.django_db()
+def test_project_detail_no_auth(client, project):
     url = reverse("project-detail", args=[project.id])
 
     res = client.get(url)
@@ -116,7 +117,7 @@ def test_project_delete(auth_client, project):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-@pytest.mark.parametrize("is_assigned, expected", [(True, 1), (False, 0)])
+@pytest.mark.parametrize(("is_assigned", "expected"), [(True, 1), (False, 0)])
 def test_project_list_external_employee(
     external_employee_client, is_assigned, expected
 ):
@@ -188,7 +189,7 @@ def test_project_update_billed_flag(internal_employee_client, report_factory):
 
 
 @pytest.mark.parametrize(
-    "is_customer, project__customer_visible, expected",
+    ("is_customer", "project__customer_visible", "expected"),
     [
         (True, True, 1),
         (True, False, 0),
@@ -213,7 +214,7 @@ def test_project_list_no_employment(auth_client, project, is_customer, expected)
 
 
 @pytest.mark.parametrize(
-    "assignee_level, status_code",
+    ("assignee_level", "status_code"),
     [
         ("customer", status.HTTP_200_OK),
         ("project", status.HTTP_200_OK),

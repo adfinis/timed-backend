@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 
 import environ
 import sentry_sdk
@@ -11,7 +12,7 @@ env = environ.Env()
 django_root = environ.Path(__file__) - 2
 
 ENV_FILE = env.str("DJANGO_ENV_FILE", default=django_root(".env"))
-if os.path.exists(ENV_FILE):  # pragma: no cover
+if Path(ENV_FILE):  # pragma: no cover
     environ.Env.read_env(ENV_FILE)
 
 # per default production is enabled for security reasons
@@ -42,7 +43,7 @@ DATABASES = {
 
 # Application definition
 
-DEBUG = env.bool("DJANGO_DEBUG", default=default(True, False))
+DEBUG = env.bool("DJANGO_DEBUG", default=default(default_dev=True, default_prod=False))
 SECRET_KEY = env.str("DJANGO_SECRET_KEY", default=default("uuuuuuuuuu"))
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=default(["*"]))
 HOST_PROTOCOL = env.str("DJANGO_HOST_PROTOCOL", default=default("http"))
@@ -210,13 +211,11 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"  # noqa
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},  # noqa
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},  # noqa
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"  # noqa
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # OIDC
@@ -242,7 +241,9 @@ OIDC_OP_JWKS_ENDPOINT = env.str(
 OIDC_RP_CLIENT_ID = env.str("DJANGO_OIDC_RP_CLIENT_ID", default="timed-public")
 OIDC_RP_CLIENT_SECRET = env.str("DJANGO_OIDC_RP_CLIENT_SECRET", default=None)
 
-OIDC_VERIFY_SSL = env.bool("DJANGO_OIDC_VERIFY_SSL", default=default(False, True))
+OIDC_VERIFY_SSL = env.bool(
+    "DJANGO_OIDC_VERIFY_SSL", default=default(default_dev=False, default_prod=True)
+)
 OIDC_RP_SIGN_ALGO = env.str("DJANGO_OIDC_RP_SIGN_ALGO", default="RS256")
 
 OIDC_CREATE_USER = env.bool("DJANGO_OIDC_CREATE_USER", default=True)
@@ -301,8 +302,7 @@ EMAIL_EXTRA_HEADERS = {"Auto-Submitted": "auto-generated"}
 
 
 def parse_admins(admins):
-    """
-    Parse env admins to django admins.
+    """Parse env admins to django admins.
 
     Example of DJANGO_ADMINS environment variable:
     Test Example <test@example.com>,Test2 <test2@example.com>
@@ -311,10 +311,11 @@ def parse_admins(admins):
     for admin in admins:
         match = re.search(r"(.+) \<(.+@.+)\>", admin)
         if not match:
-            raise environ.ImproperlyConfigured(
-                'In DJANGO_ADMINS admin "{0}" is not in correct '
-                '"Firstname Lastname <email@example.com>"'.format(admin)
+            msg = (
+                f'In DJANGO_ADMINS admin "{admin}" is not in correct '
+                '"Firstname Lastname <email@example.com>"'
             )
+            raise environ.ImproperlyConfigured(msg)
         result.append((match.group(1), match.group(2)))
     return result
 

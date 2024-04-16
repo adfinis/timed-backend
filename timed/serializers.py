@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.utils.duration import duration_string
 
 
-class TotalTimeRootMetaMixin(object):
+class TotalTimeRootMetaMixin:
     duration_field = "duration"
 
     def get_root_meta(self, resource, many):
@@ -19,8 +19,7 @@ class TotalTimeRootMetaMixin(object):
 
 
 class AggregateObject(dict):
-    """
-    Wrap dict into an object.
+    """Wrap dict into an object.
 
     All values will be accessible through attributes. Note that
     keys must be valid python names for this to work.

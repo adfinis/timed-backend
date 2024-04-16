@@ -1,6 +1,7 @@
 """Serializers for the projects app."""
 
 from datetime import timedelta
+from typing import ClassVar
 
 from django.db.models import Q, Sum
 from django.utils.duration import duration_string
@@ -18,26 +19,26 @@ class CustomerSerializer(ModelSerializer):
         """Meta information for the customer serializer."""
 
         model = models.Customer
-        fields = [
+        fields = (
             "name",
             "reference",
             "email",
             "website",
             "comment",
             "archived",
-        ]
+        )
 
 
 class BillingTypeSerializer(ModelSerializer):
     class Meta:
         model = models.BillingType
-        fields = ["name", "reference"]
+        fields = ("name", "reference")
 
 
 class CostCenterSerializer(ModelSerializer):
     class Meta:
         model = models.CostCenter
-        fields = ["name", "reference"]
+        fields = ("name", "reference")
 
 
 class ProjectSerializer(ModelSerializer):
@@ -46,7 +47,7 @@ class ProjectSerializer(ModelSerializer):
     customer = ResourceRelatedField(queryset=models.Customer.objects.all())
     billing_type = ResourceRelatedField(queryset=models.BillingType.objects.all())
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "customer": "timed.projects.serializers.CustomerSerializer",
         "billing_type": "timed.projects.serializers.BillingTypeSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
@@ -87,16 +88,15 @@ class ProjectSerializer(ModelSerializer):
                 )
             ).exists()
         ):
-            raise ValidationError(
-                "Only managers, accountants and superuser may activate remaining effort tracking!"
-            )
+            msg = "Only managers, accountants and superuser may activate remaining effort tracking!"
+            raise ValidationError(msg)
         return value
 
     class Meta:
         """Meta information for the project serializer."""
 
         model = models.Project
-        fields = [
+        fields = (
             "name",
             "reference",
             "comment",
@@ -109,7 +109,7 @@ class ProjectSerializer(ModelSerializer):
             "customer_visible",
             "remaining_effort_tracking",
             "total_remaining_effort",
-        ]
+        )
 
 
 class TaskSerializer(ModelSerializer):
@@ -117,7 +117,7 @@ class TaskSerializer(ModelSerializer):
 
     project = ResourceRelatedField(queryset=models.Project.objects.all())
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "activities": "timed.tracking.serializers.ActivitySerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
@@ -165,8 +165,9 @@ class TaskSerializer(ModelSerializer):
                 .exists()
             ):
                 return data
+            return None  # pragma: no cover
         # check if user is manager when creating a task
-        elif (
+        if (
             user.is_superuser
             or models.Project.objects.filter(pk=data["project"].id)
             .filter(
@@ -182,12 +183,13 @@ class TaskSerializer(ModelSerializer):
             .exists()
         ):
             return data
+        return None  # pragma: no cover
 
     class Meta:
         """Meta information for the task serializer."""
 
         model = models.Task
-        fields = [
+        fields = (
             "name",
             "reference",
             "estimated_time",
@@ -195,13 +197,13 @@ class TaskSerializer(ModelSerializer):
             "project",
             "cost_center",
             "most_recent_remaining_effort",
-        ]
+        )
 
 
 class CustomerAssigneeSerializer(ModelSerializer):
     """Customer assignee serializer."""
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "user": "timed.employment.serializers.UserSerializer",
         "customer": "timed.projects.serializers.CustomerSerializer",
     }
@@ -210,20 +212,20 @@ class CustomerAssigneeSerializer(ModelSerializer):
         """Meta information for the customer assignee serializer."""
 
         model = models.CustomerAssignee
-        fields = [
+        fields = (
             "user",
             "customer",
             "is_reviewer",
             "is_manager",
             "is_resource",
             "is_customer",
-        ]
+        )
 
 
 class ProjectAssigneeSerializer(ModelSerializer):
     """Project assignee serializer."""
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "user": "timed.employment.serializers.UserSerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
     }
@@ -232,20 +234,20 @@ class ProjectAssigneeSerializer(ModelSerializer):
         """Meta information for the project assignee serializer."""
 
         model = models.ProjectAssignee
-        fields = [
+        fields = (
             "user",
             "project",
             "is_reviewer",
             "is_manager",
             "is_resource",
             "is_customer",
-        ]
+        )
 
 
 class TaskAssigneeSerializer(ModelSerializer):
     """Task assignees serializer."""
 
-    included_serializers = {
+    included_serializers: ClassVar = {
         "user": "timed.employment.serializers.UserSerializer",
         "task": "timed.projects.serializers.TaskSerializer",
     }
@@ -254,11 +256,11 @@ class TaskAssigneeSerializer(ModelSerializer):
         """Meta information for the task assignee serializer."""
 
         model = models.TaskAssignee
-        fields = [
+        fields = (
             "user",
             "task",
             "is_reviewer",
             "is_manager",
             "is_resource",
             "is_customer",
-        ]
+        )

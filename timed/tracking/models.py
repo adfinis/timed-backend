@@ -31,19 +31,19 @@ class Activity(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="activities"
     )
 
+    class Meta:
+        """Meta informations for the activity model."""
+
+        verbose_name_plural = "activities"
+        indexes = (models.Index(fields=["date"]),)
+
     def __str__(self):
         """Represent the model as a string.
 
         :return: The string representation
         :rtype:  str
         """
-        return "{0}: {1}".format(self.user, self.task)
-
-    class Meta:
-        """Meta informations for the activity model."""
-
-        verbose_name_plural = "activities"
-        indexes = [models.Index(fields=["date"])]
+        return f"{self.user}: {self.task}"
 
 
 class Attendance(models.Model):
@@ -67,7 +67,7 @@ class Attendance(models.Model):
         :return: The string representation
         :rtype:  str
         """
-        return "{0}: {1} {2} - {3}".format(
+        return "{}: {} {} - {}".format(
             self.user,
             self.date.strftime("%Y-%m-%d"),
             self.from_time.strftime("%H:%M"),
@@ -103,6 +103,19 @@ class Report(models.Model):
     rejected = models.BooleanField(default=False)
     remaining_effort = models.DurationField(default=timedelta(0), null=True)
 
+    class Meta:
+        """Meta information for the report model."""
+
+        indexes = (models.Index(fields=["date"]),)
+
+    def __str__(self):
+        """Represent the model as a string.
+
+        :return: The string representation
+        :rtype:  str
+        """
+        return f"{self.user}: {self.task}"
+
     def save(self, *args, **kwargs):
         """Save the report with some custom functionality.
 
@@ -114,19 +127,6 @@ class Report(models.Model):
         )
 
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
-        return "{0}: {1}".format(self.user, self.task)
-
-    class Meta:
-        """Meta information for the report model."""
-
-        indexes = [models.Index(fields=["date"])]
 
 
 class Absence(models.Model):
@@ -145,9 +145,13 @@ class Absence(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="absences"
     )
 
+    class Meta:
+        """Meta informations for the absence model."""
+
+        unique_together = ("date", "user")
+
     def calculate_duration(self, employment):
-        """
-        Calculate duration of absence with given employment.
+        """Calculate duration of absence with given employment.
 
         For fullday absences duration is equal worktime per day of employment
         for absences which need to fill day calcuation needs to check
@@ -165,8 +169,3 @@ class Absence(models.Model):
             return timedelta()
 
         return employment.worktime_per_day - reported_time
-
-    class Meta:
-        """Meta informations for the absence model."""
-
-        unique_together = ("date", "user")

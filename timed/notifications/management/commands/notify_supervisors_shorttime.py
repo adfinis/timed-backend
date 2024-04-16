@@ -13,8 +13,7 @@ template = get_template("mail/notify_supervisor_shorttime.txt", using="text")
 
 
 class Command(BaseCommand):
-    """
-    Send notification when supervisees have shorttime in given time frame.
+    """Send notification when supervisees have shorttime in given time frame.
 
     Example how it works:
 
@@ -75,8 +74,7 @@ class Command(BaseCommand):
         return duration.total_seconds() / 3600
 
     def _get_supervisees_with_shorttime(self, start, end, ratio):
-        """
-        Get supervisees which reported less hours than they should have.
+        """Get supervisees which reported less hours than they should have.
 
         :return: dict mapping all supervisees with shorttime with dict of
                  reported, expected, delta, actual ratio and balance.
@@ -107,8 +105,7 @@ class Command(BaseCommand):
         return supervisees_shorttime
 
     def _notify_supervisors(self, start, end, ratio, supervisees):
-        """
-        Notify supervisors about their supervisees.
+        """Notify supervisors about their supervisees.
 
         :param supervisees: dict whereas key is id of supervisee and
                             value as a worktime dict of

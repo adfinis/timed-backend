@@ -16,7 +16,7 @@ from timed.tracking.factories import ReportFactory
 
 @pytest.mark.freeze_time("2017-09-01")
 @pytest.mark.parametrize(
-    "is_employed, is_customer_assignee, is_customer, expected, status_code",
+    ("is_employed", "is_customer_assignee", "is_customer", "expected", "status_code"),
     [
         (False, True, False, 1, status.HTTP_400_BAD_REQUEST),
         (False, True, True, 1, status.HTTP_400_BAD_REQUEST),
@@ -91,7 +91,7 @@ def test_work_report_single_project(
 
 @pytest.mark.freeze_time("2017-09-01")
 @pytest.mark.parametrize(
-    "is_employed, status_code, expected",
+    ("is_employed", "status_code", "expected"),
     [
         (True, status.HTTP_200_OK, 3),
         (False, status.HTTP_400_BAD_REQUEST, 1),
@@ -100,15 +100,15 @@ def test_work_report_single_project(
 def test_work_report_multiple_projects(
     auth_client, is_employed, status_code, expected, django_assert_num_queries
 ):
-    NUM_PROJECTS = 2
+    num_projects = 2
 
     user = auth_client.user
     if is_employed:
         EmploymentFactory.create(user=user)
     customer = CustomerFactory.create(name="Customer")
     report_date = date(2017, 8, 17)
-    for i in range(NUM_PROJECTS):
-        project = ProjectFactory.create(customer=customer, name="Project{0}".format(i))
+    for i in range(num_projects):
+        project = ProjectFactory.create(customer=customer, name=f"Project{i}")
         task = TaskFactory.create(project=project)
         ReportFactory.create_batch(10, user=user, task=task, date=report_date)
 
@@ -121,10 +121,8 @@ def test_work_report_multiple_projects(
 
         content = io.BytesIO(res.content)
         with ZipFile(content, "r") as zipfile:
-            for i in range(NUM_PROJECTS):
-                ods_content = zipfile.read(
-                    "1708-20170901-Customer-Project{0}.ods".format(i)
-                )
+            for i in range(num_projects):
+                ods_content = zipfile.read(f"1708-20170901-Customer-Project{i}.ods")
                 doc = ezodf.opendoc(io.BytesIO(ods_content))
                 table = doc.sheets[0]
                 assert table["C5"].value == "2017-08-17"
@@ -137,15 +135,16 @@ def test_work_report_empty(auth_client):
     assert res.status_code == status.HTTP_400_BAD_REQUEST
 
 
+@pytest.mark.django_db()
 @pytest.mark.parametrize(
-    "customer_name,project_name,expected",
+    ("customer_name", "project_name", "expected"),
     [
         ("Customer Name", "Project/", "1708-20170818-Customer_Name-Project.ods"),
         ("Customer-Name", "Project", "1708-20170818-Customer-Name-Project.ods"),
         ("Customer$Name", "Project", "1708-20170818-CustomerName-Project.ods"),
     ],
 )
-def test_generate_work_report_name(db, customer_name, project_name, expected):
+def test_generate_work_report_name(customer_name, project_name, expected):
     test_date = date(2017, 8, 18)
     view = WorkReportViewSet()
 
@@ -154,13 +153,13 @@ def test_generate_work_report_name(db, customer_name, project_name, expected):
     # slashes should be dropped from file name
     project = ProjectFactory.create(customer=customer, name=project_name)
 
-    name = view._generate_workreport_name(test_date, test_date, project)
+    name = view._generate_workreport_name(test_date, test_date, project)  # noqa: SLF001
     assert name == expected
 
 
 @pytest.mark.freeze_time("2017-09-01")
 @pytest.mark.parametrize(
-    "settings_count,given_count,expected_status",
+    ("settings_count", "given_count", "expected_status"),
     [
         (-1, 9, status.HTTP_200_OK),
         (0, 9, status.HTTP_200_OK),

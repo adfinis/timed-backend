@@ -10,12 +10,11 @@ from timed.subscription import factories
 
 
 @pytest.mark.parametrize(
-    "is_customer, is_accountant, is_superuser",
+    ("is_customer", "is_accountant", "is_superuser"),
     [
         (True, False, False),
         (False, True, False),
         (False, False, True),
-        (False, False, False),
         (False, False, False),
     ],
 )
@@ -48,7 +47,7 @@ def test_order_list(auth_client, is_customer, is_accountant, is_superuser):
 
 
 @pytest.mark.parametrize(
-    "is_customer, is_accountant, is_superuser, confirmed, expected",
+    ("is_customer", "is_accountant", "is_superuser", "confirmed", "expected"),
     [
         (True, False, False, True, status.HTTP_403_FORBIDDEN),
         (True, False, False, False, status.HTTP_403_FORBIDDEN),
@@ -89,7 +88,7 @@ def test_order_delete(
 
 
 @pytest.mark.parametrize(
-    "is_superuser, is_accountant, is_customer, status_code",
+    ("is_superuser", "is_accountant", "is_customer", "status_code"),
     [
         (True, False, False, status.HTTP_204_NO_CONTENT),
         (False, True, False, status.HTTP_204_NO_CONTENT),
@@ -127,7 +126,15 @@ def test_order_confirm(
 
 
 @pytest.mark.parametrize(
-    "is_customer, is_accountant, is_superuser, acknowledged, mail_sent, project_estimate, expected",
+    (
+        "is_customer",
+        "is_accountant",
+        "is_superuser",
+        "acknowledged",
+        "mail_sent",
+        "project_estimate",
+        "expected",
+    ),
     [
         (
             True,
@@ -209,7 +216,7 @@ def test_order_create(
 
 
 @pytest.mark.parametrize(
-    "duration, expected, status_code",
+    ("duration", "expected", "status_code"),
     [
         ("00:30:00", "0:30:00", status.HTTP_201_CREATED),
         ("30:00:00", "1 day, 6:00:00", status.HTTP_201_CREATED),
@@ -257,7 +264,7 @@ def test_order_create_duration(
 
 
 @pytest.mark.parametrize(
-    "is_customer, is_accountant, is_superuser, acknowledged, expected",
+    ("is_customer", "is_accountant", "is_superuser", "acknowledged", "expected"),
     [
         (True, False, False, True, status.HTTP_403_FORBIDDEN),
         (True, False, False, False, status.HTTP_403_FORBIDDEN),

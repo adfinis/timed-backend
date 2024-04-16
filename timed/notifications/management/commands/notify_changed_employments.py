@@ -13,8 +13,7 @@ template = get_template("mail/notify_changed_employments.txt", using="text")
 
 
 class Command(BaseCommand):
-    """
-    Notify given email address on changed employments.
+    """Notify given email address on changed employments.
 
     Notifications will be sent when there are employments
     which changed in given last days.
@@ -48,7 +47,7 @@ class Command(BaseCommand):
         employments = Employment.objects.filter(updated__range=[start, end])
         if employments.exists():
             from_email = settings.DEFAULT_FROM_EMAIL
-            subject = "[Timed] Employments changed in last {0} days".format(last_days)
+            subject = f"[Timed] Employments changed in last {last_days} days"
             body = template.render({"employments": employments})
             message = EmailMessage(
                 subject=subject,
