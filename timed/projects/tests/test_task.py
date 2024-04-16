@@ -6,13 +6,6 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from timed.employment.factories import EmploymentFactory
-from timed.projects.factories import (
-    CustomerAssigneeFactory,
-    ProjectFactory,
-    TaskFactory,
-)
-
 
 def test_task_list_not_archived(internal_employee_client, task_factory):
     task = task_factory(archived=False)
@@ -115,15 +108,22 @@ def test_task_create(
     ],
 )
 def test_task_update(
-    auth_client, task, task_assignee, project_assignee, different_project, expected
+    auth_client,
+    task,
+    task_assignee,
+    project_assignee,
+    different_project,
+    expected,
+    employment_factory,
+    project_factory,
 ):
     user = auth_client.user
-    EmploymentFactory.create(user=user)
+    employment_factory.create(user=user)
     task_assignee.task = task
     task_assignee.user = user
     task_assignee.save()
     if different_project:
-        project = ProjectFactory.create()
+        project = project_factory.create()
         project_assignee.project = project
     project_assignee.user = user
     project_assignee.save()
@@ -150,12 +150,12 @@ def test_task_update(
         (False, False, True, status.HTTP_403_FORBIDDEN),
     ],
 )
-def test_task_delete(auth_client, task, project_assignee, expected):
+def test_task_delete(auth_client, task, project_assignee, expected, employment_factory):
     user = auth_client.user
     project_assignee.project = task.project
     project_assignee.user = user
     project_assignee.save()
-    EmploymentFactory.create(user=user)
+    employment_factory.create(user=user)
 
     url = reverse("task-detail", args=[task.id])
 
@@ -188,9 +188,11 @@ def test_task_detail_with_reports(internal_employee_client, task, report_factory
 
 
 @pytest.mark.parametrize("is_assigned, expected", [(True, 1), (False, 0)])
-def test_task_list_external_employee(external_employee_client, is_assigned, expected):
-    TaskFactory.create_batch(4)
-    task = TaskFactory.create()
+def test_task_list_external_employee(
+    external_employee_client, is_assigned, expected, task_factory
+):
+    task_factory.create_batch(4)
+    task = task_factory.create()
     if is_assigned:
         task.assignees.add(external_employee_client.user)
 
@@ -212,11 +214,18 @@ def test_task_list_external_employee(external_employee_client, is_assigned, expe
         (False, True, 0),
     ],
 )
-def test_task_list_no_employment(auth_client, is_customer, customer_visible, expected):
-    TaskFactory.create_batch(4)
-    task = TaskFactory.create()
+def test_task_list_no_employment(
+    auth_client,
+    is_customer,
+    customer_visible,
+    expected,
+    task_factory,
+    customer_assignee_factory,
+):
+    task_factory.create_batch(4)
+    task = task_factory.create()
     if is_customer:
-        CustomerAssigneeFactory.create(
+        customer_assignee_factory.create(
             user=auth_client.user, is_customer=True, customer=task.project.customer
         )
     if customer_visible:
@@ -232,8 +241,8 @@ def test_task_list_no_employment(auth_client, is_customer, customer_visible, exp
     assert len(json["data"]) == expected
 
 
-def test_task_multi_number_value_filter(internal_employee_client):
-    task1, task2, *_ = TaskFactory.create_batch(4)
+def test_task_multi_number_value_filter(internal_employee_client, task_factory):
+    task1, task2, *_ = task_factory.create_batch(4)
 
     url = reverse("task-list")
 

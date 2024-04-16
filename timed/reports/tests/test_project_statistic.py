@@ -5,9 +5,6 @@ from django.urls import reverse
 from rest_framework import status
 
 from timed.conftest import setup_customer_and_employment_status
-from timed.employment.factories import UserFactory
-from timed.projects.factories import CostCenterFactory, TaskAssigneeFactory, TaskFactory
-from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.parametrize(
@@ -28,6 +25,8 @@ def test_project_statistic_list(
     expected,
     status_code,
     django_assert_num_queries,
+    report_factory,
+    task_factory,
 ):
     user = auth_client.user
     setup_customer_and_employment_status(
@@ -37,13 +36,13 @@ def test_project_statistic_list(
         is_employed=is_employed,
         is_external=False,
     )
-    report = ReportFactory.create(duration=timedelta(hours=1))
+    report = report_factory.create(duration=timedelta(hours=1))
     project = report.task.project
-    ReportFactory.create(duration=timedelta(hours=2), task=report.task)
-    report2 = ReportFactory.create(duration=timedelta(hours=4))
+    report_factory.create(duration=timedelta(hours=2), task=report.task)
+    report2 = report_factory.create(duration=timedelta(hours=4))
     project_2 = report2.task.project
-    task = TaskFactory(project=report.task.project)
-    ReportFactory.create(duration=timedelta(hours=2), task=task)
+    task = task_factory(project=report.task.project)
+    report_factory.create(duration=timedelta(hours=2), task=task)
 
     url = reverse("project-statistic-list")
     with django_assert_num_queries(expected):
@@ -108,7 +107,16 @@ def test_project_statistic_list(
     "filter, expected_result",
     [("from_date", 5), ("customer", 3), ("cost_center", 3), ("reviewer", 3)],
 )
-def test_project_statistic_filtered(auth_client, filter, expected_result):
+def test_project_statistic_filtered(
+    auth_client,
+    filter,
+    expected_result,
+    cost_center,
+    task_factory,
+    report_factory,
+    user,
+    task_assignee_factory,
+):
     user = auth_client.user
     setup_customer_and_employment_status(
         user=user,
@@ -118,14 +126,17 @@ def test_project_statistic_filtered(auth_client, filter, expected_result):
         is_external=False,
     )
 
-    cost_center = CostCenterFactory()
-    task_z = TaskFactory.create(name="Z", cost_center=cost_center)
-    task_test = TaskFactory.create(name="Test")
-    reviewer = TaskAssigneeFactory(user=UserFactory(), task=task_test, is_reviewer=True)
+    task_z = task_factory.create(name="Z", cost_center=cost_center)
+    task_test = task_factory.create(name="Test")
+    reviewer = task_assignee_factory(user=user, task=task_test, is_reviewer=True)
 
-    ReportFactory.create(duration=timedelta(hours=1), date="2022-08-05", task=task_test)
-    ReportFactory.create(duration=timedelta(hours=2), date="2022-08-30", task=task_test)
-    ReportFactory.create(duration=timedelta(hours=3), date="2022-09-01", task=task_z)
+    report_factory.create(
+        duration=timedelta(hours=1), date="2022-08-05", task=task_test
+    )
+    report_factory.create(
+        duration=timedelta(hours=2), date="2022-08-30", task=task_test
+    )
+    report_factory.create(duration=timedelta(hours=3), date="2022-09-01", task=task_z)
 
     filter_values = {
         "from_date": "2022-08-20",  # last two reports

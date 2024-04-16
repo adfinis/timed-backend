@@ -10,8 +10,6 @@ from rest_framework import exceptions, status
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.reverse import reverse
 
-from timed.employment.factories import UserFactory
-
 
 @pytest.mark.parametrize("is_id_token", [True, False])
 @pytest.mark.parametrize(
@@ -90,9 +88,8 @@ def test_authentication_new_user(
     assert user_model.objects.count() == expected_count
 
 
-def test_authentication_update_user_data(db, rf, requests_mock, settings):
+def test_authentication_update_user_data(db, rf, requests_mock, settings, user):
     user_model = get_user_model()
-    user = UserFactory.create()
 
     userinfo = {
         "sub": user.username,

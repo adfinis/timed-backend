@@ -4,49 +4,52 @@ import pytest
 from django.urls import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
 
-from timed.employment.factories import EmploymentFactory
-from timed.projects.factories import (
-    BillingTypeFactory,
-    CustomerAssigneeFactory,
-    CustomerFactory,
-    ProjectFactory,
-    TaskFactory,
-)
-from timed.subscription.factories import OrderFactory, PackageFactory
-from timed.tracking.factories import ReportFactory
-
 
 @pytest.mark.parametrize("is_external, expected", [(True, 0), (False, 1)])
-def test_subscription_project_list(auth_client, is_external, expected):
-    employment = EmploymentFactory.create(user=auth_client.user, is_external=False)
+def test_subscription_project_list(
+    auth_client,
+    is_external,
+    expected,
+    employment_factory,
+    customer,
+    billing_type,
+    project_factory,
+    report_factory,
+    task_factory,
+    package_factory,
+    order_factory,
+):
+    employment = employment_factory.create(user=auth_client.user, is_external=False)
     if is_external:
         employment.is_external = True
         employment.save()
-    customer = CustomerFactory.create()
-    billing_type = BillingTypeFactory()
-    project = ProjectFactory.create(
+    project = project_factory.create(
         billing_type=billing_type, customer=customer, customer_visible=True
     )
-    PackageFactory.create_batch(2, billing_type=billing_type)
+    package_factory.create_batch(2, billing_type=billing_type)
     # create spent hours
-    task = TaskFactory.create(project=project)
-    TaskFactory.create(project=project)
-    ReportFactory.create(task=task, duration=timedelta(hours=2))
-    ReportFactory.create(task=task, duration=timedelta(hours=3))
+    task = task_factory.create(project=project)
+    task_factory.create(project=project)
+    report_factory.create(task=task, duration=timedelta(hours=2))
+    report_factory.create(task=task, duration=timedelta(hours=3))
     # not billable reports should not be included in spent hours
-    ReportFactory.create(not_billable=True, task=task, duration=timedelta(hours=4))
+    report_factory.create(not_billable=True, task=task, duration=timedelta(hours=4))
     # project of same customer but without customer_visible set
     # should not appear
-    ProjectFactory.create(customer=customer)
+    project_factory.create(customer=customer)
 
     # create purchased time
-    OrderFactory.create(project=project, acknowledged=True, duration=timedelta(hours=2))
-    OrderFactory.create(project=project, acknowledged=True, duration=timedelta(hours=4))
+    order_factory.create(
+        project=project, acknowledged=True, duration=timedelta(hours=2)
+    )
+    order_factory.create(
+        project=project, acknowledged=True, duration=timedelta(hours=4)
+    )
 
     # report on different project should not be included in spent time
-    ReportFactory.create(duration=timedelta(hours=2))
+    report_factory.create(duration=timedelta(hours=2))
     # not acknowledged order should not be included in purchased time
-    OrderFactory.create(project=project, duration=timedelta(hours=2))
+    order_factory.create(project=project, duration=timedelta(hours=2))
 
     url = reverse("subscription-project-list")
 
@@ -73,21 +76,30 @@ def test_subscription_project_list(auth_client, is_external, expected):
     ],
 )
 def test_subscription_project_detail(
-    auth_client, is_customer, project_of_customer, has_employment, is_external, expected
+    auth_client,
+    is_customer,
+    project_of_customer,
+    has_employment,
+    is_external,
+    expected,
+    billing_type,
+    project_factory,
+    package_factory,
+    employment_factory,
+    customer_assignee_factory,
 ):
     user = auth_client.user
-    billing_type = BillingTypeFactory()
-    project = ProjectFactory.create(billing_type=billing_type, customer_visible=True)
-    PackageFactory.create_batch(2, billing_type=billing_type)
+    project = project_factory.create(billing_type=billing_type, customer_visible=True)
+    package_factory.create_batch(2, billing_type=billing_type)
 
     if has_employment:
-        employment = EmploymentFactory.create(user=user, is_external=False)
+        employment = employment_factory.create(user=user, is_external=False)
         if is_external:
             employment.is_external = True
             employment.save()
 
     if is_customer:
-        customer_assignee = CustomerAssigneeFactory(user=user, is_customer=True)
+        customer_assignee = customer_assignee_factory(user=user, is_customer=True)
         if project_of_customer:
             customer_assignee.customer = project.customer
             customer_assignee.save()
@@ -101,13 +113,14 @@ def test_subscription_project_detail(
         assert json["data"]["id"] == str(project.id)
 
 
-def test_subscription_project_list_user_is_customer(auth_client):
-    customer = CustomerFactory.create()
-    project = ProjectFactory.create(customer=customer, customer_visible=True)
-    ProjectFactory.create_batch(4, customer_visible=True)
+def test_subscription_project_list_user_is_customer(
+    auth_client, customer, project_factory, customer_assignee_factory
+):
+    project = project_factory.create(customer=customer, customer_visible=True)
+    project_factory.create_batch(4, customer_visible=True)
 
     user = auth_client.user
-    CustomerAssigneeFactory.create(user=user, customer=customer, is_customer=True)
+    customer_assignee_factory.create(user=user, customer=customer, is_customer=True)
 
     url = reverse("subscription-project-list")
 

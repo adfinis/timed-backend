@@ -3,15 +3,7 @@ from datetime import date
 import pytest
 from django.core.management import call_command
 
-from timed.employment.factories import UserFactory
 from timed.notifications.models import Notification
-from timed.projects.factories import (
-    ProjectAssigneeFactory,
-    ProjectFactory,
-    TaskAssigneeFactory,
-    TaskFactory,
-)
-from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.freeze_time("2017-8-4")
@@ -24,25 +16,35 @@ from timed.tracking.factories import ReportFactory
         ("", "This is a test"),
     ],
 )
-def test_notify_reviewers_with_cc_and_message(db, mailoutbox, cc, message):
+def test_notify_reviewers_with_cc_and_message(
+    db,
+    mailoutbox,
+    cc,
+    message,
+    project_factory,
+    user_factory,
+    task_factory,
+    project_assignee_factory,
+    report_factory,
+):
     """Test time range 2017-7-1 till 2017-7-31."""
     # a reviewer which will be notified
-    reviewer_work = UserFactory.create()
-    project_work = ProjectFactory.create()
-    ProjectAssigneeFactory.create(
+    reviewer_work = user_factory.create()
+    project_work = project_factory.create()
+    project_assignee_factory.create(
         user=reviewer_work, project=project_work, is_reviewer=True
     )
-    task_work = TaskFactory.create(project=project_work)
-    ReportFactory.create(date=date(2017, 7, 1), task=task_work, verified_by=None)
+    task_work = task_factory.create(project=project_work)
+    report_factory.create(date=date(2017, 7, 1), task=task_work, verified_by=None)
 
     # a reviewer which doesn't have any unverfied reports
-    reviewer_no_work = UserFactory.create()
-    project_no_work = ProjectFactory.create()
-    ProjectAssigneeFactory.create(
+    reviewer_no_work = user_factory.create()
+    project_no_work = project_factory.create()
+    project_assignee_factory.create(
         user=reviewer_no_work, project=project_no_work, is_reviewer=True
     )
-    task_no_work = TaskFactory.create(project=project_no_work)
-    ReportFactory.create(
+    task_no_work = task_factory.create(project=project_no_work)
+    report_factory.create(
         date=date(2017, 7, 1), task=task_no_work, verified_by=reviewer_no_work
     )
 
@@ -66,16 +68,24 @@ def test_notify_reviewers_with_cc_and_message(db, mailoutbox, cc, message):
 
 
 @pytest.mark.freeze_time("2017-8-4")
-def test_notify_reviewers(db, mailoutbox):
+def test_notify_reviewers(
+    db,
+    mailoutbox,
+    project_factory,
+    project_assignee_factory,
+    task_factory,
+    report_factory,
+    user_factory,
+):
     """Test time range 2017-7-1 till 2017-7-31."""
     # a reviewer which will be notified
-    reviewer_work = UserFactory.create()
-    project_work = ProjectFactory.create()
-    ProjectAssigneeFactory.create(
+    reviewer_work = user_factory.create()
+    project_work = project_factory.create()
+    project_assignee_factory.create(
         user=reviewer_work, project=project_work, is_reviewer=True
     )
-    task_work = TaskFactory.create(project=project_work)
-    ReportFactory.create(date=date(2017, 7, 1), task=task_work, verified_by=None)
+    task_work = task_factory.create(project=project_work)
+    report_factory.create(date=date(2017, 7, 1), task=task_work, verified_by=None)
 
     call_command("notify_reviewers_unverified")
 
@@ -92,23 +102,32 @@ def test_notify_reviewers(db, mailoutbox):
 
 
 @pytest.mark.freeze_time("2017-8-4")
-def test_notify_reviewers_reviewer_hierarchy(db, mailoutbox):
+def test_notify_reviewers_reviewer_hierarchy(
+    db,
+    mailoutbox,
+    project_factory,
+    task_factory,
+    project_assignee_factory,
+    task_assignee_factory,
+    report_factory,
+    user_factory,
+):
     """Test notification with reviewer hierarchy.
 
     Test if only the lowest in reviewer hierarchy gets notified.
     """
     # user that shouldn't be notified
-    project_reviewer = UserFactory.create()
+    project_reviewer = user_factory.create()
     # user that should be notified
-    task_reviewer = UserFactory.create()
-    project = ProjectFactory.create()
-    task = TaskFactory.create(project=project)
-    ProjectAssigneeFactory.create(
+    task_reviewer = user_factory.create()
+    project = project_factory.create()
+    task = task_factory.create(project=project)
+    project_assignee_factory.create(
         user=project_reviewer, project=project, is_reviewer=True
     )
-    TaskAssigneeFactory.create(user=task_reviewer, task=task, is_reviewer=True)
+    task_assignee_factory.create(user=task_reviewer, task=task, is_reviewer=True)
 
-    ReportFactory.create(date=date(2017, 7, 1), task=task, verified_by=None)
+    report_factory.create(date=date(2017, 7, 1), task=task, verified_by=None)
 
     call_command("notify_reviewers_unverified")
 

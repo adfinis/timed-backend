@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 
 from timed.conftest import setup_customer_and_employment_status
-from timed.projects import factories, models
+from timed.projects import models
 
 
 @pytest.mark.parametrize(
@@ -31,6 +31,8 @@ def test_billing_type_list(
     customer_visible,
     expected,
     status_code,
+    customer_factory,
+    project_factory,
 ):
     user = auth_client.user
     setup_customer_and_employment_status(
@@ -43,8 +45,8 @@ def test_billing_type_list(
     if is_customer_assignee:
         customer = models.Customer.objects.get(customer_assignees__user=user)
     else:
-        customer = factories.CustomerFactory.create()
-    project = factories.ProjectFactory.create(
+        customer = customer_factory.create()
+    project = project_factory.create(
         customer_visible=customer_visible, customer=customer
     )
 

@@ -4,12 +4,10 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from timed.projects.factories import CustomerAssigneeFactory, CustomerFactory
 
-
-def test_customer_list_not_archived(internal_employee_client):
-    CustomerFactory.create(archived=True)
-    customer = CustomerFactory.create(archived=False)
+def test_customer_list_not_archived(internal_employee_client, customer_factory):
+    customer_factory.create(archived=True)
+    customer = customer_factory.create(archived=False)
 
     url = reverse("customer-list")
 
@@ -21,9 +19,7 @@ def test_customer_list_not_archived(internal_employee_client):
     assert json["data"][0]["id"] == str(customer.id)
 
 
-def test_customer_detail(internal_employee_client):
-    customer = CustomerFactory.create()
-
+def test_customer_detail(internal_employee_client, customer):
     url = reverse("customer-detail", args=[customer.id])
 
     response = internal_employee_client.get(url)
@@ -37,18 +33,14 @@ def test_customer_create(auth_client):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_customer_update(auth_client):
-    customer = CustomerFactory.create()
-
+def test_customer_update(auth_client, customer):
     url = reverse("customer-detail", args=[customer.id])
 
     response = auth_client.patch(url)
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_customer_delete(auth_client):
-    customer = CustomerFactory.create()
-
+def test_customer_delete(auth_client, customer):
     url = reverse("customer-detail", args=[customer.id])
 
     response = auth_client.delete(url)
@@ -57,10 +49,10 @@ def test_customer_delete(auth_client):
 
 @pytest.mark.parametrize("is_assigned, expected", [(True, 1), (False, 0)])
 def test_customer_list_external_employee(
-    external_employee_client, is_assigned, expected
+    external_employee_client, is_assigned, expected, customer_factory
 ):
-    CustomerFactory.create_batch(4)
-    customer = CustomerFactory.create()
+    customer_factory.create_batch(4)
+    customer = customer_factory.create()
     if is_assigned:
         customer.assignees.add(external_employee_client.user)
 
@@ -77,11 +69,13 @@ def test_customer_list_external_employee(
     "is_customer, expected",
     [(True, 1), (False, 0)],
 )
-def test_customer_list_no_employment(auth_client, is_customer, expected):
-    CustomerFactory.create_batch(4)
-    customer = CustomerFactory.create()
+def test_customer_list_no_employment(
+    auth_client, is_customer, expected, customer_factory, customer_assignee_factory
+):
+    customer_factory.create_batch(4)
+    customer = customer_factory.create()
     if is_customer:
-        CustomerAssigneeFactory.create(
+        customer_assignee_factory.create(
             user=auth_client.user, is_customer=True, customer=customer
         )
 

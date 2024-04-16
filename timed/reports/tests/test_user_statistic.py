@@ -5,7 +5,6 @@ from django.urls import reverse
 from rest_framework import status
 
 from timed.conftest import setup_customer_and_employment_status
-from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.parametrize(
@@ -19,7 +18,12 @@ from timed.tracking.factories import ReportFactory
     ],
 )
 def test_user_statistic_list(
-    auth_client, is_employed, is_customer_assignee, is_customer, status_code
+    auth_client,
+    is_employed,
+    is_customer_assignee,
+    is_customer,
+    status_code,
+    report_factory,
 ):
     user = auth_client.user
     setup_customer_and_employment_status(
@@ -29,9 +33,9 @@ def test_user_statistic_list(
         is_employed=is_employed,
         is_external=False,
     )
-    ReportFactory.create(duration=timedelta(hours=1), user=user)
-    ReportFactory.create(duration=timedelta(hours=2), user=user)
-    report = ReportFactory.create(duration=timedelta(hours=2))
+    report_factory.create(duration=timedelta(hours=1), user=user)
+    report_factory.create(duration=timedelta(hours=2), user=user)
+    report = report_factory.create(duration=timedelta(hours=2))
 
     url = reverse("user-statistic-list")
     result = auth_client.get(url, data={"ordering": "duration", "include": "user"})

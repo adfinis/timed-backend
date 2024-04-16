@@ -62,7 +62,7 @@ def superadmin_user(db):
 
 
 @pytest.fixture
-def external_employee(db):
+def external_employee(db, employment_factory):
     user = get_user_model().objects.create_user(
         username="user",
         password="123qweasd",
@@ -71,12 +71,12 @@ def external_employee(db):
         is_superuser=False,
         is_staff=False,
     )
-    employment_factories.EmploymentFactory.create(user=user, is_external=True)
+    employment_factory(user=user, is_external=True)
     return user
 
 
 @pytest.fixture
-def internal_employee(db):
+def internal_employee(db, employment_factory):
     user = get_user_model().objects.create_user(
         username="user",
         password="123qweasd",
@@ -86,7 +86,7 @@ def internal_employee(db):
         is_superuser=False,
         is_staff=False,
     )
-    employment_factories.EmploymentFactory.create(user=user, is_external=False)
+    employment_factory(user=user, is_external=False)
     return user
 
 
@@ -146,7 +146,11 @@ def _autoclear_cache():
 
 
 def setup_customer_and_employment_status(
-    user, is_assignee, is_customer, is_employed, is_external
+    user,
+    is_assignee,
+    is_customer,
+    is_employed,
+    is_external,
 ):
     """
     Set up customer and employment status.
@@ -157,11 +161,11 @@ def setup_customer_and_employment_status(
     assignee = None
     employment = None
     if is_assignee:
-        assignee = projects_factories.CustomerAssigneeFactory.create(
+        assignee = projects_factories.CustomerAssigneeFactory(
             user=user, is_customer=is_customer
         )
     if is_employed:
-        employment = employment_factories.EmploymentFactory.create(
+        employment = employment_factories.EmploymentFactory(
             user=user, is_external=is_external
         )
     return assignee, employment
