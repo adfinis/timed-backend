@@ -34,8 +34,8 @@ class TimedOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     def get_userinfo_or_introspection(self, access_token):
         try:
             return self.cached_request(self.get_userinfo, access_token, "auth.userinfo")
-        except requests.HTTPError as e:
-            if e.response.status_code not in [401, 403]:
+        except requests.HTTPError as exc:
+            if exc.response.status_code not in [401, 403]:
                 raise
             if settings.OIDC_CHECK_INTROSPECT:
                 try:
@@ -55,7 +55,7 @@ class TimedOIDCAuthenticationBackend(OIDCAuthenticationBackend):
                         raise
                 else:
                     return claims
-            raise AuthenticationFailed from None
+            raise AuthenticationFailed from exc
 
     def get_or_create_user(self, access_token, id_token, payload):
         """Verify claims and return user, otherwise raise an Exception."""
@@ -111,6 +111,6 @@ class TimedOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     def get_username(self, claims):
         try:
             return claims[settings.OIDC_USERNAME_CLAIM]
-        except KeyError:
+        except KeyError as exc:
             msg = "Couldn't find username claim"
-            raise SuspiciousOperation(msg) from None
+            raise SuspiciousOperation(msg) from exc

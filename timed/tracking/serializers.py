@@ -436,10 +436,10 @@ class AbsenceSerializer(ModelSerializer):
         user = data.get("user", instance and instance.user)
         try:
             location = Employment.objects.get_at(user, data.get("date")).location
-        except Employment.DoesNotExist:  # pragma: no cover
+        except Employment.DoesNotExist as exc:  # pragma: no cover
             raise ValidationError(
                 _("You can't create an absence on an unemployed day.")
-            ) from None
+            ) from exc
 
         if PublicHoliday.objects.filter(
             location_id=location.id, date=data.get("date")

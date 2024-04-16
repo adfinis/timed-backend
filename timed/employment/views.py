@@ -80,7 +80,7 @@ class UserViewSet(ModelViewSet):
                 )
 
                 return queryset.filter(Q(reports__in=visible_reports) | Q(id=user.id))
-        except models.Employment.DoesNotExist:
+        except models.Employment.DoesNotExist as exc:
             if CustomerAssignee.objects.filter(user=user, is_customer=True).exists():
                 assigned_tasks = Task.objects.filter(
                     Q(
@@ -93,7 +93,7 @@ class UserViewSet(ModelViewSet):
                 )
                 return queryset.filter(Q(reports__in=visible_reports) | Q(id=user.id))
             msg = "User has no employment"
-            raise exceptions.PermissionDenied(msg) from None
+            raise exceptions.PermissionDenied(msg) from exc
         else:
             return queryset
 
@@ -173,8 +173,8 @@ class WorktimeBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
             try:
                 return datetime.datetime.strptime(pk.split("_")[1], "%Y-%m-%d")
 
-            except (ValueError, TypeError, IndexError):
-                raise exceptions.NotFound from None
+            except (ValueError, TypeError, IndexError) as exc:
+                raise exceptions.NotFound from exc
 
         # list case
         query_params = self.request.query_params
@@ -182,11 +182,11 @@ class WorktimeBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
             return datetime.datetime.strptime(
                 query_params.get("date"), "%Y-%m-%d"
             ).date()
-        except ValueError:
-            raise exceptions.ParseError(_("Date is invalid")) from None
-        except TypeError:
+        except ValueError as exc:
+            raise exceptions.ParseError(_("Date is invalid")) from exc
+        except TypeError as exc:
             if query_params.get("last_reported_date", "0") == "0":
-                raise exceptions.ParseError(_("Date filter needs to be set")) from None
+                raise exceptions.ParseError(_("Date filter needs to be set")) from exc
 
             return None
 
@@ -232,18 +232,18 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
             try:
                 return datetime.datetime.strptime(pk.split("_")[2], "%Y-%m-%d")
 
-            except (ValueError, TypeError, IndexError):
-                raise exceptions.NotFound from None
+            except (ValueError, TypeError, IndexError) as exc:
+                raise exceptions.NotFound from exc
 
         # list case
         try:
             return datetime.datetime.strptime(
                 self.request.query_params.get("date"), "%Y-%m-%d"
             ).date()
-        except ValueError:
-            raise exceptions.ParseError(_("Date is invalid")) from None
-        except TypeError:
-            raise exceptions.ParseError(_("Date filter needs to be set")) from None
+        except ValueError as exc:
+            raise exceptions.ParseError(_("Date is invalid")) from exc
+        except TypeError as exc:
+            raise exceptions.ParseError(_("Date filter needs to be set")) from exc
 
     def _extract_user(self):
         """Extract user from request.
@@ -261,8 +261,8 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
                 if self.request.user.id == user_id:
                     return self.request.user
                 return get_user_model().objects.get(pk=pk.split("_")[0])
-            except (ValueError, get_user_model().DoesNotExist):
-                raise exceptions.NotFound from None
+            except (ValueError, get_user_model().DoesNotExist) as exc:
+                raise exceptions.NotFound from exc
 
         # list case
         try:
@@ -275,8 +275,8 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
                 return self.request.user
 
             return get_user_model().objects.get(pk=user_id)
-        except (ValueError, get_user_model().DoesNotExist):
-            raise exceptions.ParseError(_("User is invalid")) from None
+        except (ValueError, get_user_model().DoesNotExist) as exc:
+            raise exceptions.ParseError(_("User is invalid")) from exc
 
     def get_queryset(self):
         date = self._extract_date()
