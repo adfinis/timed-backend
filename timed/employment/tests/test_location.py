@@ -6,6 +6,8 @@ from timed.conftest import setup_customer_and_employment_status
 from timed.employment.factories import EmploymentFactory, LocationFactory
 
 
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("location")
 @pytest.mark.parametrize(
     ("is_employed", "is_customer_assignee", "is_customer", "expected"),
     [
@@ -17,7 +19,7 @@ from timed.employment.factories import EmploymentFactory, LocationFactory
     ],
 )
 def test_location_list(
-    auth_client, is_employed, is_customer_assignee, is_customer, expected, location
+    auth_client, is_employed, is_customer_assignee, is_customer, expected
 ):
     setup_customer_and_employment_status(
         user=auth_client.user,

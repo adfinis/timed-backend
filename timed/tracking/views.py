@@ -188,7 +188,7 @@ class ReportViewSet(ModelViewSet):
         methods=["get"],
         serializer_class=serializers.ReportIntersectionSerializer,
     )
-    def intersection(self, request):
+    def intersection(self, *args, **kwargs):
         """Get intersection in reports of common report fields.
 
         Use case is for api caller to know what fields are the same

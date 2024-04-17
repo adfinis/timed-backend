@@ -258,7 +258,7 @@ class TaskAssignee(models.Model):
 
 
 @receiver(pre_save, sender=Project)
-def update_billed_flag_on_reports(sender, instance, **kwargs):
+def update_billed_flag_on_reports(sender, instance, **kwargs):  # noqa: ARG001
     """Update billed flag on all reports from the updated project.
 
     Only update reports if the billed flag on the project was changed.

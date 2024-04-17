@@ -1439,11 +1439,13 @@ def test_report_notify_rendering(
     snapshot.assert_match(mailoutbox[0].body)
 
 
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("project", "task")
 @pytest.mark.parametrize(
     ("report__review", "needs_review"), [(True, False), (False, True), (True, True)]
 )
 def test_report_update_bulk_review_and_verified(
-    superadmin_client, project, task, report, needs_review
+    superadmin_client, report, needs_review
 ):
     EmploymentFactory.create(user=superadmin_client.user)
     data = {

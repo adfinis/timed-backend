@@ -92,10 +92,10 @@ def notify_user_changed_reports(queryset, fields, reviewer):
 
 def notify_user_rejected_report(report, reviewer):
     user_changes = {"user": report.user, "changes": [{"report": report}]}
-    _send_notification_emails([user_changes], reviewer, True)
+    _send_notification_emails([user_changes], reviewer, rejected=True)
 
 
-def notify_user_rejected_reports(queryset, fields, reviewer):
+def notify_user_rejected_reports(queryset, _, reviewer):
     users = [report.user for report in queryset.order_by("user").distinct("user")]
     user_changes = []
 
@@ -106,4 +106,4 @@ def notify_user_rejected_reports(queryset, fields, reviewer):
             changes.append(changeset)
         user_changes.append({"user": user, "changes": changes})
 
-    _send_notification_emails(user_changes, reviewer, True)
+    _send_notification_emails(user_changes, reviewer, rejected=True)

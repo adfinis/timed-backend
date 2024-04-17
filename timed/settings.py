@@ -389,7 +389,7 @@ if env.str("DJANGO_SENTRY_DSN", default=""):  # pragma: no cover
         # environment variable, or infer a git commit
         # SHA as release, however you may want to set
         # something more human-readable.
-        # release="myapp@1.0.0",
+        # release="myapp@1.0.0",  # noqa: ERA001
     )
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
