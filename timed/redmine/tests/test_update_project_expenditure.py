@@ -45,9 +45,8 @@ def test_update_project_expenditure(
 
 
 @pytest.mark.django_db()
-def test_update_project_expenditure_invalid_issue(
-    freezer, mocker, capsys, report_factory
-):
+@pytest.mark.usefixtures("freezer")
+def test_update_project_expenditure_invalid_issue(mocker, capsys, report_factory):
     redmine_instance = mocker.MagicMock()
     redmine_class = mocker.patch("redminelib.Redmine")
     redmine_class.return_value = redmine_instance

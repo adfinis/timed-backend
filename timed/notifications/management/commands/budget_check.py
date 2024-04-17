@@ -49,7 +49,7 @@ class Command(BaseCommand):
             estimated_hours = project.estimated_time.total_seconds() / 3600
             budget_percentage = billable_hours / estimated_hours
 
-            if budget_percentage <= 0.3:
+            if budget_percentage <= 0.3:  # noqa: PLR2004
                 continue
             try:
                 issue = redmine.issue.get(project.redmine_project.issue_id)
@@ -63,7 +63,7 @@ class Command(BaseCommand):
 
             notification, _ = Notification.objects.get_or_create(
                 notification_type=Notification.BUDGET_CHECK_30
-                if budget_percentage <= 0.7
+                if budget_percentage <= 0.7  # noqa: PLR2004
                 else Notification.BUDGET_CHECK_70,
                 project=project,
             )

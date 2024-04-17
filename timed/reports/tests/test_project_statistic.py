@@ -108,7 +108,7 @@ def test_project_statistic_list(
     ("filter", "expected_result"),
     [("from_date", 5), ("customer", 3), ("cost_center", 3), ("reviewer", 3)],
 )
-def test_project_statistic_filtered(auth_client, filter, expected_result):
+def test_project_statistic_filtered(auth_client, filter, expected_result):  # noqa: A002
     user = auth_client.user
     setup_customer_and_employment_status(
         user=user,

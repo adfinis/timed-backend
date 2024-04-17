@@ -144,7 +144,7 @@ def test_employment_unique_active():
     employment = EmploymentFactory.create(user=user)
     form = EmploymentForm({"end_date": None}, instance=employment)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         form.save()
 
 
@@ -156,7 +156,7 @@ def test_employment_start_before_end():
         instance=employment,
     )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         form.save()
 
 

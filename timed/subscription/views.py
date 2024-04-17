@@ -96,7 +96,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         methods=["post"],
         permission_classes=[IsSuperUser | IsAccountant],
     )
-    def confirm(self, request, pk=None):
+    def confirm(self, request, *args, **kwargs):
         """Confirm order.
 
         Only allowed by staff members
@@ -111,7 +111,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return models.Order.objects.select_related("project")
 
-    def destroy(self, request, pk):
+    def destroy(self, *args, **kwargs):
         instance = self.get_object()
         if instance.acknowledged:
             # acknowledge orders may not be deleted

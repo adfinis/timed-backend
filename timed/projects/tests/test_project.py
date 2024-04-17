@@ -170,7 +170,8 @@ def test_project_multi_number_value_filter(internal_employee_client):
     assert len(json["data"]) == 2
 
 
-def test_project_update_billed_flag(internal_employee_client, report_factory):
+@pytest.mark.usefixtures("internal_employee_client")
+def test_project_update_billed_flag(report_factory):
     report = report_factory.create()
     project = report.task.project
     assert not report.billed

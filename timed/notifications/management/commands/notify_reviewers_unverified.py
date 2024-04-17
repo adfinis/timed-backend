@@ -96,8 +96,8 @@ class Command(BaseCommand):
         If a project has a project assignee and a task assignee with reviewer role,
         then only the task assignee should be notified about unverified reports.
         """
-        User = get_user_model()
-        reviewers = User.objects.all_reviewers().filter(email__isnull=False)
+        user_model = get_user_model()
+        reviewers = user_model.objects.all_reviewers().filter(email__isnull=False)
         subject = "[Timed] Verification of reports"
         from_email = settings.DEFAULT_FROM_EMAIL
         connection = get_connection()

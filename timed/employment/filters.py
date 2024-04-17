@@ -48,15 +48,15 @@ class UserFilterSet(FilterSet):
     is_accountant = NumberFilter(field_name="is_accountant")
     is_external = NumberFilter(method="filter_is_external")
 
-    def filter_is_external(self, queryset, name, value):
+    def filter_is_external(self, queryset, _, value):
         return queryset.filter(employments__is_external=value)
 
-    def filter_is_reviewer(self, queryset, name, value):
+    def filter_is_reviewer(self, queryset, _, value):
         if value:
             return queryset.filter(pk__in=User.objects.all_reviewers())
         return queryset.exclude(pk__in=User.objects.all_reviewers())
 
-    def filter_is_supervisor(self, queryset, name, value):
+    def filter_is_supervisor(self, queryset, _, value):
         if value:
             return queryset.filter(pk__in=User.objects.all_supervisors())
         return queryset.exclude(pk__in=User.objects.all_supervisors())
@@ -75,7 +75,7 @@ class UserFilterSet(FilterSet):
 class EmploymentFilterSet(FilterSet):
     date = DateFilter(method="filter_date")
 
-    def filter_date(self, queryset, name, value):
+    def filter_date(self, queryset, _, value):
         return queryset.filter(
             Q(start_date__lte=value)
             & Q(Q(end_date__gte=value) | Q(end_date__isnull=True))

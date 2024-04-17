@@ -367,7 +367,7 @@ class ReportIntersectionSerializer(Serializer):
     def get_rejected(self, instance):
         return self._intersection(instance, "rejected")
 
-    def get_root_meta(self, resource, many):
+    def get_root_meta(self, *args):
         """Add number of results to meta."""
         queryset = self.instance["queryset"]
         return {"count": queryset.count()}

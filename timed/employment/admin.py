@@ -167,27 +167,27 @@ class UserAdmin(UserAdmin):
             (_("Extra fields"), {"fields": ["tour_done", "is_accountant"]}),
         )
 
-    def disable_users(self, request, queryset):
+    def disable_users(self, _, queryset):
         queryset.update(is_active=False)
 
     disable_users.short_description = _("Disable selected users")
 
-    def enable_users(self, request, queryset):
+    def enable_users(self, _, queryset):
         queryset.update(is_active=True)
 
     enable_users.short_description = _("Enable selected users")
 
-    def disable_staff_status(self, request, queryset):
+    def disable_staff_status(self, _, queryset):
         queryset.update(is_staff=False)
 
     disable_staff_status.short_description = _("Disable staff status of selected users")
 
-    def enable_staff_status(self, request, queryset):
+    def enable_staff_status(self, _, queryset):
         queryset.update(is_staff=True)
 
     enable_staff_status.short_description = _("Enable staff status of selected users")
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, _, obj=None):
         return obj and not obj.reports.exists()
 
 
@@ -198,7 +198,7 @@ class LocationAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, _, obj=None):
         return obj and not obj.employments.exists()
 
 
@@ -216,5 +216,5 @@ class AbsenceTypeAdmin(admin.ModelAdmin):
 
     list_display = ("name",)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, _, obj=None):
         return obj and not obj.absences.exists() and not obj.absencecredit_set.exists()

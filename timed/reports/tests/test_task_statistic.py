@@ -98,7 +98,7 @@ def test_task_statistic_list(
 )
 def test_task_statistic_filtered(
     auth_client,
-    filter,
+    filter,  # noqa: A002
     expected_result,
 ):
     user = auth_client.user

@@ -3,7 +3,7 @@ from django.core.mail import EmailMessage, get_connection
 from django.template.loader import get_template
 
 
-def _send_notification_emails(changes, reviewer, rejected=False):
+def _send_notification_emails(changes, reviewer, rejected=False):  # noqa: FBT002
     """Send email for each user."""
     if rejected:
         subject = "[Timed] Your reports have been rejected"

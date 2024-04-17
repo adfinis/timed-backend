@@ -36,7 +36,7 @@ class ProjectFilterSet(FilterSet):
     has_reviewer = NumberFilter(method="filter_has_reviewer")
     customer = NumberInFilter(field_name="customer")
 
-    def filter_has_manager(self, queryset, name, value):
+    def filter_has_manager(self, queryset, _, value):
         if not value:  # pragma: no cover
             return queryset
         return queryset.filter(
@@ -52,7 +52,7 @@ class ProjectFilterSet(FilterSet):
             )
         )
 
-    def filter_has_reviewer(self, queryset, name, value):
+    def filter_has_reviewer(self, queryset, _, value):
         if not value:  # pragma: no cover
             return queryset
         return queryset.filter(

@@ -87,7 +87,7 @@ def test_budget_check_skip_notification(capsys, mocker, report_factory):
 
 
 @pytest.mark.django_db()
-def test_budget_check_no_estimated_timed(mocker, capsys, report_factory):
+def test_budget_check_no_estimated_timed(mocker, report_factory):
     redmine_instance = mocker.MagicMock()
     issue = mocker.MagicMock()
     redmine_instance.issue.get.return_value = issue
