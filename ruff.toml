@@ -79,7 +79,7 @@ ignore = [
 	"D105",    # don't enforce existance of docstrings
 	"D106",    # don't enforce existance of docstrings
 	"D107",    # don't enforce existance of docstrings
-	"RUF012",   # don't require ClassVar annotation
+	"RUF012",  # don't require ClassVar annotation
 ]
 
 [lint.per-file-ignores]
