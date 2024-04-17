@@ -103,3 +103,6 @@ combine-as-imports = true
 
 [lint.flake8-annotations]
 ignore-fully-untyped = true
+
+[lint.flake8-unused-arguments]
+ignore-variadic-names = true
