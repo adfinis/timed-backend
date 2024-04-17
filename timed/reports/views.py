@@ -113,7 +113,7 @@ class StatisticQueryset(QuerySet):
     def _clone(self):
         return StatisticQueryset(
             model=self.model,
-            base_qs=self._base._clone(),  # noqa: SLF001
+            base_qs=self._base._clone(),
             catch_prefixes=self._catch_prefixes,
             agg_filters=self._agg_filters,
         )

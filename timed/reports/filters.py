@@ -49,7 +49,7 @@ class StatisticFiltersetBase:
         * When viewing the statistic over tasks, only the tasks
           are filtered
         """
-        # TODO: Discuss Is this the desired behaviour by our users?  # noqa: TD002,TD003
+        # TODO: Discuss Is this the desired behaviour by our users?
 
         if not value:  # pragma: no cover
             return queryset
@@ -78,9 +78,9 @@ class StatisticFiltersetBase:
 
         duration_ref = self._refs["reports_ref"] + "__duration"
 
-        full_qs = qs._base.annotate(  # noqa: SLF001
+        full_qs = qs._base.annotate(
             duration=Coalesce(
-                Sum(duration_ref, filter=qs._agg_filters),  # noqa: SLF001
+                Sum(duration_ref, filter=qs._agg_filters),
                 Value("00:00:00", DurationField(null=False)),
             ),
             pk=F("id"),

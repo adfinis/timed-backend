@@ -98,14 +98,14 @@ class UserViewSet(ModelViewSet):
             return queryset
 
     @action(methods=["get"], detail=False)
-    def me(self, request, pk=None):
+    def me(self, request, *args, **kwargs):
         self.object = get_object_or_404(get_user_model(), pk=request.user.id)
         serializer = self.get_serializer(self.object)
 
         return Response(serializer.data)
 
     @action(methods=["post"], detail=True)
-    def transfer(self, request, pk=None):
+    def transfer(self, *args, **kwargs):
         """Transfer worktime and absence balance to new year.
 
         It will skip any credits if a credit already exists on the first

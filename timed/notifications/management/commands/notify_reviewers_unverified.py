@@ -89,7 +89,7 @@ class Command(BaseCommand):
         """
         return Report.objects.filter(date__range=[start, end], verified_by__isnull=True)
 
-    def _notify_reviewers(self, start, end, reports, optional_message, cc):
+    def _notify_reviewers(self, start, end, reports, optional_message, cc):  # noqa: PLR0913
         """Notify reviewers on their unverified reports.
 
         Only the reviewers lowest in the hierarchy should be notified.
