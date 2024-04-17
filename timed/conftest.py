@@ -25,7 +25,7 @@ register_module(subscription_factories)
 register_module(tracking_factories)
 
 
-@pytest.fixture()
+@pytest.fixture
 def auth_user(db):
     return get_user_model().objects.create_user(
         username="user",
@@ -37,7 +37,7 @@ def auth_user(db):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def admin_user(db):
     return get_user_model().objects.create_user(
         username="admin",
@@ -49,7 +49,7 @@ def admin_user(db):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def superadmin_user(db):
     return get_user_model().objects.create_user(
         username="superadmin",
@@ -61,7 +61,7 @@ def superadmin_user(db):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def external_employee(db):
     user = get_user_model().objects.create_user(
         username="user",
@@ -75,7 +75,7 @@ def external_employee(db):
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def internal_employee(db):
     user = get_user_model().objects.create_user(
         username="user",
@@ -90,12 +90,12 @@ def internal_employee(db):
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def client():
     return APIClient()
 
 
-@pytest.fixture()
+@pytest.fixture
 def auth_client(auth_user):
     """Return instance of a APIClient that is logged in as test user."""
     client = APIClient()
@@ -104,7 +104,7 @@ def auth_client(auth_user):
     return client
 
 
-@pytest.fixture()
+@pytest.fixture
 def admin_client(admin_user):
     """Return instance of a APIClient that is logged in as a staff user."""
     client = APIClient()
@@ -113,7 +113,7 @@ def admin_client(admin_user):
     return client
 
 
-@pytest.fixture()
+@pytest.fixture
 def superadmin_client(superadmin_user):
     """Return instance of a APIClient that is logged in as superuser."""
     client = APIClient()
@@ -122,7 +122,7 @@ def superadmin_client(superadmin_user):
     return client
 
 
-@pytest.fixture()
+@pytest.fixture
 def external_employee_client(external_employee):
     """Return instance of a APIClient that is logged in as external test user."""
     client = APIClient()
@@ -131,7 +131,7 @@ def external_employee_client(external_employee):
     return client
 
 
-@pytest.fixture()
+@pytest.fixture
 def internal_employee_client(internal_employee):
     """Return instance of a APIClient that is logged in as external test user."""
     client = APIClient()

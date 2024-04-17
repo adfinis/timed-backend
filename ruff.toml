@@ -110,3 +110,6 @@ ignore-fully-untyped = true
 
 [lint.flake8-unused-arguments]
 ignore-variadic-names = true
+
+[lint.flake8-pytest-style]
+fixture-parentheses = false
