@@ -1,7 +1,6 @@
 """Serializers for the projects app."""
 
 from datetime import timedelta
-from typing import ClassVar
 
 from django.db.models import Q, Sum
 from django.utils.duration import duration_string
@@ -47,7 +46,7 @@ class ProjectSerializer(ModelSerializer):
     customer = ResourceRelatedField(queryset=models.Customer.objects.all())
     billing_type = ResourceRelatedField(queryset=models.BillingType.objects.all())
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "customer": "timed.projects.serializers.CustomerSerializer",
         "billing_type": "timed.projects.serializers.BillingTypeSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
@@ -117,7 +116,7 @@ class TaskSerializer(ModelSerializer):
 
     project = ResourceRelatedField(queryset=models.Project.objects.all())
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "activities": "timed.tracking.serializers.ActivitySerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
@@ -203,7 +202,7 @@ class TaskSerializer(ModelSerializer):
 class CustomerAssigneeSerializer(ModelSerializer):
     """Customer assignee serializer."""
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "user": "timed.employment.serializers.UserSerializer",
         "customer": "timed.projects.serializers.CustomerSerializer",
     }
@@ -225,7 +224,7 @@ class CustomerAssigneeSerializer(ModelSerializer):
 class ProjectAssigneeSerializer(ModelSerializer):
     """Project assignee serializer."""
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "user": "timed.employment.serializers.UserSerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
     }
@@ -247,7 +246,7 @@ class ProjectAssigneeSerializer(ModelSerializer):
 class TaskAssigneeSerializer(ModelSerializer):
     """Task assignees serializer."""
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "user": "timed.employment.serializers.UserSerializer",
         "task": "timed.projects.serializers.TaskSerializer",
     }

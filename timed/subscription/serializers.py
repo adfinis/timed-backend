@@ -1,5 +1,4 @@
 from datetime import timedelta
-from typing import ClassVar
 
 from django.db.models import Sum
 from django.utils.duration import duration_string
@@ -39,7 +38,7 @@ class SubscriptionProjectSerializer(ModelSerializer):
         data = reports.aggregate(spent_time=Sum("duration"))
         return duration_string(data["spent_time"] or timedelta())
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "billing_type": "timed.projects.serializers.BillingTypeSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
         "customer": "timed.projects.serializers.CustomerSerializer",
@@ -64,7 +63,7 @@ class PackageSerializer(ModelSerializer):
     price = CharField()
     """CharField needed as it includes currency."""
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "billing_type": "timed.projects.serializers.BillingTypeSerializer"
     }
 
@@ -75,7 +74,7 @@ class PackageSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    included_serializers: ClassVar = {
+    included_serializers = {
         "project": ("timed.subscription.serializers" ".SubscriptionProjectSerializer")
     }
 

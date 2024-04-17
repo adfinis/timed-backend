@@ -1,7 +1,6 @@
 """Serializers for the employment app."""
 
 from datetime import date, timedelta
-from typing import ClassVar
 
 from django.contrib.auth import get_user_model
 from django.db.models import Max, Value
@@ -21,7 +20,7 @@ from timed.tracking.models import Absence, Report
 
 
 class UserSerializer(ModelSerializer):
-    included_serializers: ClassVar = {
+    included_serializers = {
         "supervisors": "timed.employment.serializers.UserSerializer",
         "supervisees": "timed.employment.serializers.UserSerializer",
     }
@@ -95,9 +94,7 @@ class WorktimeBalanceSerializer(Serializer):
         _, _, balance = instance.id.calculate_worktime(start, balance_date)
         return duration_string(balance)
 
-    included_serializers: ClassVar = {
-        "user": "timed.employment.serializers.UserSerializer"
-    }
+    included_serializers = {"user": "timed.employment.serializers.UserSerializer"}
 
     class Meta:
         resource_name = "worktime-balances"
@@ -217,7 +214,7 @@ class AbsenceBalanceSerializer(Serializer):
 
         return self.get_credit(instance) - self.get_used_days(instance)
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "absence_type": "timed.employment.serializers.AbsenceTypeSerializer",
         "absence_credits": "timed.employment.serializers.AbsenceCreditSerializer",
     }
@@ -227,7 +224,7 @@ class AbsenceBalanceSerializer(Serializer):
 
 
 class EmploymentSerializer(ModelSerializer):
-    included_serializers: ClassVar = {
+    included_serializers = {
         "user": "timed.employment.serializers.UserSerializer",
         "location": "timed.employment.serializers.LocationSerializer",
     }
@@ -293,7 +290,7 @@ class PublicHolidaySerializer(ModelSerializer):
 
     location = relations.ResourceRelatedField(read_only=True)
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "location": "timed.employment.serializers.LocationSerializer"
     }
 
@@ -317,7 +314,7 @@ class AbsenceTypeSerializer(ModelSerializer):
 class AbsenceCreditSerializer(ModelSerializer):
     """Absence credit serializer."""
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "absence_type": "timed.employment.serializers.AbsenceTypeSerializer"
     }
 

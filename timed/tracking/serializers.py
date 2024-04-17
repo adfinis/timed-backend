@@ -1,7 +1,6 @@
 """Serializers for the tracking app."""
 
 from datetime import date, timedelta
-from typing import ClassVar
 
 from django.contrib.auth import get_user_model
 from django.db.models import BooleanField, Case, Q, When
@@ -28,7 +27,7 @@ class ActivitySerializer(ModelSerializer):
 
     user = CurrentUserResourceRelatedField()
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "task": "timed.projects.serializers.TaskSerializer",
         "user": "timed.employment.serializers.UserSerializer",
     }
@@ -75,9 +74,7 @@ class AttendanceSerializer(ModelSerializer):
 
     user = CurrentUserResourceRelatedField()
 
-    included_serializers: ClassVar = {
-        "user": "timed.employment.serializers.UserSerializer"
-    }
+    included_serializers = {"user": "timed.employment.serializers.UserSerializer"}
 
     class Meta:
         """Meta information for the attendance serializer."""
@@ -98,7 +95,7 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
         queryset=get_user_model().objects, required=False, allow_null=True
     )
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "task": "timed.projects.serializers.TaskSerializer",
         "user": "timed.employment.serializers.UserSerializer",
         "verified_by": "timed.employment.serializers.UserSerializer",
@@ -372,7 +369,7 @@ class ReportIntersectionSerializer(Serializer):
         queryset = self.instance["queryset"]
         return {"count": queryset.count()}
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "customer": "timed.projects.serializers.CustomerSerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
         "task": "timed.projects.serializers.TaskSerializer",
@@ -390,7 +387,7 @@ class AbsenceSerializer(ModelSerializer):
     absence_type = ResourceRelatedField(queryset=AbsenceType.objects.all())
     user = CurrentUserResourceRelatedField()
 
-    included_serializers: ClassVar = {
+    included_serializers = {
         "user": "timed.employment.serializers.UserSerializer",
         "absence_type": "timed.employment.serializers.AbsenceTypeSerializer",
     }

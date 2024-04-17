@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 from django.contrib.auth import get_user_model
 from rest_framework_json_api import relations
 from rest_framework_json_api.serializers import (
@@ -50,9 +48,7 @@ class ProjectStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
     estimated_time = DurationField(read_only=True)
     total_remaining_effort = DurationField(read_only=True)
 
-    included_serializers: ClassVar = {
-        "customer": "timed.projects.serializers.CustomerSerializer"
-    }
+    included_serializers = {"customer": "timed.projects.serializers.CustomerSerializer"}
 
     class Meta:
         resource_name = "project-statistics"
@@ -65,9 +61,7 @@ class TaskStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
     project = relations.ResourceRelatedField(model=Project, read_only=True)
     estimated_time = DurationField(read_only=True)
 
-    included_serializers: ClassVar = {
-        "project": "timed.projects.serializers.ProjectSerializer"
-    }
+    included_serializers = {"project": "timed.projects.serializers.ProjectSerializer"}
 
     class Meta:
         resource_name = "task-statistics"
@@ -77,9 +71,7 @@ class UserStatisticSerializer(TotalTimeRootMetaMixin, Serializer):
     duration = DurationField(read_only=True)
     user = relations.ResourceRelatedField(model=get_user_model(), read_only=True)
 
-    included_serializers: ClassVar = {
-        "user": "timed.employment.serializers.UserSerializer"
-    }
+    included_serializers = {"user": "timed.employment.serializers.UserSerializer"}
 
     class Meta:
         resource_name = "user-statistics"
