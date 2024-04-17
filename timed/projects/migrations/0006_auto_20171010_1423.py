@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=255, unique=True)),
                 ("reference", models.CharField(blank=True, max_length=255, null=True)),
             ],
-            options={"ordering": ["name"]},
+            options={"ordering": ("name",)},
         ),
         migrations.AddField(
             model_name="project",
