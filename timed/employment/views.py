@@ -80,7 +80,7 @@ class UserViewSet(ModelViewSet):
                 )
 
                 return queryset.filter(Q(reports__in=visible_reports) | Q(id=user.id))
-        except models.Employment.DoesNotExist as exc:
+        except models.Employment.DoesNotExist:
             if CustomerAssignee.objects.filter(user=user, is_customer=True).exists():
                 assigned_tasks = Task.objects.filter(
                     Q(
@@ -93,7 +93,7 @@ class UserViewSet(ModelViewSet):
                 )
                 return queryset.filter(Q(reports__in=visible_reports) | Q(id=user.id))
             msg = "User has no employment"
-            raise exceptions.PermissionDenied(msg) from exc
+            raise exceptions.PermissionDenied(msg) from None
         else:
             return queryset
 

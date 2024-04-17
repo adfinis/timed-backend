@@ -150,7 +150,7 @@ class ReportViewSet(ModelViewSet):
                 )
             )
             return queryset.filter(Q(task__in=assigned_tasks) | Q(user=user))
-        except Employment.DoesNotExist as exc:
+        except Employment.DoesNotExist:
             if CustomerAssignee.objects.filter(user=user, is_customer=True).exists():
                 return queryset.filter(
                     Q(
@@ -159,7 +159,7 @@ class ReportViewSet(ModelViewSet):
                     )
                 )
             msg = "User has no employment and isn't a customer!"
-            raise exceptions.PermissionDenied(msg) from exc
+            raise exceptions.PermissionDenied(msg) from None
 
     def update(self, request, *args, **kwargs):
         """Override so we can issue emails on update."""
