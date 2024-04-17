@@ -12,7 +12,7 @@ env = environ.Env()
 django_root = environ.Path(__file__) - 2
 
 ENV_FILE = env.str("DJANGO_ENV_FILE", default=django_root(".env"))
-if Path(ENV_FILE):  # pragma: no cover
+if Path(ENV_FILE).exists():  # pragma: no cover
     environ.Env.read_env(ENV_FILE)
 
 # per default production is enabled for security reasons
