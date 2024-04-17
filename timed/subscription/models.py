@@ -22,6 +22,9 @@ class Package(models.Model):
     duration = models.DurationField()
     price = MoneyField(max_digits=7, decimal_places=2, default_currency="CHF")
 
+    def __str__(self) -> str:
+        return f"{self.billing_type} {self.duration} {self.price}"
+
 
 class Order(models.Model):
     """Order of customer for specific amount of hours."""
@@ -39,3 +42,6 @@ class Order(models.Model):
         blank=True,
         related_name="orders_confirmed",
     )
+
+    def __str__(self) -> str:
+        return f"{self.project} {self.duration}"

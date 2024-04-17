@@ -216,6 +216,9 @@ class CustomerAssignee(models.Model):
     is_manager = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        return f"{self.user.username} {self.customer}"
+
 
 class ProjectAssignee(models.Model):
     """Project assignee model.
@@ -236,6 +239,9 @@ class ProjectAssignee(models.Model):
     is_manager = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        return f"{self.user.username} {self.project}"
+
 
 class TaskAssignee(models.Model):
     """Task assignee model.
@@ -255,6 +261,9 @@ class TaskAssignee(models.Model):
     is_reviewer = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return f"{self.user.username} {self.task}"
 
 
 @receiver(pre_save, sender=Project)

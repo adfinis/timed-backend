@@ -138,6 +138,9 @@ class AbsenceCredit(models.Model):
     Mark whether this absence credit is a transfer from last year.
     """
 
+    def __str__(self) -> str:
+        return f"{self.user.username} ({self.duration})"
+
 
 class OvertimeCredit(models.Model):
     """Overtime credit model.
@@ -158,6 +161,9 @@ class OvertimeCredit(models.Model):
     """
     Mark whether this absence credit is a transfer from last year.
     """
+
+    def __str__(self) -> str:
+        return f"{self.user.username} ({self.duration})"
 
 
 class EmploymentManager(models.Manager):

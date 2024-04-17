@@ -150,6 +150,18 @@ class Absence(models.Model):
 
         unique_together = ("date", "user")
 
+    def __str__(self):
+        """Represent the model as a string.
+
+        :return: The string representation
+        :rtype:  str
+        """
+        return "{}: {} {}".format(
+            self.user,
+            self.date.strftime("%Y-%m-%d"),
+            self.comment,
+        )
+
     def calculate_duration(self, employment):
         """Calculate duration of absence with given employment.
 
