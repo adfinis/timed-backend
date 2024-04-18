@@ -15,7 +15,7 @@ from timed.tracking import factories as tracking_factories
 
 def register_module(module):
     for _name, obj in inspect.getmembers(module):
-        if isinstance(obj, FactoryMetaClass) and not obj._meta.abstract:
+        if isinstance(obj, FactoryMetaClass) and not obj._meta.abstract:  # noqa: SLF001
             register(obj)
 
 

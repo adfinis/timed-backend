@@ -50,7 +50,7 @@ class AggregateQuerysetMixin:
         # prefetch data for all related fields
         prefetch_per_field = {}
         serializer_class = self.get_serializer_class()
-        for key, value in serializer_class._declared_fields.items():
+        for key, value in serializer_class._declared_fields.items():  # noqa: SLF001
             if self._is_related_field(value):
                 source = value.source or key
                 if many:

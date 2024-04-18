@@ -78,9 +78,9 @@ class StatisticFiltersetBase:
 
         duration_ref = self._refs["reports_ref"] + "__duration"
 
-        full_qs = qs._base.annotate(
+        full_qs = qs._base.annotate(  # noqa: SLF001
             duration=Coalesce(
-                Sum(duration_ref, filter=qs._agg_filters),
+                Sum(duration_ref, filter=qs._agg_filters),  # noqa: SLF001
                 Value("00:00:00", DurationField(null=False)),
             ),
             pk=F("id"),

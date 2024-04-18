@@ -68,7 +68,6 @@ ignore = [
 	"COM812",  # ignore due to conflict with formatter
 	"ISC001",  # ignore due to conflict with formatter
 	"E501",    # managed by formatter
-	"SLF001",  # allow accessing private members
 	"TD002",   # don't require author of TODO
 	"TD003",   # don't require link to TODO
 	"D100",    # don't enforce existance of docstrings

@@ -153,7 +153,7 @@ def test_generate_work_report_name(customer_name, project_name, expected):
     # slashes should be dropped from file name
     project = ProjectFactory.create(customer=customer, name=project_name)
 
-    name = view._generate_workreport_name(test_date, test_date, project)
+    name = view._generate_workreport_name(test_date, test_date, project)  # noqa: SLF001
     assert name == expected
 
 
