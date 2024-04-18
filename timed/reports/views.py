@@ -78,14 +78,7 @@ class StatisticQueryset(QuerySet):
         self._agg_filters = agg_filters
         self._catch_prefixes = catch_prefixes
 
-    def filter(self, *args, **kwargs):
-        if args:  # pragma: no cover
-            # This is a check against programming errors, no need to test
-            msg = (
-                "Unable to detect statistics filter type form Q objects. use "
-                "filter_aggregate() or filter_base() instead"
-            )
-            raise RuntimeError(msg)
+    def filter(self, /, **kwargs):
         my_filters = {
             k: v for k, v in kwargs.items() if not k.startswith(self._catch_prefixes)
         }
