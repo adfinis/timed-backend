@@ -1,6 +1,9 @@
 """Serializers for the projects app."""
 
+from __future__ import annotations
+
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from django.db.models import Q, Sum
 from django.utils.duration import duration_string
@@ -9,6 +12,9 @@ from rest_framework_json_api.serializers import ModelSerializer, ValidationError
 
 from timed.projects import models
 from timed.tracking.models import Report
+
+if TYPE_CHECKING:
+    from typing import ClassVar
 
 
 class CustomerSerializer(ModelSerializer):
@@ -31,13 +37,19 @@ class CustomerSerializer(ModelSerializer):
 class BillingTypeSerializer(ModelSerializer):
     class Meta:
         model = models.BillingType
-        fields = ("name", "reference")
+        fields = (
+            "name",
+            "reference",
+        )
 
 
 class CostCenterSerializer(ModelSerializer):
     class Meta:
         model = models.CostCenter
-        fields = ("name", "reference")
+        fields = (
+            "name",
+            "reference",
+        )
 
 
 class ProjectSerializer(ModelSerializer):
@@ -46,7 +58,7 @@ class ProjectSerializer(ModelSerializer):
     customer = ResourceRelatedField(queryset=models.Customer.objects.all())
     billing_type = ResourceRelatedField(queryset=models.BillingType.objects.all())
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "customer": "timed.projects.serializers.CustomerSerializer",
         "billing_type": "timed.projects.serializers.BillingTypeSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
@@ -116,7 +128,7 @@ class TaskSerializer(ModelSerializer):
 
     project = ResourceRelatedField(queryset=models.Project.objects.all())
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "activities": "timed.tracking.serializers.ActivitySerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
@@ -202,7 +214,7 @@ class TaskSerializer(ModelSerializer):
 class CustomerAssigneeSerializer(ModelSerializer):
     """Customer assignee serializer."""
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "user": "timed.employment.serializers.UserSerializer",
         "customer": "timed.projects.serializers.CustomerSerializer",
     }
@@ -224,7 +236,7 @@ class CustomerAssigneeSerializer(ModelSerializer):
 class ProjectAssigneeSerializer(ModelSerializer):
     """Project assignee serializer."""
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "user": "timed.employment.serializers.UserSerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
     }
@@ -246,7 +258,7 @@ class ProjectAssigneeSerializer(ModelSerializer):
 class TaskAssigneeSerializer(ModelSerializer):
     """Task assignees serializer."""
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "user": "timed.employment.serializers.UserSerializer",
         "task": "timed.projects.serializers.TaskSerializer",
     }

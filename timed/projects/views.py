@@ -21,7 +21,7 @@ class CustomerViewSet(ReadOnlyModelViewSet):
 
     serializer_class = serializers.CustomerSerializer
     filterset_class = filters.CustomerFilterSet
-    ordering = "name"
+    ordering = ("name",)
 
     def get_queryset(self):
         """Prefetch related data.
@@ -53,7 +53,7 @@ class CustomerViewSet(ReadOnlyModelViewSet):
 
 class BillingTypeViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.BillingTypeSerializer
-    ordering = "name"
+    ordering = ("name",)
     permission_classes = (
         (
             # superuser may edit all billing types
@@ -98,7 +98,7 @@ class BillingTypeViewSet(ReadOnlyModelViewSet):
 
 class CostCenterViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.CostCenterSerializer
-    ordering = "name"
+    ordering = ("name",)
     permission_classes = (
         (
             # superuser may edit all cost centers
@@ -117,8 +117,11 @@ class ProjectViewSet(ModelViewSet):
 
     serializer_class = serializers.ProjectSerializer
     filterset_class = filters.ProjectFilterSet
-    ordering_fields = ("customer__name", "name")
-    ordering = "name"
+    ordering_fields = (
+        "customer__name",
+        "name",
+    )
+    ordering = ("name",)
     queryset = models.Project.objects.all()
     permission_classes = (
         (
@@ -165,7 +168,7 @@ class TaskViewSet(ModelViewSet):
     serializer_class = serializers.TaskSerializer
     filterset_class = filters.TaskFilterSet
     queryset = models.Task.objects.select_related("project", "cost_center")
-    ordering = "name"
+    ordering = ("name",)
     permission_classes = (
         (
             # superuser may edit all tasks

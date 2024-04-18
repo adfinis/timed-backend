@@ -51,7 +51,11 @@ class UserViewSet(ModelViewSet):
 
     serializer_class = serializers.UserSerializer
     filterset_class = filters.UserFilterSet
-    search_fields = ("username", "first_name", "last_name")
+    search_fields = (
+        "username",
+        "first_name",
+        "last_name",
+    )
 
     def get_queryset(self):
         user = self.request.user

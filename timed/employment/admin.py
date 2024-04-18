@@ -151,7 +151,13 @@ class UserAdmin(UserAdmin):
         OvertimeCreditInline,
         AbsenceCreditInline,
     )
-    list_display = ("username", "first_name", "last_name", "is_staff", "is_active")
+    list_display = (
+        "username",
+        "first_name",
+        "last_name",
+        "is_staff",
+        "is_active",
+    )
     search_fields = ("username",)
 
     actions = (
@@ -206,7 +212,11 @@ class LocationAdmin(admin.ModelAdmin):
 class PublicHolidayAdmin(admin.ModelAdmin):
     """Public holiday admin view."""
 
-    list_display = ("__str__", "date", "location")
+    list_display = (
+        "__str__",
+        "date",
+        "location",
+    )
     list_filter = ("location",)
 
 

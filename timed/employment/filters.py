@@ -27,7 +27,13 @@ class PublicHolidayFilterSet(FilterSet):
         """Meta information for the public holiday filter set."""
 
         model = models.PublicHoliday
-        fields = ("year", "location", "date", "from_date", "to_date")
+        fields = (
+            "year",
+            "location",
+            "date",
+            "from_date",
+            "to_date",
+        )
 
 
 class AbsenceTypeFilterSet(FilterSet):

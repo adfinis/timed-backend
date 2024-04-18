@@ -1,4 +1,9 @@
+"""Serializers for the subscription app."""
+
+from __future__ import annotations
+
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from django.db.models import Sum
 from django.utils.duration import duration_string
@@ -12,6 +17,9 @@ from timed.projects.models import Project
 from timed.tracking.models import Report
 
 from .models import Order, Package
+
+if TYPE_CHECKING:
+    from typing import ClassVar
 
 
 class SubscriptionProjectSerializer(ModelSerializer):
@@ -38,7 +46,7 @@ class SubscriptionProjectSerializer(ModelSerializer):
         data = reports.aggregate(spent_time=Sum("duration"))
         return duration_string(data["spent_time"] or timedelta())
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "billing_type": "timed.projects.serializers.BillingTypeSerializer",
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
         "customer": "timed.projects.serializers.CustomerSerializer",
@@ -63,22 +71,31 @@ class PackageSerializer(ModelSerializer):
     price = CharField()
     """CharField needed as it includes currency."""
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "billing_type": "timed.projects.serializers.BillingTypeSerializer"
     }
 
     class Meta:
         model = Package
         resource_name = "subscription-packages"
-        fields = ("duration", "price", "billing_type")
+        fields = (
+            "duration",
+            "price",
+            "billing_type",
+        )
 
 
 class OrderSerializer(ModelSerializer):
-    included_serializers = {
-        "project": ("timed.subscription.serializers" ".SubscriptionProjectSerializer")
+    included_serializers: ClassVar[dict[str, str]] = {
+        "project": "timed.subscription.serializers.SubscriptionProjectSerializer"
     }
 
     class Meta:
         model = Order
         resource_name = "subscription-orders"
-        fields = ("duration", "acknowledged", "ordered", "project")
+        fields = (
+            "duration",
+            "acknowledged",
+            "ordered",
+            "project",
+        )

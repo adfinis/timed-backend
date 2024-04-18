@@ -148,7 +148,10 @@ class Absence(models.Model):
     class Meta:
         """Meta informations for the absence model."""
 
-        unique_together = ("date", "user")
+        unique_together = (
+            "date",
+            "user",
+        )
 
     def __str__(self):
         """Represent the model as a string.

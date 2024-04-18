@@ -26,7 +26,10 @@ class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = serializers.SubscriptionProjectSerializer
     filterset_class = ProjectFilterSet
-    ordering_fields = ("name", "id")
+    ordering_fields = (
+        "name",
+        "id",
+    )
 
     def get_queryset(self):
         user = self.request.user

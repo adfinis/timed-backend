@@ -109,7 +109,10 @@ class ReportViewSet(ModelViewSet):
             | IsAuthenticated & IsReadOnly
         ),
     )
-    ordering = ("date", "id")
+    ordering = (
+        "date",
+        "id",
+    )
     ordering_fields = (
         "id",
         "date",

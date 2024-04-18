@@ -243,4 +243,9 @@ class AbsenceFilterSet(FilterSet):
         """Meta information for the absence filter set."""
 
         model = models.Absence
-        fields = ("date", "from_date", "to_date", "user")
+        fields = (
+            "date",
+            "from_date",
+            "to_date",
+            "user",
+        )

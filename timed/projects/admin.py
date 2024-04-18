@@ -118,7 +118,10 @@ class ProjectAdmin(NestedModelAdmin):
         "customer",
     )
     list_filter = ("customer",)
-    search_fields = ("name", "customer__name")
+    search_fields = (
+        "name",
+        "customer__name",
+    )
 
     inlines = (TaskInline, RedmineProjectInline, ProjectAssigneeInline)
 

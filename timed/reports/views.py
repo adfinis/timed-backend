@@ -29,7 +29,10 @@ class YearStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.YearStatisticSerializer
     filterset_class = ReportFilterSet
-    ordering_fields = ("year", "duration")
+    ordering_fields = (
+        "year",
+        "duration",
+    )
     ordering = ("year",)
     permission_classes = (
         (
@@ -50,8 +53,15 @@ class MonthStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.MonthStatisticSerializer
     filterset_class = ReportFilterSet
-    ordering_fields = ("year", "month", "duration")
-    ordering = ("year", "month")
+    ordering_fields = (
+        "year",
+        "month",
+        "duration",
+    )
+    ordering = (
+        "year",
+        "month",
+    )
     permission_classes = (
         (
             # internal employees or super users may read all customer statistics
@@ -205,7 +215,10 @@ class UserStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.UserStatisticSerializer
     filterset_class = ReportFilterSet
-    ordering_fields = ("user__username", "duration")
+    ordering_fields = (
+        "user__username",
+        "duration",
+    )
     ordering = ("user__username",)
     permission_classes = (
         (

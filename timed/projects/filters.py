@@ -72,7 +72,13 @@ class ProjectFilterSet(FilterSet):
         """Meta information for the project filter set."""
 
         model = models.Project
-        fields = ("archived", "customer", "billing_type", "cost_center", "reference")
+        fields = (
+            "archived",
+            "customer",
+            "billing_type",
+            "cost_center",
+            "reference",
+        )
 
 
 class MyMostFrequentTaskFilter(Filter):
@@ -126,7 +132,13 @@ class TaskFilterSet(FilterSet):
         """Meta information for the task filter set."""
 
         model = models.Task
-        fields = ("archived", "project", "my_most_frequent", "reference", "cost_center")
+        fields = (
+            "archived",
+            "project",
+            "my_most_frequent",
+            "reference",
+            "cost_center",
+        )
 
 
 class TaskAssigneeFilterSet(FilterSet):
@@ -140,7 +152,13 @@ class TaskAssigneeFilterSet(FilterSet):
         """Meta information for the task assignee filter set."""
 
         model = models.TaskAssignee
-        fields = ("task", "user", "is_reviewer", "is_manager", "is_resource")
+        fields = (
+            "task",
+            "user",
+            "is_reviewer",
+            "is_manager",
+            "is_resource",
+        )
 
 
 class ProjectAssigneeFilterSet(FilterSet):
@@ -154,7 +172,13 @@ class ProjectAssigneeFilterSet(FilterSet):
         """Meta information for the project assignee filter set."""
 
         model = models.ProjectAssignee
-        fields = ("project", "user", "is_reviewer", "is_manager", "is_resource")
+        fields = (
+            "project",
+            "user",
+            "is_reviewer",
+            "is_manager",
+            "is_resource",
+        )
 
 
 class CustomerAssigneeFilterSet(FilterSet):
@@ -168,4 +192,10 @@ class CustomerAssigneeFilterSet(FilterSet):
         """Meta information for the customer assignee filter set."""
 
         model = models.CustomerAssignee
-        fields = ("customer", "user", "is_reviewer", "is_manager", "is_resource")
+        fields = (
+            "customer",
+            "user",
+            "is_reviewer",
+            "is_manager",
+            "is_resource",
+        )

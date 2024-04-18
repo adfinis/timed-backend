@@ -14,7 +14,10 @@ class PackageFilter(FilterSet):
 
     class Meta:
         model = models.Package
-        fields = ("billing_type", "customer")
+        fields = (
+            "billing_type",
+            "customer",
+        )
 
 
 class OrderFilter(FilterSet):
@@ -23,4 +26,8 @@ class OrderFilter(FilterSet):
 
     class Meta:
         model = models.Order
-        fields = ("customer", "project", "acknowledged")
+        fields = (
+            "customer",
+            "project",
+            "acknowledged",
+        )

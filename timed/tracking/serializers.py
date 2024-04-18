@@ -1,6 +1,9 @@
 """Serializers for the tracking app."""
 
+from __future__ import annotations
+
 from datetime import date, timedelta
+from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 from django.db.models import BooleanField, Case, Q, When
@@ -21,13 +24,16 @@ from timed.projects.models import Customer, Project, Task
 from timed.serializers import TotalTimeRootMetaMixin
 from timed.tracking import models
 
+if TYPE_CHECKING:
+    from typing import ClassVar
+
 
 class ActivitySerializer(ModelSerializer):
     """Activity serializer."""
 
     user = CurrentUserResourceRelatedField()
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "task": "timed.projects.serializers.TaskSerializer",
         "user": "timed.employment.serializers.UserSerializer",
     }
@@ -74,13 +80,20 @@ class AttendanceSerializer(ModelSerializer):
 
     user = CurrentUserResourceRelatedField()
 
-    included_serializers = {"user": "timed.employment.serializers.UserSerializer"}
+    included_serializers: ClassVar[dict[str, str]] = {
+        "user": "timed.employment.serializers.UserSerializer"
+    }
 
     class Meta:
         """Meta information for the attendance serializer."""
 
         model = models.Attendance
-        fields = ("date", "from_time", "to_time", "user")
+        fields = (
+            "date",
+            "from_time",
+            "to_time",
+            "user",
+        )
 
 
 class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
@@ -95,7 +108,7 @@ class ReportSerializer(TotalTimeRootMetaMixin, ModelSerializer):
         queryset=get_user_model().objects, required=False, allow_null=True
     )
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "task": "timed.projects.serializers.TaskSerializer",
         "user": "timed.employment.serializers.UserSerializer",
         "verified_by": "timed.employment.serializers.UserSerializer",
@@ -369,7 +382,7 @@ class ReportIntersectionSerializer(Serializer):
         queryset = self.instance["queryset"]
         return {"count": queryset.count()}
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "customer": "timed.projects.serializers.CustomerSerializer",
         "project": "timed.projects.serializers.ProjectSerializer",
         "task": "timed.projects.serializers.TaskSerializer",
@@ -387,7 +400,7 @@ class AbsenceSerializer(ModelSerializer):
     absence_type = ResourceRelatedField(queryset=AbsenceType.objects.all())
     user = CurrentUserResourceRelatedField()
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "user": "timed.employment.serializers.UserSerializer",
         "absence_type": "timed.employment.serializers.AbsenceTypeSerializer",
     }
@@ -453,4 +466,10 @@ class AbsenceSerializer(ModelSerializer):
         """Meta information for the absence serializer."""
 
         model = models.Absence
-        fields = ("comment", "date", "duration", "absence_type", "user")
+        fields = (
+            "comment",
+            "date",
+            "duration",
+            "absence_type",
+            "user",
+        )
