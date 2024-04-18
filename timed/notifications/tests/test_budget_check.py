@@ -15,7 +15,12 @@ from timed.redmine.models import RedmineProject
     [(1, 0, 0), (3, 0, 0), (4, 30, 1), (8, 70, 2), (0, 0, 0)],
 )
 def test_budget_check_1(
-    db, mocker, report_factory, duration, percentage_exceeded, notification_count
+    db,
+    mocker,
+    report_factory,
+    duration,
+    percentage_exceeded,
+    notification_count,
 ):
     """Test budget check."""
     redmine_instance = mocker.MagicMock()

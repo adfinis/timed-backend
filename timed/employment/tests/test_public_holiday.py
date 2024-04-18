@@ -5,7 +5,6 @@ from django.urls import reverse
 from rest_framework import status
 
 from timed.conftest import setup_customer_and_employment_status
-from timed.employment.factories import EmploymentFactory, PublicHolidayFactory
 
 
 @pytest.mark.parametrize(
@@ -19,7 +18,12 @@ from timed.employment.factories import EmploymentFactory, PublicHolidayFactory
     ],
 )
 def test_public_holiday_list(
-    auth_client, is_employed, is_customer_assignee, is_customer, expected
+    auth_client,
+    is_employed,
+    is_customer_assignee,
+    is_customer,
+    expected,
+    public_holiday_factory,
 ):
     setup_customer_and_employment_status(
         user=auth_client.user,
@@ -28,7 +32,7 @@ def test_public_holiday_list(
         is_employed=is_employed,
         is_external=False,
     )
-    PublicHolidayFactory.create()
+    public_holiday_factory.create()
     url = reverse("public-holiday-list")
 
     response = auth_client.get(url)
@@ -45,10 +49,12 @@ def test_public_holiday_list(
         (False, status.HTTP_404_NOT_FOUND),
     ],
 )
-def test_public_holiday_detail(auth_client, is_employed, expected):
-    public_holiday = PublicHolidayFactory.create()
+def test_public_holiday_detail(
+    auth_client, is_employed, expected, employment_factory, public_holiday_factory
+):
+    public_holiday = public_holiday_factory.create()
     if is_employed:
-        EmploymentFactory.create(user=auth_client.user)
+        employment_factory.create(user=auth_client.user)
 
     url = reverse("public-holiday-detail", args=[public_holiday.id])
 
@@ -63,8 +69,8 @@ def test_public_holiday_create(auth_client):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_public_holiday_update(auth_client):
-    public_holiday = PublicHolidayFactory.create()
+def test_public_holiday_update(auth_client, public_holiday_factory):
+    public_holiday = public_holiday_factory.create()
 
     url = reverse("public-holiday-detail", args=[public_holiday.id])
 
@@ -72,8 +78,8 @@ def test_public_holiday_update(auth_client):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_public_holiday_delete(auth_client):
-    public_holiday = PublicHolidayFactory.create()
+def test_public_holiday_delete(auth_client, public_holiday_factory):
+    public_holiday = public_holiday_factory.create()
 
     url = reverse("public-holiday-detail", args=[public_holiday.id])
 
@@ -81,9 +87,9 @@ def test_public_holiday_delete(auth_client):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_public_holiday_year_filter(internal_employee_client):
-    PublicHolidayFactory.create(date=date(2017, 1, 1))
-    public_holiday = PublicHolidayFactory.create(date=date(2018, 1, 1))
+def test_public_holiday_year_filter(internal_employee_client, public_holiday_factory):
+    public_holiday_factory.create(date=date(2017, 1, 1))
+    public_holiday = public_holiday_factory.create(date=date(2018, 1, 1))
 
     url = reverse("public-holiday-list")
 

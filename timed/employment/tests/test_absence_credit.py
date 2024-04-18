@@ -1,12 +1,6 @@
 from django.urls import reverse
 from rest_framework import status
 
-from timed.employment.factories import (
-    AbsenceCreditFactory,
-    AbsenceTypeFactory,
-    UserFactory,
-)
-
 
 def test_absence_credit_create_authenticated(auth_client):
     url = reverse("absence-credit-list")
@@ -15,8 +9,8 @@ def test_absence_credit_create_authenticated(auth_client):
     assert result.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_absence_credit_create_superuser(superadmin_client):
-    absence_type = AbsenceTypeFactory.create()
+def test_absence_credit_create_superuser(superadmin_client, absence_type_factory):
+    absence_type = absence_type_factory.create()
 
     url = reverse("absence-credit-list")
 
@@ -38,9 +32,9 @@ def test_absence_credit_create_superuser(superadmin_client):
     assert result.status_code == status.HTTP_201_CREATED
 
 
-def test_absence_credit_get_authenticated(auth_client):
-    AbsenceCreditFactory.create_batch(2)
-    absence_credit = AbsenceCreditFactory.create(user=auth_client.user)
+def test_absence_credit_get_authenticated(auth_client, absence_credit_factory):
+    absence_credit_factory.create_batch(2)
+    absence_credit = absence_credit_factory.create(user=auth_client.user)
     url = reverse("absence-credit-list")
 
     result = auth_client.get(url)
@@ -50,9 +44,9 @@ def test_absence_credit_get_authenticated(auth_client):
     assert json["data"][0]["id"] == str(absence_credit.id)
 
 
-def test_absence_credit_get_superuser(superadmin_client):
-    AbsenceCreditFactory.create_batch(2)
-    AbsenceCreditFactory.create(user=superadmin_client.user)
+def test_absence_credit_get_superuser(superadmin_client, absence_credit_factory):
+    absence_credit_factory.create_batch(2)
+    absence_credit_factory.create(user=superadmin_client.user)
     url = reverse("absence-credit-list")
 
     result = superadmin_client.get(url)
@@ -61,13 +55,15 @@ def test_absence_credit_get_superuser(superadmin_client):
     assert len(json["data"]) == 3
 
 
-def test_absence_credit_get_supervisor(auth_client):
-    user = UserFactory.create()
+def test_absence_credit_get_supervisor(
+    auth_client, absence_credit_factory, user_factory
+):
+    user = user_factory.create()
     auth_client.user.supervisees.add(user)
 
-    AbsenceCreditFactory.create_batch(1)
-    AbsenceCreditFactory.create(user=auth_client.user)
-    AbsenceCreditFactory.create(user=user)
+    absence_credit_factory.create_batch(1)
+    absence_credit_factory.create(user=auth_client.user)
+    absence_credit_factory.create(user=user)
     url = reverse("absence-credit-list")
 
     result = auth_client.get(url)

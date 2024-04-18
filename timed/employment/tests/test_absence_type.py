@@ -3,7 +3,6 @@ from django.urls import reverse
 from rest_framework import status
 
 from timed.conftest import setup_customer_and_employment_status
-from timed.employment.factories import AbsenceTypeFactory, EmploymentFactory
 
 
 @pytest.mark.parametrize(
@@ -17,7 +16,12 @@ from timed.employment.factories import AbsenceTypeFactory, EmploymentFactory
     ],
 )
 def test_absence_type_list(
-    auth_client, is_employed, is_customer_assignee, is_customer, expected
+    auth_client,
+    is_employed,
+    is_customer_assignee,
+    is_customer,
+    expected,
+    absence_type_factory,
 ):
     setup_customer_and_employment_status(
         user=auth_client.user,
@@ -26,7 +30,7 @@ def test_absence_type_list(
         is_employed=is_employed,
         is_external=False,
     )
-    AbsenceTypeFactory.create_batch(2)
+    absence_type_factory.create_batch(2)
     url = reverse("absence-type-list")
 
     response = auth_client.get(url)
@@ -36,9 +40,11 @@ def test_absence_type_list(
     assert len(json["data"]) == expected
 
 
-def test_absence_type_list_filter_fill_worktime(internal_employee_client):
-    absence_type = AbsenceTypeFactory.create(fill_worktime=True)
-    AbsenceTypeFactory.create()
+def test_absence_type_list_filter_fill_worktime(
+    internal_employee_client, absence_type_factory
+):
+    absence_type = absence_type_factory.create(fill_worktime=True)
+    absence_type_factory.create()
 
     url = reverse("absence-type-list")
 
@@ -57,10 +63,12 @@ def test_absence_type_list_filter_fill_worktime(internal_employee_client):
         (False, status.HTTP_404_NOT_FOUND),
     ],
 )
-def test_absence_type_detail(auth_client, is_employed, expected):
-    absence_type = AbsenceTypeFactory.create()
+def test_absence_type_detail(
+    auth_client, is_employed, expected, absence_type_factory, employment_factory
+):
+    absence_type = absence_type_factory.create()
     if is_employed:
-        EmploymentFactory.create(user=auth_client.user)
+        employment_factory.create(user=auth_client.user)
 
     url = reverse("absence-type-detail", args=[absence_type.id])
 
@@ -76,8 +84,8 @@ def test_absence_type_create(auth_client):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_absence_type_update(auth_client):
-    absence_type = AbsenceTypeFactory.create()
+def test_absence_type_update(auth_client, absence_type_factory):
+    absence_type = absence_type_factory.create()
 
     url = reverse("absence-type-detail", args=[absence_type.id])
 
@@ -85,8 +93,8 @@ def test_absence_type_update(auth_client):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_absence_type_delete(auth_client):
-    absence_type = AbsenceTypeFactory.create()
+def test_absence_type_delete(auth_client, absence_type_factory):
+    absence_type = absence_type_factory.create()
 
     url = reverse("absence-type-detail", args=[absence_type.id])
 

@@ -3,7 +3,6 @@ from django.urls import reverse
 from rest_framework.status import HTTP_200_OK
 
 from timed.conftest import setup_customer_and_employment_status
-from timed.projects.factories import CustomerAssigneeFactory
 
 
 @pytest.mark.parametrize(
@@ -20,9 +19,15 @@ from timed.projects.factories import CustomerAssigneeFactory
     ],
 )
 def test_customer_assignee_list(
-    auth_client, is_employed, is_external, is_customer_assignee, is_customer, expected
+    auth_client,
+    is_employed,
+    is_external,
+    is_customer_assignee,
+    is_customer,
+    expected,
+    customer_assignee_factory,
 ):
-    customer_assignee = CustomerAssigneeFactory.create()
+    customer_assignee = customer_assignee_factory.create()
     user = auth_client.user
     setup_customer_and_employment_status(
         user=user,

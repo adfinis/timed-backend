@@ -5,14 +5,6 @@ from django.urls import reverse
 from django.utils.duration import duration_string
 from rest_framework import status
 
-from timed.employment.factories import (
-    EmploymentFactory,
-    OvertimeCreditFactory,
-    PublicHolidayFactory,
-    UserFactory,
-)
-from timed.tracking.factories import AbsenceFactory, ReportFactory
-
 
 def test_worktime_balance_create(auth_client):
     url = reverse("worktime-balance-list")
@@ -38,18 +30,26 @@ def test_worktime_balance_no_employment(auth_client, django_assert_num_queries):
     assert data["attributes"]["balance"] == "00:00:00"
 
 
-def test_worktime_balance_with_employments(auth_client, django_assert_num_queries):
+def test_worktime_balance_with_employments(
+    auth_client,
+    django_assert_num_queries,
+    employment_factory,
+    overtime_credit_factory,
+    public_holiday_factory,
+    report_factory,
+    absence_factory,
+):
     # Calculate over one week
     start_date = date(2017, 3, 19)
     end_date = date(2017, 3, 26)
 
-    employment = EmploymentFactory.create(
+    employment = employment_factory.create(
         user=auth_client.user,
         start_date=start_date,
         worktime_per_day=timedelta(hours=8, minutes=30),
         end_date=date(2017, 3, 23),
     )
-    EmploymentFactory.create(
+    employment_factory.create(
         user=auth_client.user,
         start_date=date(2017, 3, 24),
         worktime_per_day=timedelta(hours=8),
@@ -57,32 +57,32 @@ def test_worktime_balance_with_employments(auth_client, django_assert_num_querie
     )
 
     # Overtime credit of 10 hours
-    OvertimeCreditFactory.create(
+    overtime_credit_factory.create(
         user=auth_client.user, date=start_date, duration=timedelta(hours=10, minutes=30)
     )
 
     # One public holiday during workdays
-    PublicHolidayFactory.create(date=start_date, location=employment.location)
+    public_holiday_factory.create(date=start_date, location=employment.location)
     # One public holiday on weekend
-    PublicHolidayFactory.create(
+    public_holiday_factory.create(
         date=start_date + timedelta(days=1), location=employment.location
     )
 
     # 2x 10 hour reported worktime
-    ReportFactory.create(
+    report_factory.create(
         user=auth_client.user,
         date=start_date + timedelta(days=3),
         duration=timedelta(hours=10),
     )
 
-    ReportFactory.create(
+    report_factory.create(
         user=auth_client.user,
         date=start_date + timedelta(days=4),
         duration=timedelta(hours=10),
     )
 
     # one absence
-    AbsenceFactory.create(user=auth_client.user, date=start_date + timedelta(days=5))
+    absence_factory.create(user=auth_client.user, date=start_date + timedelta(days=5))
 
     url = reverse(
         "worktime-balance-detail",
@@ -127,11 +127,11 @@ def test_worktime_balance_invalid_date(auth_client):
     assert result.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_user_worktime_list_superuser(auth_client):
+def test_user_worktime_list_superuser(auth_client, user_factory):
     auth_client.user.is_superuser = True
     auth_client.user.save()
-    supervisee = UserFactory.create()
-    UserFactory.create()
+    supervisee = user_factory.create()
+    user_factory.create()
     auth_client.user.supervisees.add(supervisee)
 
     url = reverse("worktime-balance-list")
@@ -144,9 +144,9 @@ def test_user_worktime_list_superuser(auth_client):
     assert len(json["data"]) == 3
 
 
-def test_worktime_balance_list_supervisor(auth_client):
-    supervisee = UserFactory.create()
-    UserFactory.create()
+def test_worktime_balance_list_supervisor(auth_client, user_factory):
+    supervisee = user_factory.create()
+    user_factory.create()
     auth_client.user.supervisees.add(supervisee)
 
     url = reverse("worktime-balance-list")
@@ -159,9 +159,9 @@ def test_worktime_balance_list_supervisor(auth_client):
     assert len(json["data"]) == 2
 
 
-def test_worktime_balance_list_filter_user(auth_client):
-    supervisee = UserFactory.create()
-    UserFactory.create()
+def test_worktime_balance_list_filter_user(auth_client, user_factory):
+    supervisee = user_factory.create()
+    user_factory.create()
     auth_client.user.supervisees.add(supervisee)
 
     url = reverse("worktime-balance-list")
@@ -190,24 +190,24 @@ def test_worktime_balance_list_last_reported_date_no_reports(
 
 @pytest.mark.freeze_time("2017-02-02")
 def test_worktime_balance_list_last_reported_date(
-    auth_client, django_assert_num_queries
+    auth_client, django_assert_num_queries, employment_factory, report_factory
 ):
-    EmploymentFactory.create(
+    employment_factory.create(
         user=auth_client.user,
         start_date=date(2017, 2, 1),
         end_date=date(2017, 2, 2),
         worktime_per_day=timedelta(hours=8),
     )
 
-    ReportFactory.create(
+    report_factory.create(
         user=auth_client.user, date=date(2017, 2, 1), duration=timedelta(hours=10)
     )
 
     # reports today and in the future should be ignored
-    ReportFactory.create(
+    report_factory.create(
         user=auth_client.user, date=date(2017, 2, 2), duration=timedelta(hours=10)
     )
-    ReportFactory.create(
+    report_factory.create(
         user=auth_client.user, date=date(2017, 2, 3), duration=timedelta(hours=10)
     )
 
