@@ -80,6 +80,7 @@ ignore = [
 	"D106",    # don't enforce existance of docstrings
 	"D107",    # don't enforce existance of docstrings
 	"RUF012",  # don't require ClassVar annotation
+	"DJ001",   # null=True on string-based fields such as CharField (#1052) 
 ]
 
 [lint.per-file-ignores]
