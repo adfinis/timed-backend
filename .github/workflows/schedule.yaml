@@ -9,7 +9,10 @@ on:
 jobs:
   scan-backend:
     name: Scan backend image
-    uses: ./.github/workflows/trivy-scan.yaml
-    with:
-      image-ref: ghcr.io/adfinis/timed-backend
-      attest: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: adfinis/container-scanning-action@0.2.0
+        with:
+          image-ref: ghcr.io/adfinis/timed-backend
+          attest: true
+          token: ${{ secrets.GITHUB_TOKEN }}
