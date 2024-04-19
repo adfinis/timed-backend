@@ -44,6 +44,10 @@ jobs:
           images: ghcr.io/adfinis/timed-backend
           flavor: |
             latest=auto
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.semrel.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.semrel.outputs.version }}
+            type=semver,pattern={{major}},value=${{ steps.semrel.outputs.version }}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=${{ github.event.repository.description }}
