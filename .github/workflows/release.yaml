@@ -77,7 +77,7 @@ jobs:
             ${{ steps.meta.outputs.labels }}
 
       - name: Sign image and attach SBOM attestation
-        uses: adfinis/container-scanning-action@0.2.0
+        uses: adfinis/container-scanning-action@v0.2.0
         with:
           image-ref: ghcr.io/adfinis/timed-backend
           token: ${{ secrets.GITHUB_TOKEN }}

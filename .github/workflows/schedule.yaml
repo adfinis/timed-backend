@@ -11,7 +11,7 @@ jobs:
     name: Scan backend image
     runs-on: ubuntu-latest
     steps:
-      - uses: adfinis/container-scanning-action@0.2.0
+      - uses: adfinis/container-scanning-action@v0.2.0
         with:
           image-ref: ghcr.io/adfinis/timed-backend
           attest: true
