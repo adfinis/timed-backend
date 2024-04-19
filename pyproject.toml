@@ -48,7 +48,7 @@ django-hurricane = "^1.5.0"
 openpyxl = "3.0.10" # TODO: dependency of `pyexcel-xlsx` Remove as soon as https://github.com/pyexcel/pyexcel-xlsx/issues/52 is resolved.
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.3.7"
+ruff = "^0.4.0"
 coverage = "7.4.4"
 django-extensions = "3.2.3"
 factory-boy = "3.3.0"
