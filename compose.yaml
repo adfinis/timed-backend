@@ -1,6 +1,86 @@
-version: "3.7"
-
+---
 services:
+  backend:
+    user: "${UID:?Set UID env variable to your user id}"
+    build:
+      context: .
+      target: dev
+    depends_on:
+      - mailhog
+      - db
+    environment:
+      - ENV=dev
+      - EMAIL_URL=smtp://mailhog:1025
+      - DJANGO_OIDC_USERNAME_CLAIM=preferred_username
+      - DJANGO_DATABASE_HOST=db
+      - DJANGO_DATABASE_PORT=5432
+      - STATIC_ROOT=/var/www/static
+    volumes:
+      - ./:/app
+    ports:
+      - 8000:8080
+      - 8081:8081
+    networks:
+      - timed.local
+
+  frontend:
+    image: ghcr.io/adfinis/timed-frontend:latest
+    ports:
+      - 4200:80
+    environment:
+      - TIMED_SSO_CLIENT_HOST=http://timed.local/auth/realms/timed/protocol/openid-connect
+      - TIMED_SSO_CLIENT_ID=timed-public
+    networks:
+      - timed.local
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:10.0.1
+    volumes:
+      - ./dev-config/keycloak-config.json:/etc/keycloak/keycloak-config.json:rw
+    depends_on:
+      - db
+    environment:
+      - DB_VENDOR=postgres
+      - DB_ADDR=db
+      - DB_USER=timed
+      - DB_DATABASE=timed
+      - DB_PASSWORD=timed
+      - PROXY_ADDRESS_FORWARDING=true
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+    # start keycloak with the following command to perform an export of the `timed` realm.
+    #command: ["-Dkeycloak.migration.action=export", "-Dkeycloak.migration.realmName=timed", "-Dkeycloak.migration.provider=singleFile", "-Dkeycloak.migration.file=/etc/keycloak/keycloak-config.json", "-b", "0.0.0.0"]
+    command:
+      [
+        "-Dkeycloak.migration.action=import",
+        "-Dkeycloak.migration.provider=singleFile",
+        "-Dkeycloak.migration.file=/etc/keycloak/keycloak-config.json",
+        "-b",
+        "0.0.0.0",
+      ]
+    networks:
+      - timed.local
+
+  proxy:
+    image: nginx:1.17.10-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./dev-config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      timed.local:
+        aliases:
+          - timed.local
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025
+    environment:
+      - MH_UI_WEB_PATH=mailhog
+    networks:
+      - timed.local
+
   db:
     image: postgres:14.4
     ports:
@@ -10,19 +90,6 @@ services:
     environment:
       - POSTGRES_USER=timed
       - POSTGRES_PASSWORD=timed
-    networks:
-      - timed.local
-
-  backend:
-    build: .
-    ports:
-      - 8000:8080
-    depends_on:
-      - db
-    environment:
-      - DJANGO_DATABASE_HOST=db
-      - DJANGO_DATABASE_PORT=5432
-      - STATIC_ROOT=/var/www/static
     networks:
       - timed.local
 
