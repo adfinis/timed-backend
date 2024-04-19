@@ -76,24 +76,10 @@ jobs:
           labels: |
             ${{ steps.meta.outputs.labels }}
 
-      - name: Run Trivy vulnerability scanner on api
-        if: steps.semrel.outputs.version != ''
-        uses: aquasecurity/trivy-action@0.19.0
+      - name: Sign image and attach SBOM attestation
+        uses: adfinis/container-scanning-action@0.2.0
         with:
           image-ref: ghcr.io/adfinis/timed-backend
-          format: "cyclonedx"
-          output: "trivy.cdx"
-
-      - name: Install Cosign
-        if: steps.semrel.outputs.version != ''
-        uses: sigstore/cosign-installer@v3.4.0
-
-      - name: Sign the image with GitHub OIDC Token using cosign
-        if: steps.semrel.outputs.version != ''
-        run: |
-          cosign sign --yes ghcr.io/adfinis/timed-backend@${{ steps.docker.outputs.digest }}
-
-      - name: Attach an SBOM attestation to the signed image
-        if: steps.semrel.outputs.version != ''
-        run: |
-          cosign attest --yes --type cyclonedx --predicate trivy.cdx ghcr.io/adfinis/timed-backend@${{ steps.docker.outputs.digest }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          digest: ${{ steps.docker.outputs.digest }}
+          attest: true
