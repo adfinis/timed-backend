@@ -12,3 +12,4 @@ jobs:
     uses: ./.github/workflows/trivy-scan.yaml
     with:
       image-ref: ghcr.io/adfinis/timed-backend
+      attest: true

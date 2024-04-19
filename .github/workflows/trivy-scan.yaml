@@ -8,6 +8,10 @@ on:
         required: true
         type: string
         description: The image to scan e.g. ghcr.io/owner/image
+      attest:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   trivy-scan:
@@ -22,7 +26,8 @@ jobs:
       repository-projects: none
       security-events: write
       statuses: none
-      id-token: none
+      # needed for `cosign attest`
+      id-token: write
 
     runs-on: ubuntu-latest
     name: Scan ${{ inputs.image-ref }}
@@ -38,7 +43,17 @@ jobs:
         uses: aquasecurity/trivy-action@0.19.0
         with:
           image-ref: ${{ inputs.image-ref }}
+          format: "json"
+          output: "trivy.json"
+
+      - name: Convert results to sarif
+        uses: aquasecurity/trivy-action@0.19.0
+        with:
+          image-ref: trivy.json
+          scan-type: "convert"
           format: "sarif"
+          # skip --vuln-type arg
+          vuln-type: ""
           output: "trivy.sarif"
 
       - name: Upload Trivy scan results to GitHub Security tab
@@ -46,3 +61,18 @@ jobs:
         if: always()
         with:
           sarif_file: "trivy.sarif"
+
+      - name: Convert trivy results to cosign-vuln
+        if: ${{ inputs.attest }}
+        uses: aquasecurity/trivy-action@0.19.0
+        with:
+          image-ref: trivy.json
+          scan-type: "convert"
+          format: "cosign-vuln"
+          # skip --vuln-type arg
+          vuln-type: ""
+          output: "trivy.cosign.json"
+
+      - name: Attach a security attestation to the signed image
+        if: ${{ inputs.attest }}
+        run: cosign attest --yes --type vuln --predicate trivy.cosign.json ${{ inputs.image-ref }}

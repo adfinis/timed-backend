@@ -9,6 +9,18 @@ jobs:
   semrel:
     name: Semantic Release
     runs-on: ubuntu-latest
+    permissions:
+      actions: none
+      checks: none
+      contents: none
+      deployments: none
+      issues: none
+      packages: write
+      pull-requests: none
+      repository-projects: none
+      security-events: none
+      statuses: none
+      id-token: write # needed for signing the images with GitHub OIDC using cosign
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,6 +62,7 @@ jobs:
 
       - name: Build and push
         if: steps.semrel.outputs.version != ''
+        id: docker
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -58,3 +71,25 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: |
             ${{ steps.meta.outputs.labels }}
+
+      - name: Run Trivy vulnerability scanner on api
+        if: steps.semrel.outputs.version != ''
+        uses: aquasecurity/trivy-action@0.19.0
+        with:
+          image-ref: ghcr.io/adfinis/timed-backend
+          format: "cyclonedx"
+          output: "trivy.cdx"
+
+      - name: Install Cosign
+        if: steps.semrel.outputs.version != ''
+        uses: sigstore/cosign-installer@v3.4.0
+
+      - name: Sign the image with GitHub OIDC Token using cosign
+        if: steps.semrel.outputs.version != ''
+        run: |
+          cosign sign --yes ghcr.io/adfinis/timed-backend@${{ steps.docker.outputs.digest }}
+
+      - name: Attach an SBOM attestation to the signed image
+        if: steps.semrel.outputs.version != ''
+        run: |
+          cosign attest --yes --type cyclonedx --predicate trivy.cdx ghcr.io/adfinis/timed-backend@${{ steps.docker.outputs.digest }}
