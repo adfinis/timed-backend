@@ -75,3 +75,6 @@ target/
 
 # PyCharm
 .idea
+
+# local overrides
+*.override.*
