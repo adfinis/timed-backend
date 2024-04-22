@@ -138,21 +138,6 @@ class ReportViewSet(ModelViewSet):
 
         try:
             current_employment = Employment.objects.get_at(user=user, date=date.today())
-            if not current_employment.is_external:
-                return queryset
-
-            assigned_tasks = Task.objects.filter(
-                Q(task_assignees__user=user, task_assignees__is_reviewer=True)
-                | Q(
-                    project__project_assignees__user=user,
-                    project__project_assignees__is_reviewer=True,
-                )
-                | Q(
-                    project__customer__customer_assignees__user=user,
-                    project__customer__customer_assignees__is_reviewer=True,
-                )
-            )
-            return queryset.filter(Q(task__in=assigned_tasks) | Q(user=user))
         except Employment.DoesNotExist:
             if CustomerAssignee.objects.filter(user=user, is_customer=True).exists():
                 return queryset.filter(
@@ -163,6 +148,21 @@ class ReportViewSet(ModelViewSet):
                 )
             msg = "User has no employment and isn't a customer!"
             raise exceptions.PermissionDenied(msg) from None
+        if not current_employment.is_external:
+            return queryset
+
+        assigned_tasks = Task.objects.filter(
+            Q(task_assignees__user=user, task_assignees__is_reviewer=True)
+            | Q(
+                project__project_assignees__user=user,
+                project__project_assignees__is_reviewer=True,
+            )
+            | Q(
+                project__customer__customer_assignees__user=user,
+                project__customer__customer_assignees__is_reviewer=True,
+            )
+        )
+        return queryset.filter(Q(task__in=assigned_tasks) | Q(user=user))
 
     def update(self, request, *args, **kwargs):
         """Override so we can issue emails on update."""
