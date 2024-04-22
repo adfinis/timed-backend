@@ -9,7 +9,6 @@ from nested_inline.admin import NestedModelAdmin, NestedStackedInline
 from timed.forms import DurationInHoursField
 from timed.projects import models
 from timed.redmine.admin import RedmineProjectInline
-from timed.subscription.admin import CustomerPasswordInline
 
 
 class CustomerAssigneeInline(admin.TabularInline):
@@ -36,7 +35,7 @@ class CustomerAdmin(admin.ModelAdmin):
 
     list_display = ["name"]
     search_fields = ["name"]
-    inlines = [CustomerPasswordInline, CustomerAssigneeInline]
+    inlines = [CustomerAssigneeInline]
 
     def has_delete_permission(self, request, obj=None):
         return obj and not obj.projects.exists()
