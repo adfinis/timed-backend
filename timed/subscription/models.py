@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 from djmoney.models.fields import MoneyField
 
 
@@ -40,15 +39,3 @@ class Order(models.Model):
         blank=True,
         related_name="orders_confirmed",
     )
-
-
-class CustomerPassword(models.Model):
-    """
-    Password per customer used for login into SySupport portal.
-
-    Password are only hashed with md5. This model will be obsolete
-    once customer center will go live.
-    """
-
-    customer = models.OneToOneField("projects.Customer", on_delete=models.CASCADE)
-    password = models.CharField(_("password"), max_length=128, null=True, blank=True)
