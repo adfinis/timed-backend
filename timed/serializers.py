@@ -7,7 +7,7 @@ from django.utils.duration import duration_string
 class TotalTimeRootMetaMixin:
     duration_field = "duration"
 
-    def get_root_meta(self, _, many):
+    def get_root_meta(self, _resource, many):
         """Add total hours over whole result (not just page) to meta."""
         if many:
             view = self.context["view"]

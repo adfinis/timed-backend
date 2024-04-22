@@ -11,7 +11,7 @@ from timed.tracking import models as tracking_models
 class IsUnverified(BasePermission):
     """Allows access only to verified objects."""
 
-    def has_object_permission(self, _, __, obj):
+    def has_object_permission(self, _request, _view, obj):
         return obj.verified_by_id is None
 
 
@@ -161,7 +161,7 @@ class IsSuperUser(IsAuthenticated):
 class IsNotTransferred(IsAuthenticated):
     """Allows access only to not transferred objects."""
 
-    def has_object_permission(self, _, __, obj):
+    def has_object_permission(self, _request, _view, obj):
         return not obj.transferred
 
 

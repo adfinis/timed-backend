@@ -104,7 +104,7 @@ class ReportFilterSet(FilterSet):
     cost_center = NumberFilter(method="filter_cost_center")
     rejected = NumberFilter(field_name="rejected")
 
-    def filter_has_reviewer(self, queryset, _, value):
+    def filter_has_reviewer(self, queryset, _name, value):
         if not value:  # pragma: no cover
             return queryset
 
@@ -158,7 +158,7 @@ class ReportFilterSet(FilterSet):
             | reports_task_assignee_is_reviewer
         )
 
-    def filter_editable(self, queryset, _, value):
+    def filter_editable(self, queryset, _name, value):
         """Filter reports whether they are editable by current user.
 
         When set to `1` filter all results to what is editable by current
@@ -203,7 +203,7 @@ class ReportFilterSet(FilterSet):
 
         return queryset.exclude(editable_filter)
 
-    def filter_cost_center(self, queryset, _, value):
+    def filter_cost_center(self, queryset, _name, value):
         """Filter report by cost center.
 
         Cost center on task has higher priority over project cost

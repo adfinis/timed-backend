@@ -11,7 +11,7 @@ from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssigne
 
 
 class StatisticFiltersetBase:
-    def filter_has_reviewer(self, queryset, _, value):
+    def filter_has_reviewer(self, queryset, _name, value):
         if not value:  # pragma: no cover
             return queryset
 
@@ -37,7 +37,7 @@ class StatisticFiltersetBase:
         )
         return queryset.filter_aggregate(the_filter).filter_base(the_filter)
 
-    def filter_cost_center(self, queryset, _, value):
+    def filter_cost_center(self, queryset, _name, value):
         """Filter report by cost center.
 
         The filter behaves slightly different depending on what the

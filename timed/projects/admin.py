@@ -37,7 +37,7 @@ class CustomerAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     inlines = (CustomerAssigneeInline,)
 
-    def has_delete_permission(self, _, obj=None):
+    def has_delete_permission(self, _request, obj=None):
         return obj and not obj.projects.exists()
 
 
@@ -125,7 +125,7 @@ class ProjectAdmin(NestedModelAdmin):
 
     inlines = (TaskInline, RedmineProjectInline, ProjectAssigneeInline)
 
-    def has_delete_permission(self, _, obj=None):
+    def has_delete_permission(self, _request, obj=None):
         return obj and not obj.tasks.exists()
 
 

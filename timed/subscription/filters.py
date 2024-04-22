@@ -8,7 +8,7 @@ from . import models
 class PackageFilter(FilterSet):
     customer = NumberFilter(method="filter_customer")
 
-    def filter_customer(self, queryset, _, value):
+    def filter_customer(self, queryset, _name, value):
         billing_types = Project.objects.filter(customer=value).values("billing_type")
         return queryset.filter(billing_type__in=billing_types)
 

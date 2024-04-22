@@ -95,7 +95,7 @@ def notify_user_rejected_report(report, reviewer):
     _send_notification_emails([user_changes], reviewer, rejected=True)
 
 
-def notify_user_rejected_reports(queryset, _, reviewer):
+def notify_user_rejected_reports(queryset, _fields, reviewer):
     users = [report.user for report in queryset.order_by("user").distinct("user")]
     user_changes = []
 

@@ -64,7 +64,7 @@ class ProjectSerializer(ModelSerializer):
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
     }
 
-    def get_root_meta(self, _, many):
+    def get_root_meta(self, _resource, many):
         if not many:
             queryset = Report.objects.filter(task__project=self.instance)
             data = queryset.aggregate(spent_time=Sum("duration"))
@@ -134,7 +134,7 @@ class TaskSerializer(ModelSerializer):
         "cost_center": "timed.projects.serializers.CostCenterSerializer",
     }
 
-    def get_root_meta(self, _, many):
+    def get_root_meta(self, _resource, many):
         if not many:
             queryset = Report.objects.filter(task=self.instance)
             data = queryset.aggregate(spent_time=Sum("duration"))
