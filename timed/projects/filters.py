@@ -82,15 +82,11 @@ class ProjectFilterSet(FilterSet):
 
 
 class MyMostFrequentTaskFilter(Filter):
-    """Filter most frequently used tasks.
+    """Filter most frequently used tasks."""
 
-    Todo:
-    ----
-    From an api and framework standpoint instead of an additional filter it
-    would be more desirable to assign an ordering field frecency and to
-    limit by use paging.  This is way harder to implement therefore on hold.
-
-    """
+    # TODO: From an api and framework standpoint instead of an additional filter it
+    # would be more desirable to assign an ordering field frecency and to
+    # limit by use paging.  This is way harder to implement therefore on hold.
 
     def filter(self, qs, value):
         """Filter for given most frequently used tasks.
