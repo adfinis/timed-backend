@@ -18,7 +18,7 @@ jobs:
       packages: write
       pull-requests: none
       repository-projects: none
-      security-events: none
+      security-events: write # needed to write sarif to security tab
       statuses: none
       id-token: write # needed for signing the images with GitHub OIDC using cosign
     steps:
