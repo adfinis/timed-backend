@@ -36,12 +36,8 @@ class ReportFactory(DjangoModelFactory):
     user = SubFactory("timed.employment.factories.UserFactory")
 
     @lazy_attribute
-    def duration(self):
-        """Generate a random duration between 0 and 5 hours.
-
-        :return: The generated duration
-        :rtype:  datetime.timedelta
-        """
+    def duration(self) -> datetime.timedelta:
+        """Generate a random duration between 0 and 5 hours."""
         return datetime.timedelta(hours=randint(0, 4), minutes=randint(0, 59))
 
     class Meta:

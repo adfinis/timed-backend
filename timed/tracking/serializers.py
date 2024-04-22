@@ -434,13 +434,10 @@ class AbsenceSerializer(ModelSerializer):
 
         return value
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         """Validate the absence data.
 
         An absence should not be created on a public holiday or a weekend.
-
-        :returns: The validated data
-        :rtype:   dict
         """
         instance = self.instance
         user = data.get("user", instance and instance.user)

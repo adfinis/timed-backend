@@ -37,11 +37,7 @@ class Customer(models.Model):
         ordering = ("name",)
 
     def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+        """Represent the model as a string."""
         return self.name
 
 
@@ -68,6 +64,7 @@ class BillingType(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """Represent the model as a string."""
         return self.name
 
 
@@ -119,12 +116,8 @@ class Project(models.Model):
     class Meta:
         ordering = ("name",)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return f"{self.customer} > {self.name}"
 
 
@@ -167,12 +160,8 @@ class Task(models.Model):
 
         ordering = ("name",)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return f"{self.project} > {self.name}"
 
 
@@ -188,12 +177,8 @@ class TaskTemplate(models.Model):
     class Meta:
         ordering = ("name",)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return self.name
 
 
@@ -217,6 +202,7 @@ class CustomerAssignee(models.Model):
     is_customer = models.BooleanField(default=False)
 
     def __str__(self) -> str:
+        """Represent the model as a string."""
         return f"{self.user.username} {self.customer}"
 
 

@@ -37,12 +37,8 @@ class Activity(models.Model):
         verbose_name_plural = "activities"
         indexes = (models.Index(fields=["date"]),)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return f"{self.user}: {self.task}"
 
 
@@ -61,12 +57,8 @@ class Attendance(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="attendances"
     )
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return "{}: {} {} - {}".format(
             self.user,
             self.date.strftime("%Y-%m-%d"),
@@ -108,12 +100,8 @@ class Report(models.Model):
 
         indexes = (models.Index(fields=["date"]),)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return f"{self.user}: {self.task}"
 
     def save(self, *args, **kwargs):
@@ -153,12 +141,8 @@ class Absence(models.Model):
             "user",
         )
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return "{}: {} {}".format(
             self.user,
             self.date.strftime("%Y-%m-%d"),

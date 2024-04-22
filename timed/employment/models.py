@@ -30,12 +30,8 @@ class Location(models.Model):
     class Meta:
         ordering = ("name",)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return self.name
 
 
@@ -58,12 +54,8 @@ class PublicHoliday(models.Model):
         indexes = (models.Index(fields=["date"]),)
         ordering = ("date",)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return "{} {}".format(self.name, self.date.strftime("%Y"))
 
 
@@ -80,12 +72,8 @@ class AbsenceType(models.Model):
     class Meta:
         ordering = ("name",)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return self.name
 
     def calculate_credit(self, user, start, end):
@@ -232,12 +220,8 @@ class Employment(models.Model):
 
         indexes = (models.Index(fields=["start_date", "end_date"]),)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return "{} ({} - {})".format(
             self.user.username,
             self.start_date.strftime("%d.%m.%Y"),

@@ -60,12 +60,8 @@ class EmploymentFactory(DjangoModelFactory):
     is_external = False
 
     @lazy_attribute
-    def worktime_per_day(self):
-        """Generate the worktime per day based on the percentage.
-
-        :return: The generated worktime
-        :rtype:  datetime.timedelta
-        """
+    def worktime_per_day(self) -> datetime.timedelta:
+        """Generate the worktime per day based on the percentage."""
         return datetime.timedelta(minutes=60 * 8.5 * self.percentage / 100)
 
     class Meta:
@@ -107,12 +103,8 @@ class OvertimeCreditFactory(DjangoModelFactory):
     date = Faker("date_object")
 
     @lazy_attribute
-    def duration(self):
-        """Generate a random duration.
-
-        :return: The generated duration
-        :rtype:  datetime.timedelta
-        """
+    def duration(self) -> datetime.timedelta:
+        """Generate a random duration."""
         return datetime.timedelta(hours=random.randint(5, 40))
 
     class Meta:

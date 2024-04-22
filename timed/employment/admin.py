@@ -80,15 +80,11 @@ class EmploymentForm(forms.ModelForm):
 
     worktime_per_day = DurationInHoursField(label=_("Worktime per day in hours"))
 
-    def clean(self):
+    def clean(self) -> dict:
         """Validate the employment as a whole.
 
         Ensure the end date is after the start date and there is only one
         active employment per user and there are no overlapping employments.
-
-        :throws: django.core.exceptions.ValidationError
-        :return: The cleaned data
-        :rtype:  dict
         """
         data = super().clean()
 

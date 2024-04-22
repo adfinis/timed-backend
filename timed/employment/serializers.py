@@ -237,15 +237,11 @@ class EmploymentSerializer(ModelSerializer):
         "location": "timed.employment.serializers.LocationSerializer",
     }
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         """Validate the employment as a whole.
 
         Ensure the end date is after the start date and there is only one
         active employment per user and there are no overlapping employments.
-
-        :throws: django.core.exceptions.ValidationError
-        :return: validated data
-        :rtype:  dict
         """
         instance = self.instance
         start_date = data.get("start_date", instance and instance.start_date)
