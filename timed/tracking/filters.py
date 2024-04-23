@@ -45,7 +45,7 @@ class ActivityActiveFilter(Filter):
     """
 
     @boolean_filter
-    def filter(self, qs, *args, **kwargs):
+    def filter(self, qs, _value):
         """Filter the queryset.
 
         :param QuerySet qs: The queryset to filter

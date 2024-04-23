@@ -18,50 +18,50 @@ class IsUnverified(BasePermission):
 class IsReadOnly(BasePermission):
     """Allows read only methods."""
 
-    def has_permission(self, request, *args, **kwargs):
+    def has_permission(self, request, _view):
         return request.method in SAFE_METHODS
 
-    def has_object_permission(self, request, view, *args, **kwargs):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsDeleteOnly(BasePermission):
     """Allows only delete method."""
 
-    def has_permission(self, request, *args, **kwargs):
+    def has_permission(self, request, _view):
         return request.method == "DELETE"
 
-    def has_object_permission(self, request, view, *args, **kwargs):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsNotDelete(BasePermission):
     """Disallow delete method."""
 
-    def has_permission(self, request, *args, **kwargs):
+    def has_permission(self, request, _view):
         return request.method != "DELETE"
 
-    def has_object_permission(self, request, view, *args, **kwargs):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsCreateOnly(BasePermission):
     """Allows only create method."""
 
-    def has_permission(self, request, *args, **kwargs):
+    def has_permission(self, request, _view):
         return request.method == "POST"
 
-    def has_object_permission(self, request, view, *args, **kwargs):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsUpdateOnly(BasePermission):
     """Allows only update method."""
 
-    def has_permission(self, request, *args, **kwargs):
+    def has_permission(self, request, _view):
         return request.method in ["PATCH", "PUT"]
 
-    def has_object_permission(self, request, view, *args, **kwargs):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
@@ -72,7 +72,7 @@ class IsAuthenticated(IsAuthenticated):
     operator.
     """
 
-    def has_object_permission(self, request, view, *args, **kwargs):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
@@ -154,7 +154,7 @@ class IsSuperUser(IsAuthenticated):
 
         return request.user.is_superuser
 
-    def has_object_permission(self, request, view, *args, **kwargs):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 

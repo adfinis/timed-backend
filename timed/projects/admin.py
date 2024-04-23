@@ -95,7 +95,7 @@ class TaskInline(NestedStackedInline):
     extra = 0
     inlines = (TaskAssigneeInline,)
 
-    def has_delete_permission(self, *args, **kwargs):
+    def has_delete_permission(self, _request, _obj):
         # for some reason obj is parent object and not task
         # so this doesn't work
         return False

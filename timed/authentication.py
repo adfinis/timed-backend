@@ -12,7 +12,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 
 class TimedOIDCAuthenticationBackend(OIDCAuthenticationBackend):
-    def get_introspection(self, access_token, *args, **kwargs):
+    def get_introspection(self, access_token, _id_token, _payload):
         """Return user details dictionary."""
         basic = base64.b64encode(
             f"{settings.OIDC_RP_INTROSPECT_CLIENT_ID}:{settings.OIDC_RP_INTROSPECT_CLIENT_SECRET}".encode()
@@ -57,7 +57,7 @@ class TimedOIDCAuthenticationBackend(OIDCAuthenticationBackend):
                     return claims
             raise AuthenticationFailed from exc
 
-    def get_or_create_user(self, access_token, *args, **kwargs):
+    def get_or_create_user(self, access_token, _id_token, _payload):
         """Verify claims and return user, otherwise raise an Exception."""
         claims = self.get_userinfo_or_introspection(access_token)
 
