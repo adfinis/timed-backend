@@ -3,9 +3,8 @@ from rest_framework_json_api import relations
 from timed.serializers import AggregateObject
 
 
-class AggregateQuerysetMixin(object):
-    """
-    Add support for aggregate queryset in view.
+class AggregateQuerysetMixin:
+    """Add support for aggregate queryset in view.
 
     Wrap queryst dicts into aggregate object to support renderer
     which expect attributes.
@@ -31,8 +30,7 @@ class AggregateQuerysetMixin(object):
     """
 
     def _is_related_field(self, val):
-        """
-        Check whether value is a related field.
+        """Check whether value is a related field.
 
         Ignores serializer method fields which define logic separately.
         """
@@ -52,7 +50,7 @@ class AggregateQuerysetMixin(object):
         # prefetch data for all related fields
         prefetch_per_field = {}
         serializer_class = self.get_serializer_class()
-        for key, value in serializer_class._declared_fields.items():
+        for key, value in serializer_class._declared_fields.items():  # noqa: SLF001
             if self._is_related_field(value):
                 source = value.source or key
                 if many:

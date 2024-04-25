@@ -4,10 +4,10 @@ from django.db.models import Sum
 from django.utils.duration import duration_string
 
 
-class TotalTimeRootMetaMixin(object):
+class TotalTimeRootMetaMixin:
     duration_field = "duration"
 
-    def get_root_meta(self, resource, many):
+    def get_root_meta(self, _resource, many):
         """Add total hours over whole result (not just page) to meta."""
         if many:
             view = self.context["view"]
@@ -19,8 +19,7 @@ class TotalTimeRootMetaMixin(object):
 
 
 class AggregateObject(dict):
-    """
-    Wrap dict into an object.
+    """Wrap dict into an object.
 
     All values will be accessible through attributes. Note that
     keys must be valid python names for this to work.

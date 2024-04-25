@@ -67,9 +67,9 @@ def test_report_intersection_full(
 
     json = response.json()
     pk = json["data"].pop("id")
-    assert "task={0}".format(report.task.id) in pk
-    assert "project={0}".format(report.task.project.id) in pk
-    assert "customer={0}".format(report.task.project.customer.id) in pk
+    assert f"task={report.task.id}" in pk
+    assert f"project={report.task.project.id}" in pk
+    assert f"customer={report.task.project.customer.id}" in pk
 
     included = json.pop("included")
     assert len(included) == 3
@@ -245,7 +245,7 @@ def test_report_list_filter_id(
     url = reverse("report-list")
 
     response = internal_employee_client.get(
-        url, data={"id": "{0},{1}".format(report_1.id, report_2.id), "ordering": "id"}
+        url, data={"id": f"{report_1.id},{report_2.id}", "ordering": "id"}
     )
     assert response.status_code == status.HTTP_200_OK
     json = response.json()
@@ -455,7 +455,6 @@ def test_report_list_filter_billed(
 
 def test_report_export_missing_type(
     internal_employee_client,
-    report_factory,
 ):
     user = internal_employee_client.user
     url = reverse("report-export")
@@ -479,7 +478,13 @@ def test_report_detail(
 
 
 @pytest.mark.parametrize(
-    "task_assignee__is_reviewer, task_assignee__is_manager, task_assignee__is_resource, is_external, expected",
+    (
+        "task_assignee__is_reviewer",
+        "task_assignee__is_manager",
+        "task_assignee__is_resource",
+        "is_external",
+        "expected",
+    ),
     [
         (True, False, False, True, status.HTTP_400_BAD_REQUEST),
         (False, True, False, True, status.HTTP_403_FORBIDDEN),
@@ -489,9 +494,7 @@ def test_report_detail(
         (False, False, True, False, status.HTTP_201_CREATED),
     ],
 )
-def test_report_create(
-    auth_client, report_factory, task_factory, task_assignee, is_external, expected
-):
+def test_report_create(auth_client, task_factory, task_assignee, is_external, expected):
     """Should create a new report and automatically set the user."""
     user = auth_client.user
     task = task_factory.create()
@@ -532,9 +535,7 @@ def test_report_create(
         assert json["data"]["relationships"]["task"]["data"]["id"] == str(task.id)
 
 
-def test_report_create_billed(
-    internal_employee_client, report_factory, project_factory, task_factory
-):
+def test_report_create_billed(internal_employee_client, project_factory, task_factory):
     """Should create a new report and automatically set the user."""
     user = internal_employee_client.user
     project = project_factory.create(billed=True)
@@ -649,7 +650,7 @@ def test_report_update_bulk_verify_reviewer(
     }
 
     response = internal_employee_client.post(
-        url + "?editable=1&reviewer={0}".format(user.id), data
+        url + f"?editable=1&reviewer={user.id}", data
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -678,7 +679,6 @@ def test_report_update_bulk_reset_verify(superadmin_client, report_factory):
 
 def test_report_update_bulk_not_editable(
     internal_employee_client,
-    report_factory,
 ):
     url = reverse("report-bulk")
 
@@ -1005,7 +1005,14 @@ def test_report_reset_verified_and_billed_by_reviewer(
 
 
 @pytest.mark.parametrize(
-    "task_assignee__is_reviewer, task_assignee__is_manager, task_assignee__is_resource, is_external, verified, expected",
+    (
+        "task_assignee__is_reviewer",
+        "task_assignee__is_manager",
+        "task_assignee__is_resource",
+        "is_external",
+        "verified",
+        "expected",
+    ),
     [
         (True, False, False, False, True, status.HTTP_403_FORBIDDEN),
         (True, False, False, False, False, status.HTTP_204_NO_CONTENT),
@@ -1044,7 +1051,13 @@ def test_report_delete_own_report(
 
 
 @pytest.mark.parametrize(
-    "task_assignee__is_reviewer, task_assignee__is_manager, task_assignee__is_resource, is_external, verified",
+    (
+        "task_assignee__is_reviewer",
+        "task_assignee__is_manager",
+        "task_assignee__is_resource",
+        "is_external",
+        "verified",
+    ),
     [
         (True, False, False, False, True),
         (True, False, False, False, False),
@@ -1089,7 +1102,8 @@ def test_report_delete_not_report_owner(
     ]
 
 
-def test_report_round_duration(db, report_factory):
+@pytest.mark.django_db()
+def test_report_round_duration(report_factory):
     """Should round the duration of a report to 15 minutes."""
     report = report_factory.create()
 
@@ -1162,11 +1176,11 @@ def test_report_list_filter_cost_center(
 
 @pytest.mark.parametrize("file_type", ["csv", "xlsx", "ods"])
 @pytest.mark.parametrize(
-    "project_cs_name,task_cs_name,project_bt_name",
+    ("project_cs_name", "task_cs_name", "project_bt_name"),
     [("Project cost center", "Task cost center", "Some billing type")],
 )
 @pytest.mark.parametrize(
-    "project_cs,task_cs,expected_cs_name",
+    ("project_cs", "task_cs", "expected_cs_name"),
     [
         (True, True, "Task cost center"),
         (True, False, "Project cost center"),
@@ -1175,7 +1189,7 @@ def test_report_list_filter_cost_center(
     ],
 )
 @pytest.mark.parametrize(
-    "project_bt,expected_bt_name", [(True, "Some billing type"), (False, "")]
+    ("project_bt", "expected_bt_name"), [(True, "Some billing type"), (False, "")]
 )
 def test_report_export(
     internal_employee_client,
@@ -1224,7 +1238,7 @@ def test_report_export(
 
 
 @pytest.mark.parametrize(
-    "settings_count,given_count,expected_status",
+    ("settings_count", "given_count", "expected_status"),
     [
         (-1, 9, status.HTTP_200_OK),
         (0, 9, status.HTTP_200_OK),
@@ -1234,7 +1248,6 @@ def test_report_export(
 )
 def test_report_export_max_count(
     internal_employee_client,
-    django_assert_num_queries,
     report_factory,
     task,
     settings,
@@ -1298,14 +1311,14 @@ def test_report_update_bulk_verify_reviewer_multiple_notify(
     # every user received one mail
     assert len(mailoutbox) == 3
     assert all(True for mail in mailoutbox if len(mail.to) == 1)
-    assert set(mail.to[0] for mail in mailoutbox) == set(
+    assert {mail.to[0] for mail in mailoutbox} == {
         user.email for user in [user1, user2, user3]
-    )
+    }
 
 
 @pytest.mark.parametrize("own_report", [True, False])
 @pytest.mark.parametrize(
-    "has_attributes,different_attributes,verified,expected",
+    ("has_attributes", "different_attributes", "verified", "expected"),
     [
         (True, True, True, True),
         (True, True, False, True),
@@ -1426,11 +1439,13 @@ def test_report_notify_rendering(
     snapshot.assert_match(mailoutbox[0].body)
 
 
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("project", "task")
 @pytest.mark.parametrize(
-    "report__review,needs_review", [(True, False), (False, True), (True, True)]
+    ("report__review", "needs_review"), [(True, False), (False, True), (True, True)]
 )
 def test_report_update_bulk_review_and_verified(
-    superadmin_client, project, task, report, user_factory, needs_review
+    superadmin_client, report, needs_review
 ):
     EmploymentFactory.create(user=superadmin_client.user)
     data = {
@@ -1482,7 +1497,7 @@ def test_report_update_bulk_bill_reviewer(
     }
 
     response = internal_employee_client.post(
-        url + "?editable=1&reviewer={0}".format(user.id), data
+        url + f"?editable=1&reviewer={user.id}", data
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -1536,7 +1551,7 @@ def test_report_update_billed_user(
 
 
 @pytest.mark.parametrize(
-    "is_accountant, expected",
+    ("is_accountant", "expected"),
     [
         (True, status.HTTP_200_OK),
         (False, status.HTTP_400_BAD_REQUEST),
@@ -1629,7 +1644,7 @@ def test_report_update_bulk_billed(internal_employee_client, report_factory, tas
     }
 
     response = internal_employee_client.post(
-        url + "?editable=1&reviewer={0}".format(user.id), data
+        url + f"?editable=1&reviewer={user.id}", data
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -1665,7 +1680,7 @@ def test_report_list_external_employee(external_employee_client, report_factory)
 
 
 @pytest.mark.parametrize(
-    "is_assigned, expected, status_code",
+    ("is_assigned", "expected", "status_code"),
     [(True, 1, status.HTTP_200_OK), (False, 0, status.HTTP_403_FORBIDDEN)],
 )
 def test_report_list_no_employment(
@@ -1692,7 +1707,7 @@ def test_report_list_no_employment(
 
 
 @pytest.mark.parametrize(
-    "report_owner, reviewer, expected, mail_count, status_code",
+    ("report_owner", "reviewer", "expected", "mail_count", "status_code"),
     [
         (True, True, False, 0, status.HTTP_400_BAD_REQUEST),
         (False, True, True, 1, status.HTTP_200_OK),
@@ -1766,7 +1781,6 @@ def test_report_update_rejected_owner(
 def test_report_reject_multiple_notify(
     internal_employee_client,
     task,
-    task_factory,
     project,
     report_factory,
     user_factory,
@@ -1804,9 +1818,9 @@ def test_report_reject_multiple_notify(
     # every user received one mail
     assert len(mailoutbox) == 3
     assert all(True for mail in mailoutbox if len(mail.to) == 1)
-    assert set(mail.to[0] for mail in mailoutbox) == set(
+    assert {mail.to[0] for mail in mailoutbox} == {
         user.email for user in [user1, user2, user3]
-    )
+    }
 
 
 def test_report_automatic_unreject(internal_employee_client, report_factory, task):
@@ -1866,7 +1880,7 @@ def test_report_bulk_automatic_unreject(
 
 
 @pytest.mark.parametrize(
-    "is_external, remaining_effort_active, is_superuser, expected",
+    ("is_external", "remaining_effort_active", "is_superuser", "expected"),
     [
         (True, True, False, status.HTTP_403_FORBIDDEN),
         (True, False, False, status.HTTP_403_FORBIDDEN),
@@ -1914,7 +1928,7 @@ def test_report_set_remaining_effort(
 
 
 @pytest.mark.parametrize(
-    "remaining_effort_active, expected",
+    ("remaining_effort_active", "expected"),
     [
         (True, status.HTTP_201_CREATED),
         (False, status.HTTP_400_BAD_REQUEST),
@@ -1922,7 +1936,6 @@ def test_report_set_remaining_effort(
 )
 def test_report_create_remaining_effort(
     internal_employee_client,
-    report_factory,
     project_factory,
     task_factory,
     remaining_effort_active,

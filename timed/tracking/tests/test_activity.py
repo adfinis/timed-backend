@@ -30,7 +30,12 @@ def test_activity_detail(internal_employee_client):
 
 
 @pytest.mark.parametrize(
-    "task_assignee__is_resource, task_assignee__is_reviewer, is_external, expected",
+    (
+        "task_assignee__is_resource",
+        "task_assignee__is_reviewer",
+        "is_external",
+        "expected",
+    ),
     [
         (True, False, True, status.HTTP_201_CREATED),
         (False, True, True, status.HTTP_403_FORBIDDEN),
@@ -102,7 +107,12 @@ def test_activity_create_no_task_external_employee(auth_client, task_assignee):
 
 
 @pytest.mark.parametrize(
-    "task_assignee__is_resource, task_assignee__is_reviewer, is_external, expected",
+    (
+        "task_assignee__is_resource",
+        "task_assignee__is_reviewer",
+        "is_external",
+        "expected",
+    ),
     [
         (True, False, True, status.HTTP_200_OK),
         (False, True, True, status.HTTP_403_FORBIDDEN),
@@ -143,7 +153,12 @@ def test_activity_update(auth_client, is_external, task_assignee, expected):
 
 
 @pytest.mark.parametrize(
-    "task_assignee__is_resource, task_assignee__is_reviewer, is_external, expected",
+    (
+        "task_assignee__is_resource",
+        "task_assignee__is_reviewer",
+        "is_external",
+        "expected",
+    ),
     [
         (True, False, True, status.HTTP_204_NO_CONTENT),
         (False, True, True, status.HTTP_403_FORBIDDEN),

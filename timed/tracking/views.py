@@ -40,13 +40,15 @@ class ActivityViewSet(ModelViewSet):
 
     serializer_class = serializers.ActivitySerializer
     filterset_class = filters.ActivityFilterSet
-    permission_classes = [
-        # users may not change transferred activities
-        IsAuthenticated & IsInternal & IsNotTransferred
-        | IsAuthenticated & IsReadOnly
-        # only external employees with resource role may create not transferred activities
-        | IsAuthenticated & IsExternal & IsResource & IsNotTransferred
-    ]
+    permission_classes = (
+        (
+            # users may not change transferred activities
+            IsAuthenticated & IsInternal & IsNotTransferred
+            | IsAuthenticated & IsReadOnly
+            # only external employees with resource role may create not transferred activities
+            | IsAuthenticated & IsExternal & IsResource & IsNotTransferred
+        ),
+    )
 
     def get_queryset(self):
         """Filter the queryset by the user of the request.
@@ -64,14 +66,16 @@ class AttendanceViewSet(ModelViewSet):
 
     serializer_class = serializers.AttendanceSerializer
     filterset_class = filters.AttendanceFilterSet
-    permission_classes = [
-        # superuser may edit all reports but not delete
-        IsSuperUser & IsNotDelete
-        # internal employees may change own attendances
-        | IsAuthenticated & IsInternal
-        # only external employees with resource role may change own attendances
-        | IsAuthenticated & IsExternal & IsResource
-    ]
+    permission_classes = (
+        (
+            # superuser may edit all reports but not delete
+            IsSuperUser & IsNotDelete
+            # internal employees may change own attendances
+            | IsAuthenticated & IsInternal
+            # only external employees with resource role may change own attendances
+            | IsAuthenticated & IsExternal & IsResource
+        ),
+    )
 
     def get_queryset(self):
         """Filter the queryset by the user of the request.
@@ -92,18 +96,23 @@ class ReportViewSet(ModelViewSet):
     queryset = models.Report.objects.select_related(
         "task", "user", "task__project", "task__project__customer"
     )
-    permission_classes = [
-        # superuser and accountants may edit all reports but not delete
-        (IsSuperUser | IsAccountant) & IsNotDelete
-        # reviewer and supervisor may change reports which aren't verfied but not delete them
-        | (IsReviewer | IsSupervisor) & IsUnverified & IsNotDelete
-        # internal employees may only change its own unverified reports
-        # only external employees with resource role may only change its own unverified reports
-        | IsOwner & IsUnverified & (IsInternal | (IsExternal & IsResource))
-        # all authenticated users may read all reports
-        | IsAuthenticated & IsReadOnly
-    ]
-    ordering = ("date", "id")
+    permission_classes = (
+        (
+            # superuser and accountants may edit all reports but not delete
+            (IsSuperUser | IsAccountant) & IsNotDelete
+            # reviewer and supervisor may change reports which aren't verfied but not delete them
+            | (IsReviewer | IsSupervisor) & IsUnverified & IsNotDelete
+            # internal employees may only change its own unverified reports
+            # only external employees with resource role may only change its own unverified reports
+            | IsOwner & IsUnverified & (IsInternal | (IsExternal & IsResource))
+            # all authenticated users may read all reports
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
+    ordering = (
+        "date",
+        "id",
+    )
     ordering_fields = (
         "id",
         "date",
@@ -129,22 +138,6 @@ class ReportViewSet(ModelViewSet):
 
         try:
             current_employment = Employment.objects.get_at(user=user, date=date.today())
-            if not current_employment.is_external:
-                return queryset
-
-            assigned_tasks = Task.objects.filter(
-                Q(task_assignees__user=user, task_assignees__is_reviewer=True)
-                | Q(
-                    project__project_assignees__user=user,
-                    project__project_assignees__is_reviewer=True,
-                )
-                | Q(
-                    project__customer__customer_assignees__user=user,
-                    project__customer__customer_assignees__is_reviewer=True,
-                )
-            )
-            queryset = queryset.filter(Q(task__in=assigned_tasks) | Q(user=user))
-            return queryset
         except Employment.DoesNotExist:
             if CustomerAssignee.objects.filter(user=user, is_customer=True).exists():
                 return queryset.filter(
@@ -153,13 +146,26 @@ class ReportViewSet(ModelViewSet):
                         task__project__customer__customer_assignees__is_customer=True,
                     )
                 )
-            raise exceptions.PermissionDenied(
-                "User has no employment and isn't a customer!"
+            msg = "User has no employment and isn't a customer!"
+            raise exceptions.PermissionDenied(msg) from None
+        if not current_employment.is_external:
+            return queryset
+
+        assigned_tasks = Task.objects.filter(
+            Q(task_assignees__user=user, task_assignees__is_reviewer=True)
+            | Q(
+                project__project_assignees__user=user,
+                project__project_assignees__is_reviewer=True,
             )
+            | Q(
+                project__customer__customer_assignees__user=user,
+                project__customer__customer_assignees__is_reviewer=True,
+            )
+        )
+        return queryset.filter(Q(task__in=assigned_tasks) | Q(user=user))
 
     def update(self, request, *args, **kwargs):
         """Override so we can issue emails on update."""
-
         partial = kwargs.get("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -185,9 +191,8 @@ class ReportViewSet(ModelViewSet):
         methods=["get"],
         serializer_class=serializers.ReportIntersectionSerializer,
     )
-    def intersection(self, request):
-        """
-        Get intersection in reports of common report fields.
+    def intersection(self, _request):
+        """Get intersection in reports of common report fields.
 
         Use case is for api caller to know what fields are the same
         in a list of reports. This will be mainly used for bulk update.
@@ -248,11 +253,7 @@ class ReportViewSet(ModelViewSet):
 
             fields["verified_by"] = verified and user or None
 
-            if (
-                "review" in fields
-                and fields["review"]
-                or any(queryset.values_list("review", flat=True))
-            ):
+            if fields.get("review") or any(queryset.values_list("review", flat=True)):
                 raise exceptions.ParseError(
                     _("Reports can't both be set as `review` and `verified`.")
                 )
@@ -318,10 +319,8 @@ class ReportViewSet(ModelViewSet):
             and queryset.count() > settings.REPORTS_EXPORT_MAX_COUNT
         ):
             return Response(
-                _(
-                    "Your request exceeds the maximum allowed entries ({0} > {1})".format(
-                        queryset.count(), settings.REPORTS_EXPORT_MAX_COUNT
-                    )
+                _("Your request exceeds the maximum allowed entries ({} > {})").format(
+                    queryset.count(), settings.REPORTS_EXPORT_MAX_COUNT
                 ),
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -365,14 +364,16 @@ class AbsenceViewSet(ModelViewSet):
 
     serializer_class = serializers.AbsenceSerializer
     filterset_class = filters.AbsenceFilterSet
-    permission_classes = [
-        # superuser can change all but not delete
-        IsAuthenticated & IsSuperUser & IsNotDelete
-        # owner may change all its absences
-        | IsAuthenticated & IsOwner & IsInternal
-        # all authenticated users may read filtered result
-        | IsAuthenticated & IsReadOnly
-    ]
+    permission_classes = (
+        (
+            # superuser can change all but not delete
+            IsAuthenticated & IsSuperUser & IsNotDelete
+            # owner may change all its absences
+            | IsAuthenticated & IsOwner & IsInternal
+            # all authenticated users may read filtered result
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
 
     def get_queryset(self):
         """Get absences only for internal employees.
@@ -382,10 +383,9 @@ class AbsenceViewSet(ModelViewSet):
         """
         user = self.request.user
         if user.is_superuser:
-            queryset = models.Absence.objects.select_related("absence_type", "user")
-            return queryset
+            return models.Absence.objects.select_related("absence_type", "user")
 
-        queryset = (
+        return (
             models.Absence.objects.select_related("absence_type", "user")
             .filter(Q(user=user) | Q(user__in=user.supervisees.all()))
             .exclude(
@@ -394,4 +394,3 @@ class AbsenceViewSet(ModelViewSet):
                 ).values("date")
             )
         )
-        return queryset

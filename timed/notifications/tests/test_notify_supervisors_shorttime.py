@@ -10,8 +10,9 @@ from timed.projects.factories import TaskFactory
 from timed.tracking.factories import ReportFactory
 
 
+@pytest.mark.django_db()
 @pytest.mark.freeze_time("2017-7-27")
-def test_notify_supervisors(db, mailoutbox):
+def test_notify_supervisors(mailoutbox):
     """Test time range 2017-7-17 till 2017-7-23."""
     start = date(2017, 7, 14)
     # supervisee with short time
@@ -41,14 +42,15 @@ def test_notify_supervisors(db, mailoutbox):
     assert mail.to == [supervisor.email]
     body = mail.body
     assert "Time range: July 17, 2017 - July 23, 2017\nRatio: 0.9" in body
-    expected = ("{0} 35.0/42.5 (Ratio 0.82 Delta -7.5 Balance -9.0)").format(
-        supervisee.get_full_name()
+    expected = (
+        f"{supervisee.get_full_name()} 35.0/42.5 (Ratio 0.82 Delta -7.5 Balance -9.0)"
     )
     assert expected in body
     assert Notification.objects.count() == 1
 
 
-def test_notify_supervisors_no_employment(db, mailoutbox):
+@pytest.mark.django_db()
+def test_notify_supervisors_no_employment(mailoutbox):
     """Check that supervisees without employment do not notify supervisor."""
     supervisee = UserFactory.create()
     supervisor = UserFactory.create()

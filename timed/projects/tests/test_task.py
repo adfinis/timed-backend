@@ -68,7 +68,13 @@ def test_task_detail(internal_employee_client, task):
 
 
 @pytest.mark.parametrize(
-    "project_assignee__is_resource, project_assignee__is_manager, project_assignee__is_reviewer, customer_assignee__is_manager, expected",
+    (
+        "project_assignee__is_resource",
+        "project_assignee__is_manager",
+        "project_assignee__is_reviewer",
+        "customer_assignee__is_manager",
+        "expected",
+    ),
     [
         (True, False, False, False, status.HTTP_403_FORBIDDEN),
         (False, True, False, False, status.HTTP_201_CREATED),
@@ -103,7 +109,15 @@ def test_task_create(
 
 
 @pytest.mark.parametrize(
-    "task_assignee__is_resource, task_assignee__is_manager, task_assignee__is_reviewer, project_assignee__is_reviewer, project_assignee__is_manager, different_project, expected",
+    (
+        "task_assignee__is_resource",
+        "task_assignee__is_manager",
+        "task_assignee__is_reviewer",
+        "project_assignee__is_reviewer",
+        "project_assignee__is_manager",
+        "different_project",
+        "expected",
+    ),
     [
         (True, False, False, False, False, False, status.HTTP_403_FORBIDDEN),
         (False, True, False, False, False, False, status.HTTP_200_OK),
@@ -143,7 +157,12 @@ def test_task_update(
 
 
 @pytest.mark.parametrize(
-    "project_assignee__is_resource, project_assignee__is_manager, project_assignee__is_reviewer, expected",
+    (
+        "project_assignee__is_resource",
+        "project_assignee__is_manager",
+        "project_assignee__is_reviewer",
+        "expected",
+    ),
     [
         (True, False, False, status.HTTP_403_FORBIDDEN),
         (False, True, False, status.HTTP_204_NO_CONTENT),
@@ -187,7 +206,7 @@ def test_task_detail_with_reports(internal_employee_client, task, report_factory
     assert json["meta"]["spent-time"] == "02:30:00"
 
 
-@pytest.mark.parametrize("is_assigned, expected", [(True, 1), (False, 0)])
+@pytest.mark.parametrize(("is_assigned", "expected"), [(True, 1), (False, 0)])
 def test_task_list_external_employee(external_employee_client, is_assigned, expected):
     TaskFactory.create_batch(4)
     task = TaskFactory.create()
@@ -204,7 +223,7 @@ def test_task_list_external_employee(external_employee_client, is_assigned, expe
 
 
 @pytest.mark.parametrize(
-    "is_customer, customer_visible, expected",
+    ("is_customer", "customer_visible", "expected"),
     [
         (True, True, 1),
         (True, False, 0),

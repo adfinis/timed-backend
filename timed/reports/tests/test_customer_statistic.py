@@ -11,7 +11,7 @@ from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.parametrize(
-    "is_employed, is_customer_assignee, is_customer, expected, status_code",
+    ("is_employed", "is_customer_assignee", "is_customer", "expected", "status_code"),
     [
         (False, True, False, 1, status.HTTP_403_FORBIDDEN),
         (False, True, True, 1, status.HTTP_403_FORBIDDEN),
@@ -78,21 +78,19 @@ def test_customer_statistic_list(
                 {
                     "type": "customer-statistics",
                     "id": str(third_customer.pk),
-                    "attributes": {
-                        "duration": "00:00:00",
-                        "name": third_customer.name,
-                    },
-                }
-            ] + expected_data
+                    "attributes": {"duration": "00:00:00", "name": third_customer.name},
+                },
+                *expected_data,
+            ]
         assert json["data"] == expected_data
         assert json["meta"]["total-time"] == "07:00:00"
 
 
 @pytest.mark.parametrize(
-    "filter, expected_result",
+    ("filter", "expected_result"),
     [("from_date", 5), ("customer", 3), ("cost_center", 3), ("reviewer", 3)],
 )
-def test_customer_statistic_filtered(auth_client, filter, expected_result):
+def test_customer_statistic_filtered(auth_client, filter, expected_result):  # noqa: A002
     user = auth_client.user
     setup_customer_and_employment_status(
         user=user,
@@ -132,7 +130,7 @@ def test_customer_statistic_filtered(auth_client, filter, expected_result):
 
 
 @pytest.mark.parametrize(
-    "is_employed, expected, status_code",
+    ("is_employed", "expected", "status_code"),
     [
         (True, 5, status.HTTP_200_OK),
         (False, 1, status.HTTP_403_FORBIDDEN),

@@ -1,4 +1,3 @@
-# from django.utils import timezone
 from datetime import date
 
 from django.db.models import Q
@@ -12,69 +11,68 @@ from timed.tracking import models as tracking_models
 class IsUnverified(BasePermission):
     """Allows access only to verified objects."""
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, _request, _view, obj):
         return obj.verified_by_id is None
 
 
 class IsReadOnly(BasePermission):
     """Allows read only methods."""
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, _view):
         return request.method in SAFE_METHODS
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsDeleteOnly(BasePermission):
     """Allows only delete method."""
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, _view):
         return request.method == "DELETE"
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsNotDelete(BasePermission):
     """Disallow delete method."""
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, _view):
         return request.method != "DELETE"
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsCreateOnly(BasePermission):
     """Allows only create method."""
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, _view):
         return request.method == "POST"
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsUpdateOnly(BasePermission):
     """Allows only update method."""
 
-    def has_permission(self, request, view):
+    def has_permission(self, request, _view):
         return request.method in ["PATCH", "PUT"]
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsAuthenticated(IsAuthenticated):
-    """
-    Support mixing permission IsAuthenticated with object permission.
+    """Support mixing permission IsAuthenticated with object permission.
 
     This is needed to use IsAuthenticated with rest condition and or
     operator.
     """
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
@@ -128,7 +126,8 @@ class IsReviewer(IsAuthenticated):
         if isinstance(obj, tracking_models.Report):
             task = obj.task
         else:  # pragma: no cover
-            raise RuntimeError("IsReviewer permission called on unsupported model")
+            msg = "IsReviewer permission called on unsupported model"
+            raise TypeError(msg)
         return (
             projects_models.Task.objects.filter(pk=task.pk)
             .filter(
@@ -155,14 +154,14 @@ class IsSuperUser(IsAuthenticated):
 
         return request.user.is_superuser
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, _obj):
         return self.has_permission(request, view)
 
 
 class IsNotTransferred(IsAuthenticated):
     """Allows access only to not transferred objects."""
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, _request, _view, obj):
         return not obj.transferred
 
 
@@ -251,7 +250,7 @@ class IsManager(IsAuthenticated):
                 )
                 .exists()
             )
-        elif isinstance(obj, projects_models.Project):
+        if isinstance(obj, projects_models.Project):
             return (
                 projects_models.Project.objects.filter(pk=obj.pk)
                 .filter(
@@ -270,8 +269,8 @@ class IsManager(IsAuthenticated):
                 )
                 .exists()
             )
-        else:  # pragma: no cover
-            raise RuntimeError("IsManager permission called on unsupported model")
+        msg = "IsManager permission called on unsupported model"  # pragma: no cover
+        raise RuntimeError(msg)  # pragma: no cover
 
 
 class IsResource(IsAuthenticated):
@@ -295,9 +294,7 @@ class IsResource(IsAuthenticated):
 
         user = request.user
 
-        if isinstance(obj, tracking_models.Activity) or isinstance(
-            obj, tracking_models.Report
-        ):
+        if isinstance(obj, (tracking_models.Activity, tracking_models.Report)):
             if obj.task:
                 return (
                     projects_models.Task.objects.filter(pk=obj.task.pk)
@@ -314,10 +311,9 @@ class IsResource(IsAuthenticated):
                     )
                     .exists()
                 )
-            else:  # pragma: no cover
-                return True
-        else:  # pragma: no cover
-            raise RuntimeError("IsResource permission called on unsupported model")
+            return True  # pragma: no cover
+        msg = "IsResource permission called on unsupported model"  # pragma: no cover
+        raise RuntimeError(msg)  # pragma: no cover
 
 
 class IsAccountant(IsAuthenticated):

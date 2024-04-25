@@ -7,7 +7,15 @@ from timed.projects import factories, models
 
 
 @pytest.mark.parametrize(
-    "is_employed, is_external, is_customer_assignee, is_customer, customer_visible, expected, status_code",
+    (
+        "is_employed",
+        "is_external",
+        "is_customer_assignee",
+        "is_customer",
+        "customer_visible",
+        "expected",
+        "status_code",
+    ),
     [
         (False, False, True, False, False, 0, HTTP_403_FORBIDDEN),
         (False, False, True, True, False, 0, HTTP_200_OK),

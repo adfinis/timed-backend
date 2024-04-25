@@ -1,12 +1,14 @@
 from datetime import date
 
+import pytest
 from django.core.management import call_command
 
 from timed.employment.factories import EmploymentFactory
 from timed.notifications.models import Notification
 
 
-def test_notify_changed_employments(db, mailoutbox, freezer):
+@pytest.mark.django_db()
+def test_notify_changed_employments(mailoutbox, freezer):
     email = "test@example.net"
 
     # employments changed too far in the past
@@ -25,7 +27,6 @@ def test_notify_changed_employments(db, mailoutbox, freezer):
     assert len(mailoutbox) == 1
     mail = mailoutbox[0]
     assert mail.to == [email]
-    print(mail.body)
-    assert "80% {0}".format(finished.user.get_full_name()) in mail.body
-    assert "None       100% {0}".format(new.user.get_full_name()) in mail.body
+    assert f"80% {finished.user.get_full_name()}" in mail.body
+    assert f"None       100% {new.user.get_full_name()}" in mail.body
     assert Notification.objects.all().count() == 1

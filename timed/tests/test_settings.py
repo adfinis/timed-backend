@@ -10,6 +10,6 @@ def test_admins():
     ]
 
 
-def test_invalid_admins(monkeypatch):
+def test_invalid_admins():
     with pytest.raises(environ.ImproperlyConfigured):
         settings.parse_admins(["Test Example <test@example.com"])

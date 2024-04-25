@@ -30,27 +30,32 @@ from timed.tracking.models import Absence, Report
 
 
 class UserViewSet(ModelViewSet):
-    """
-    Expose user actions.
+    """Expose user actions.
 
     Users are managed in admin therefore this end point
     only allows retrieving and updating.
     """
 
-    permission_classes = [
-        # only owner, superuser and supervisor may update user
-        (IsOwner | IsSuperUser | IsSupervisor) & IsUpdateOnly
-        # only superuser may delete users without reports
-        | IsSuperUser & IsDeleteOnly & NoReports
-        # only superuser may create users
-        | IsSuperUser & IsCreateOnly
-        # all authenticated users may read
-        | IsAuthenticated & IsReadOnly
-    ]
+    permission_classes = (
+        (
+            # only owner, superuser and supervisor may update user
+            (IsOwner | IsSuperUser | IsSupervisor) & IsUpdateOnly
+            # only superuser may delete users without reports
+            | IsSuperUser & IsDeleteOnly & NoReports
+            # only superuser may create users
+            | IsSuperUser & IsCreateOnly
+            # all authenticated users may read
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
 
     serializer_class = serializers.UserSerializer
     filterset_class = filters.UserFilterSet
-    search_fields = ("username", "first_name", "last_name")
+    search_fields = (
+        "username",
+        "first_name",
+        "last_name",
+    )
 
     def get_queryset(self):
         user = self.request.user
@@ -62,24 +67,6 @@ class UserViewSet(ModelViewSet):
             current_employment = models.Employment.objects.get_at(
                 user=user, date=datetime.date.today()
             )
-            if current_employment.is_external:
-                assigned_tasks = Task.objects.filter(
-                    Q(task_assignees__user=user, task_assignees__is_reviewer=True)
-                    | Q(
-                        project__project_assignees__user=user,
-                        project__project_assignees__is_reviewer=True,
-                    )
-                    | Q(
-                        project__customer__customer_assignees__user=user,
-                        project__customer__customer_assignees__is_reviewer=True,
-                    )
-                )
-                visible_reports = Report.objects.all().filter(
-                    Q(task__in=assigned_tasks) | Q(user=user)
-                )
-
-                return queryset.filter(Q(reports__in=visible_reports) | Q(id=user.id))
-            return queryset
         except models.Employment.DoesNotExist:
             if CustomerAssignee.objects.filter(user=user, is_customer=True).exists():
                 assigned_tasks = Task.objects.filter(
@@ -92,20 +79,37 @@ class UserViewSet(ModelViewSet):
                     Q(task__in=assigned_tasks) | Q(user=user)
                 )
                 return queryset.filter(Q(reports__in=visible_reports) | Q(id=user.id))
-            raise exceptions.PermissionDenied("User has no employment")
+            msg = "User has no employment"
+            raise exceptions.PermissionDenied(msg) from None
+        if current_employment.is_external:
+            assigned_tasks = Task.objects.filter(
+                Q(task_assignees__user=user, task_assignees__is_reviewer=True)
+                | Q(
+                    project__project_assignees__user=user,
+                    project__project_assignees__is_reviewer=True,
+                )
+                | Q(
+                    project__customer__customer_assignees__user=user,
+                    project__customer__customer_assignees__is_reviewer=True,
+                )
+            )
+            visible_reports = Report.objects.all().filter(
+                Q(task__in=assigned_tasks) | Q(user=user)
+            )
+
+            return queryset.filter(Q(reports__in=visible_reports) | Q(id=user.id))
+        return queryset
 
     @action(methods=["get"], detail=False)
-    def me(self, request, pk=None):
-        User = get_user_model()
-        self.object = get_object_or_404(User, pk=request.user.id)
+    def me(self, request, _pk=None):
+        self.object = get_object_or_404(get_user_model(), pk=request.user.id)
         serializer = self.get_serializer(self.object)
 
         return Response(serializer.data)
 
     @action(methods=["post"], detail=True)
-    def transfer(self, request, pk=None):
-        """
-        Transfer worktime and absence balance to new year.
+    def transfer(self, _request, pk=None):  # noqa: ARG002
+        """Transfer worktime and absence balance to new year.
 
         It will skip any credits if a credit already exists on the first
         of the new year.
@@ -160,8 +164,7 @@ class WorktimeBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     filterset_class = filters.WorktimeBalanceFilterSet
 
     def _extract_date(self):
-        """
-        Extract date from request.
+        """Extract date from request.
 
         In detail route extract it from pk and it list
         from query params.
@@ -173,8 +176,8 @@ class WorktimeBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
             try:
                 return datetime.datetime.strptime(pk.split("_")[1], "%Y-%m-%d")
 
-            except (ValueError, TypeError, IndexError):
-                raise exceptions.NotFound()
+            except (ValueError, TypeError, IndexError) as exc:
+                raise exceptions.NotFound from exc
 
         # list case
         query_params = self.request.query_params
@@ -182,11 +185,11 @@ class WorktimeBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
             return datetime.datetime.strptime(
                 query_params.get("date"), "%Y-%m-%d"
             ).date()
-        except ValueError:
-            raise exceptions.ParseError(_("Date is invalid"))
-        except TypeError:
+        except ValueError as exc:
+            raise exceptions.ParseError(_("Date is invalid")) from exc
+        except TypeError as exc:
             if query_params.get("last_reported_date", "0") == "0":
-                raise exceptions.ParseError(_("Date filter needs to be set"))
+                raise exceptions.ParseError(_("Date filter needs to be set")) from exc
 
             return None
 
@@ -220,8 +223,7 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
     filterset_class = filters.AbsenceBalanceFilterSet
 
     def _extract_date(self):
-        """
-        Extract date from request.
+        """Extract date from request.
 
         In detail route extract it from pk and it list
         from query params.
@@ -233,22 +235,21 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
             try:
                 return datetime.datetime.strptime(pk.split("_")[2], "%Y-%m-%d")
 
-            except (ValueError, TypeError, IndexError):
-                raise exceptions.NotFound()
+            except (ValueError, TypeError, IndexError) as exc:
+                raise exceptions.NotFound from exc
 
         # list case
         try:
             return datetime.datetime.strptime(
                 self.request.query_params.get("date"), "%Y-%m-%d"
             ).date()
-        except ValueError:
-            raise exceptions.ParseError(_("Date is invalid"))
-        except TypeError:
-            raise exceptions.ParseError(_("Date filter needs to be set"))
+        except ValueError as exc:
+            raise exceptions.ParseError(_("Date is invalid")) from exc
+        except TypeError as exc:
+            raise exceptions.ParseError(_("Date filter needs to be set")) from exc
 
     def _extract_user(self):
-        """
-        Extract user from request.
+        """Extract user from request.
 
         In detail route extract it from pk and it list
         from query params.
@@ -263,8 +264,8 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
                 if self.request.user.id == user_id:
                     return self.request.user
                 return get_user_model().objects.get(pk=pk.split("_")[0])
-            except (ValueError, get_user_model().DoesNotExist):
-                raise exceptions.NotFound()
+            except (ValueError, get_user_model().DoesNotExist) as exc:
+                raise exceptions.NotFound from exc
 
         # list case
         try:
@@ -277,8 +278,8 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
                 return self.request.user
 
             return get_user_model().objects.get(pk=user_id)
-        except (ValueError, get_user_model().DoesNotExist):
-            raise exceptions.ParseError(_("User is invalid"))
+        except (ValueError, get_user_model().DoesNotExist) as exc:
+            raise exceptions.ParseError(_("User is invalid")) from exc
 
     def get_queryset(self):
         date = self._extract_date()
@@ -301,10 +302,12 @@ class AbsenceBalanceViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
         # only myself, superuser and supervisors may see by absence balances
         current_user = self.request.user
 
-        if not current_user.is_superuser:
-            if current_user.id != user.id:
-                if not current_user.supervisees.filter(id=user.id).exists():
-                    return models.AbsenceType.objects.none()
+        if (
+            not current_user.is_superuser
+            and current_user.id != user.id
+            and not current_user.supervisees.filter(id=user.id).exists()
+        ):
+            return models.AbsenceType.objects.none()
 
         return queryset
 
@@ -313,16 +316,17 @@ class EmploymentViewSet(ModelViewSet):
     serializer_class = serializers.EmploymentSerializer
     ordering = ("-end_date",)
     filterset_class = filters.EmploymentFilterSet
-    permission_classes = [
-        # super user can add/read overtime credits
-        IsSuperUser
-        # user may only read filtered results
-        | IsAuthenticated & IsReadOnly
-    ]
+    permission_classes = (
+        (
+            # super user can add/read overtime credits
+            IsSuperUser
+            # user may only read filtered results
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
 
     def get_queryset(self):
-        """
-        Get queryset of employments.
+        """Get queryset of employments.
 
         Following rules apply:
         1. super user may see all
@@ -405,16 +409,17 @@ class AbsenceCreditViewSet(ModelViewSet):
 
     filterset_class = filters.AbsenceCreditFilterSet
     serializer_class = serializers.AbsenceCreditSerializer
-    permission_classes = [
-        # super user can add/read absence credits
-        IsSuperUser
-        # user may only read filtered results
-        | IsAuthenticated & IsReadOnly
-    ]
+    permission_classes = (
+        (
+            # super user can add/read absence credits
+            IsSuperUser
+            # user may only read filtered results
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
 
     def get_queryset(self):
-        """
-        Get queryset of absence credits.
+        """Get queryset of absence credits.
 
         Following rules apply:
         1. super user may see all
@@ -436,16 +441,17 @@ class OvertimeCreditViewSet(ModelViewSet):
 
     filterset_class = filters.OvertimeCreditFilterSet
     serializer_class = serializers.OvertimeCreditSerializer
-    permission_classes = [
-        # super user can add/read overtime credits
-        IsSuperUser
-        # user may only read filtered results
-        | IsAuthenticated & IsReadOnly
-    ]
+    permission_classes = (
+        (
+            # super user can add/read overtime credits
+            IsSuperUser
+            # user may only read filtered results
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
 
     def get_queryset(self):
-        """
-        Get queryset of overtime credits.
+        """Get queryset of overtime credits.
 
         Following rules apply:
         1. super user may see all

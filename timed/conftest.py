@@ -14,8 +14,8 @@ from timed.tracking import factories as tracking_factories
 
 
 def register_module(module):
-    for name, obj in inspect.getmembers(module):
-        if isinstance(obj, FactoryMetaClass) and not obj._meta.abstract:
+    for _name, obj in inspect.getmembers(module):
+        if isinstance(obj, FactoryMetaClass) and not obj._meta.abstract:  # noqa: SLF001
             register(obj)
 
 
@@ -26,7 +26,7 @@ register_module(tracking_factories)
 
 
 @pytest.fixture
-def auth_user(db):
+def auth_user(db):  # noqa: ARG001
     return get_user_model().objects.create_user(
         username="user",
         password="123qweasd",
@@ -38,7 +38,7 @@ def auth_user(db):
 
 
 @pytest.fixture
-def admin_user(db):
+def admin_user(db):  # noqa: ARG001
     return get_user_model().objects.create_user(
         username="admin",
         password="123qweasd",
@@ -50,7 +50,7 @@ def admin_user(db):
 
 
 @pytest.fixture
-def superadmin_user(db):
+def superadmin_user(db):  # noqa: ARG001
     return get_user_model().objects.create_user(
         username="superadmin",
         password="123qweasd",
@@ -62,7 +62,7 @@ def superadmin_user(db):
 
 
 @pytest.fixture
-def external_employee(db):
+def external_employee(db):  # noqa: ARG001
     user = get_user_model().objects.create_user(
         username="user",
         password="123qweasd",
@@ -76,7 +76,7 @@ def external_employee(db):
 
 
 @pytest.fixture
-def internal_employee(db):
+def internal_employee(db):  # noqa: ARG001
     user = get_user_model().objects.create_user(
         username="user",
         password="123qweasd",
@@ -140,7 +140,7 @@ def internal_employee_client(internal_employee):
     return client
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(autouse=True)
 def _autoclear_cache():
     cache.clear()
 
@@ -148,8 +148,7 @@ def _autoclear_cache():
 def setup_customer_and_employment_status(
     user, is_assignee, is_customer, is_employed, is_external
 ):
-    """
-    Set up customer and employment status.
+    """Set up customer and employment status.
 
     Return a 2-tuple of assignee and employment, if they
     were created

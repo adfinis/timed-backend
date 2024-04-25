@@ -22,7 +22,10 @@ class CustomerFilterSet(FilterSet):
         """Meta information for the customer filter set."""
 
         model = models.Customer
-        fields = ["archived", "reference"]
+        fields = (
+            "archived",
+            "reference",
+        )
 
 
 class ProjectFilterSet(FilterSet):
@@ -33,7 +36,7 @@ class ProjectFilterSet(FilterSet):
     has_reviewer = NumberFilter(method="filter_has_reviewer")
     customer = NumberInFilter(field_name="customer")
 
-    def filter_has_manager(self, queryset, name, value):
+    def filter_has_manager(self, queryset, _name, value):
         if not value:  # pragma: no cover
             return queryset
         return queryset.filter(
@@ -49,7 +52,7 @@ class ProjectFilterSet(FilterSet):
             )
         )
 
-    def filter_has_reviewer(self, queryset, name, value):
+    def filter_has_reviewer(self, queryset, _name, value):
         if not value:  # pragma: no cover
             return queryset
         return queryset.filter(
@@ -69,17 +72,21 @@ class ProjectFilterSet(FilterSet):
         """Meta information for the project filter set."""
 
         model = models.Project
-        fields = ["archived", "customer", "billing_type", "cost_center", "reference"]
+        fields = (
+            "archived",
+            "customer",
+            "billing_type",
+            "cost_center",
+            "reference",
+        )
 
 
 class MyMostFrequentTaskFilter(Filter):
-    """Filter most frequently used tasks.
+    """Filter most frequently used tasks."""
 
-    TODO:
-    From an api and framework standpoint instead of an additional filter it
-    would be more desirable to assign an ordering field frecency and to
-    limit by use paging.  This is way harder to implement therefore on hold.
-    """
+    # TODO: From an api and framework standpoint instead of an additional filter it
+    # would be more desirable to assign an ordering field frecency and to
+    # limit by use paging.  This is way harder to implement therefore on hold.
 
     def filter(self, qs, value):
         """Filter for given most frequently used tasks.
@@ -107,9 +114,7 @@ class MyMostFrequentTaskFilter(Filter):
         )
         qs = qs.annotate(frequency=Count("reports")).order_by("-frequency")
         # limit number of results to given value
-        qs = qs[: int(value)]
-
-        return qs
+        return qs[: int(value)]
 
 
 class TaskFilterSet(FilterSet):
@@ -123,7 +128,13 @@ class TaskFilterSet(FilterSet):
         """Meta information for the task filter set."""
 
         model = models.Task
-        fields = ["archived", "project", "my_most_frequent", "reference", "cost_center"]
+        fields = (
+            "archived",
+            "project",
+            "my_most_frequent",
+            "reference",
+            "cost_center",
+        )
 
 
 class TaskAssigneeFilterSet(FilterSet):
@@ -137,7 +148,13 @@ class TaskAssigneeFilterSet(FilterSet):
         """Meta information for the task assignee filter set."""
 
         model = models.TaskAssignee
-        fields = ["task", "user", "is_reviewer", "is_manager", "is_resource"]
+        fields = (
+            "task",
+            "user",
+            "is_reviewer",
+            "is_manager",
+            "is_resource",
+        )
 
 
 class ProjectAssigneeFilterSet(FilterSet):
@@ -151,7 +168,13 @@ class ProjectAssigneeFilterSet(FilterSet):
         """Meta information for the project assignee filter set."""
 
         model = models.ProjectAssignee
-        fields = ["project", "user", "is_reviewer", "is_manager", "is_resource"]
+        fields = (
+            "project",
+            "user",
+            "is_reviewer",
+            "is_manager",
+            "is_resource",
+        )
 
 
 class CustomerAssigneeFilterSet(FilterSet):
@@ -165,4 +188,10 @@ class CustomerAssigneeFilterSet(FilterSet):
         """Meta information for the customer assignee filter set."""
 
         model = models.CustomerAssignee
-        fields = ["customer", "user", "is_reviewer", "is_manager", "is_resource"]
+        fields = (
+            "customer",
+            "user",
+            "is_reviewer",
+            "is_manager",
+            "is_resource",
+        )

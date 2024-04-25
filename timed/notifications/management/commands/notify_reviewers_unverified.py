@@ -17,8 +17,7 @@ template = get_template("mail/notify_reviewers_unverified.txt", using="text")
 
 
 class Command(BaseCommand):
-    """
-    Notify reviewers of projects with unverified reports.
+    """Notify reviewers of projects with unverified reports.
 
     Notifications will be sent when reviewer has projects with reports
     which are unverified in given time frame.
@@ -83,23 +82,22 @@ class Command(BaseCommand):
         self._notify_reviewers(start, end, reports, message, cc)
 
     def _get_unverified_reports(self, start, end):
-        """
-        Get unverified reports.
+        """Get unverified reports.
 
         Unverified reports are reports on project which have a reviewer
         assigned but are not verified in given time frame.
         """
         return Report.objects.filter(date__range=[start, end], verified_by__isnull=True)
 
-    def _notify_reviewers(self, start, end, reports, optional_message, cc):
+    def _notify_reviewers(self, start, end, reports, optional_message, cc):  # noqa: PLR0913
         """Notify reviewers on their unverified reports.
 
         Only the reviewers lowest in the hierarchy should be notified.
         If a project has a project assignee and a task assignee with reviewer role,
         then only the task assignee should be notified about unverified reports.
         """
-        User = get_user_model()
-        reviewers = User.objects.all_reviewers().filter(email__isnull=False)
+        user_model = get_user_model()
+        reviewers = user_model.objects.all_reviewers().filter(email__isnull=False)
         subject = "[Timed] Verification of reports"
         from_email = settings.DEFAULT_FROM_EMAIL
         connection = get_connection()

@@ -11,7 +11,7 @@ from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssigne
 
 
 class StatisticFiltersetBase:
-    def filter_has_reviewer(self, queryset, name, value):
+    def filter_has_reviewer(self, queryset, _name, value):
         if not value:  # pragma: no cover
             return queryset
 
@@ -37,9 +37,8 @@ class StatisticFiltersetBase:
         )
         return queryset.filter_aggregate(the_filter).filter_base(the_filter)
 
-    def filter_cost_center(self, queryset, name, value):
-        """
-        Filter report by cost center.
+    def filter_cost_center(self, queryset, _name, value):
+        """Filter report by cost center.
 
         The filter behaves slightly different depending on what the
         statistic summarizes:
@@ -50,8 +49,7 @@ class StatisticFiltersetBase:
         * When viewing the statistic over tasks, only the tasks
           are filtered
         """
-
-        # TODO Discuss: Is this the desired behaviour by our users?
+        # TODO: Discuss Is this the desired behaviour by our users?
 
         if not value:  # pragma: no cover
             return queryset
@@ -72,29 +70,25 @@ class StatisticFiltersetBase:
             # Customer mode: We only need to filter aggregates,
             # as the customer has no cost center
             return queryset.filter_aggregate(filter_q)
-        else:
-            # Project or task: Filter both to get the correct result
-            return queryset.filter_base(filter_q).filter_aggregate(filter_q)
+        # Project or task: Filter both to get the correct result
+        return queryset.filter_base(filter_q).filter_aggregate(filter_q)
 
     def filter_queryset(self, queryset):
         qs = super().filter_queryset(queryset)
 
         duration_ref = self._refs["reports_ref"] + "__duration"
 
-        full_qs = qs._base.annotate(
+        full_qs = qs._base.annotate(  # noqa: SLF001
             duration=Coalesce(
-                Sum(duration_ref, filter=qs._agg_filters),
+                Sum(duration_ref, filter=qs._agg_filters),  # noqa: SLF001
                 Value("00:00:00", DurationField(null=False)),
             ),
             pk=F("id"),
         )
-        result = full_qs.values()
-        # Useful for QS debugging
-        # print(result.query)
-        return result
+        return full_qs.values()
 
 
-def StatisticFiltersetBuilder(name, reports_ref, project_ref, customer_ref, task_ref):
+def statistic_filterset_builder(name, reports_ref, project_ref, customer_ref, task_ref):
     reports_prefix = f"{reports_ref}__" if reports_ref else ""
     project_prefix = f"{project_ref}__" if project_ref else ""
     customer_prefix = f"{customer_ref}__" if customer_ref else ""
@@ -141,7 +135,7 @@ def StatisticFiltersetBuilder(name, reports_ref, project_ref, customer_ref, task
     )
 
 
-CustomerStatisticFilterSet = StatisticFiltersetBuilder(
+CustomerStatisticFilterSet = statistic_filterset_builder(
     "CustomerStatisticFilterSet",
     reports_ref="projects__tasks__reports",
     project_ref="projects",
@@ -149,7 +143,7 @@ CustomerStatisticFilterSet = StatisticFiltersetBuilder(
     customer_ref="",
 )
 
-ProjectStatisticFilterSet = StatisticFiltersetBuilder(
+ProjectStatisticFilterSet = statistic_filterset_builder(
     "ProjectStatisticFilterSet",
     reports_ref="tasks__reports",
     project_ref="",
@@ -157,7 +151,7 @@ ProjectStatisticFilterSet = StatisticFiltersetBuilder(
     customer_ref="customer",
 )
 
-TaskStatisticFilterSet = StatisticFiltersetBuilder(
+TaskStatisticFilterSet = statistic_filterset_builder(
     "TaskStatisticFilterSet",
     reports_ref="reports",
     project_ref="project",

@@ -23,14 +23,16 @@ def test_user_list_unauthenticated(client):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_user_update_unauthenticated(client, db):
+@pytest.mark.django_db()
+def test_user_update_unauthenticated(client):
     user = UserFactory.create()
     url = reverse("user-detail", args=[user.id])
     response = client.patch(url)
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_user_list(db, internal_employee_client, django_assert_num_queries):
+@pytest.mark.django_db()
+def test_user_list(internal_employee_client, django_assert_num_queries):
     UserFactory.create_batch(2)
 
     url = reverse("user-list")
@@ -144,7 +146,8 @@ def test_user_delete_superuser(superadmin_client):
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-def test_user_delete_with_reports_superuser(superadmin_client, db):
+@pytest.mark.django_db()
+def test_user_delete_with_reports_superuser(superadmin_client):
     """Test that user with reports may not be deleted."""
     user = UserFactory.create()
     ReportFactory.create(user=user)
@@ -205,7 +208,7 @@ def test_user_transfer(superadmin_client):
     assert absence_credit.comment == "Transfer 2017"
 
 
-@pytest.mark.parametrize("value,expected", [(1, 2), (0, 2)])
+@pytest.mark.parametrize(("value", "expected"), [(1, 2), (0, 2)])
 def test_user_is_external_filter(internal_employee_client, value, expected):
     """Should filter users if they have an internal employment."""
     user = UserFactory.create()
@@ -220,7 +223,7 @@ def test_user_is_external_filter(internal_employee_client, value, expected):
     assert len(response.json()["data"]) == expected
 
 
-@pytest.mark.parametrize("value,expected", [(1, 1), (0, 4)])
+@pytest.mark.parametrize(("value", "expected"), [(1, 1), (0, 4)])
 def test_user_is_reviewer_filter(internal_employee_client, value, expected):
     """Should filter users if they are a reviewer."""
     user = UserFactory.create()
@@ -232,7 +235,7 @@ def test_user_is_reviewer_filter(internal_employee_client, value, expected):
     assert len(res.json()["data"]) == expected
 
 
-@pytest.mark.parametrize("value,expected", [(1, 1), (0, 5)])
+@pytest.mark.parametrize(("value", "expected"), [(1, 1), (0, 5)])
 def test_user_is_supervisor_filter(internal_employee_client, value, expected):
     """Should filter useres if they are a supervisor."""
     users = UserFactory.create_batch(2)
@@ -286,7 +289,7 @@ def test_user_me_anonymous(client):
 
 
 @pytest.mark.parametrize(
-    "is_customer, expected, status_code",
+    ("is_customer", "expected", "status_code"),
     [(True, 1, status.HTTP_200_OK), (False, 0, status.HTTP_403_FORBIDDEN)],
 )
 def test_user_list_no_employment(auth_client, is_customer, expected, status_code):

@@ -31,18 +31,14 @@ class Customer(models.Model):
         related_name="assigned_to_customers",
     )
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
-        return self.name
-
     class Meta:
         """Meta informations for the customer model."""
 
-        ordering = ["name"]
+        ordering = ("name",)
+
+    def __str__(self):
+        """Represent the model as a string."""
+        return self.name
 
 
 class CostCenter(models.Model):
@@ -51,11 +47,11 @@ class CostCenter(models.Model):
     name = models.CharField(max_length=255, unique=True)
     reference = models.CharField(max_length=255, blank=True, null=True)
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ["name"]
 
 
 class BillingType(models.Model):
@@ -64,11 +60,12 @@ class BillingType(models.Model):
     name = models.CharField(max_length=255, unique=True)
     reference = models.CharField(max_length=255, blank=True, null=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
-        ordering = ["name"]
+        ordering = ("name",)
+
+    def __str__(self):
+        """Represent the model as a string."""
+        return self.name
 
 
 class Project(models.Model):
@@ -116,16 +113,12 @@ class Project(models.Model):
     remaining_effort_tracking = models.BooleanField(default=False)
     total_remaining_effort = models.DurationField(default=timedelta(0))
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
-        return "{0} > {1}".format(self.customer, self.name)
-
     class Meta:
-        ordering = ["name"]
+        ordering = ("name",)
+
+    def __str__(self) -> str:
+        """Represent the model as a string."""
+        return f"{self.customer} > {self.name}"
 
 
 class Task(models.Model):
@@ -162,18 +155,14 @@ class Task(models.Model):
     )
     most_recent_remaining_effort = models.DurationField(blank=True, null=True)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
-        return "{0} > {1}".format(self.project, self.name)
-
     class Meta:
         """Meta informations for the task model."""
 
-        ordering = ["name"]
+        ordering = ("name",)
+
+    def __str__(self) -> str:
+        """Represent the model as a string."""
+        return f"{self.project} > {self.name}"
 
 
 class TaskTemplate(models.Model):
@@ -185,16 +174,12 @@ class TaskTemplate(models.Model):
 
     name = models.CharField(max_length=255)
 
-    def __str__(self):
-        """Represent the model as a string.
-
-        :return: The string representation
-        :rtype:  str
-        """
-        return self.name
-
     class Meta:
-        ordering = ["name"]
+        ordering = ("name",)
+
+    def __str__(self) -> str:
+        """Represent the model as a string."""
+        return self.name
 
 
 class CustomerAssignee(models.Model):
@@ -216,6 +201,10 @@ class CustomerAssignee(models.Model):
     is_manager = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        """Represent the model as a string."""
+        return f"{self.user.username} {self.customer}"
+
 
 class ProjectAssignee(models.Model):
     """Project assignee model.
@@ -235,6 +224,9 @@ class ProjectAssignee(models.Model):
     is_reviewer = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return f"{self.user.username} {self.project}"
 
 
 class TaskAssignee(models.Model):
@@ -256,9 +248,12 @@ class TaskAssignee(models.Model):
     is_manager = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        return f"{self.user.username} {self.task}"
+
 
 @receiver(pre_save, sender=Project)
-def update_billed_flag_on_reports(sender, instance, **kwargs):
+def update_billed_flag_on_reports(sender, instance, **kwargs):  # noqa: ARG001
     """Update billed flag on all reports from the updated project.
 
     Only update reports if the billed flag on the project was changed.
@@ -272,8 +267,5 @@ def update_billed_flag_on_reports(sender, instance, **kwargs):
         return
 
     # check whether the project was created or is being updated
-    if instance.pk:
-        if instance.billed != Project.objects.get(id=instance.id).billed:
-            Report.objects.filter(Q(task__project=instance)).update(
-                billed=instance.billed
-            )
+    if instance.pk and instance.billed != Project.objects.get(id=instance.id).billed:
+        Report.objects.filter(Q(task__project=instance)).update(billed=instance.billed)

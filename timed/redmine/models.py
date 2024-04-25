@@ -4,8 +4,7 @@ from timed.projects.models import Project
 
 
 class RedmineProject(models.Model):
-    """
-    Definition of a Redmine Project.
+    """Definition of a Redmine Project.
 
     Defines what Timed project belongs to what Redmine issue.
     """
@@ -14,3 +13,6 @@ class RedmineProject(models.Model):
         Project, on_delete=models.CASCADE, related_name="redmine_project"
     )
     issue_id = models.PositiveIntegerField()
+
+    def __str__(self) -> str:
+        return f"{self.issue_id} {self.project}"

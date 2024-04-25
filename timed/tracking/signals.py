@@ -6,7 +6,7 @@ from timed.tracking.models import Report
 
 
 @receiver(pre_save, sender=Report)
-def update_rejected_on_reports(sender, instance, **kwargs):
+def update_rejected_on_reports(sender, instance, **kwargs):  # noqa: ARG001
     """Unreject report when the task changes."""
     # Check if the report is being created or updated
     if instance.pk and instance.rejected:
@@ -16,7 +16,7 @@ def update_rejected_on_reports(sender, instance, **kwargs):
 
 
 @receiver(pre_save, sender=Report)
-def update_most_recent_remaining_effort(sender, instance, **kwargs):
+def update_most_recent_remaining_effort(sender, instance, **kwargs):  # noqa: ARG001
     """Update remaining effort on task, if remaining effort tracking is active.
 
     Update most_recent_remaining_effort on task and total_remaining_effort on project

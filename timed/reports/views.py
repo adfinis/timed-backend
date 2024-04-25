@@ -29,20 +29,23 @@ class YearStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.YearStatisticSerializer
     filterset_class = ReportFilterSet
-    ordering_fields = ("year", "duration")
+    ordering_fields = (
+        "year",
+        "duration",
+    )
     ordering = ("year",)
-    permission_classes = [
-        # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser) & IsAuthenticated
-    ]
+    permission_classes = (
+        (
+            # internal employees or super users may read all customer statistics
+            (IsInternal | IsSuperUser) & IsAuthenticated
+        ),
+    )
 
     def get_queryset(self):
         queryset = Report.objects.all()
         queryset = queryset.annotate(year=ExtractYear("date")).values("year")
         queryset = queryset.annotate(duration=Sum("duration"))
-        queryset = queryset.annotate(pk=F("year"))
-
-        return queryset
+        return queryset.annotate(pk=F("year"))
 
 
 class MonthStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
@@ -50,12 +53,21 @@ class MonthStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.MonthStatisticSerializer
     filterset_class = ReportFilterSet
-    ordering_fields = ("year", "month", "duration")
-    ordering = ("year", "month")
-    permission_classes = [
-        # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser) & IsAuthenticated
-    ]
+    ordering_fields = (
+        "year",
+        "month",
+        "duration",
+    )
+    ordering = (
+        "year",
+        "month",
+    )
+    permission_classes = (
+        (
+            # internal employees or super users may read all customer statistics
+            (IsInternal | IsSuperUser) & IsAuthenticated
+        ),
+    )
 
     def get_queryset(self):
         queryset = Report.objects.all()
@@ -64,9 +76,7 @@ class MonthStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
         )
         queryset = queryset.values("year", "month")
         queryset = queryset.annotate(duration=Sum("duration"))
-        queryset = queryset.annotate(pk=F("year") * 100 + F("month"))
-
-        return queryset
+        return queryset.annotate(pk=F("year") * 100 + F("month"))
 
 
 class StatisticQueryset(QuerySet):
@@ -78,13 +88,7 @@ class StatisticQueryset(QuerySet):
         self._agg_filters = agg_filters
         self._catch_prefixes = catch_prefixes
 
-    def filter(self, *args, **kwargs):
-        if args:  # pragma: no cover
-            # This is a check against programming errors, no need to test
-            raise RuntimeError(
-                "Unable to detect statistics filter type form Q objects. use "
-                "filter_aggregate() or filter_base() instead"
-            )
+    def filter(self, /, **kwargs):
         my_filters = {
             k: v for k, v in kwargs.items() if not k.startswith(self._catch_prefixes)
         }
@@ -112,16 +116,16 @@ class StatisticQueryset(QuerySet):
     def _clone(self):
         return StatisticQueryset(
             model=self.model,
-            base_qs=self._base._clone(),
+            base_qs=self._base._clone(),  # noqa: SLF001
             catch_prefixes=self._catch_prefixes,
             agg_filters=self._agg_filters,
         )
 
-    def __str__(self):
-        return f"StatisticQueryset({str(self._base)} | {str(self._agg_filters)})"
+    def __str__(self) -> str:
+        return f"StatisticQueryset({self._base!s} | {self._agg_filters!s})"
 
-    def __repr__(self):
-        return f"StatisticQueryset({repr(self._base)} | {repr(self._agg_filters)})"
+    def __repr__(self) -> str:
+        return f"StatisticQueryset({self._base!r} | {self._agg_filters!r})"
 
     def filter_aggregate(self, *args, **kwargs):
         filter_q = Q(*args, **kwargs)
@@ -141,17 +145,20 @@ class CustomerStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.CustomerStatisticSerializer
     filterset_class = filters.CustomerStatisticFilterSet
-    ordering_fields = [
+    ordering_fields = (
         "name",
         "duration",
         "estimated_time",
         "remaining_effort",
-    ]
+    )
+
     ordering = ("name",)
-    permission_classes = [
-        # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser) & IsAuthenticated
-    ]
+    permission_classes = (
+        (
+            # internal employees or super users may read all customer statistics
+            (IsInternal | IsSuperUser) & IsAuthenticated
+        ),
+    )
 
     def get_queryset(self):
         return StatisticQueryset(model=Customer, catch_prefixes="projects__")
@@ -162,17 +169,19 @@ class ProjectStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.ProjectStatisticSerializer
     filterset_class = filters.ProjectStatisticFilterSet
-    ordering_fields = [
+    ordering_fields = (
         "name",
         "duration",
         "estimated_time",
         "remaining_effort",
-    ]
+    )
     ordering = ("name",)
-    permission_classes = [
-        # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser) & IsAuthenticated
-    ]
+    permission_classes = (
+        (
+            # internal employees or super users may read all customer statistics
+            (IsInternal | IsSuperUser) & IsAuthenticated
+        ),
+    )
 
     def get_queryset(self):
         return StatisticQueryset(model=Project, catch_prefixes="tasks__")
@@ -183,17 +192,19 @@ class TaskStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.TaskStatisticSerializer
     filterset_class = filters.TaskStatisticFilterSet
-    ordering_fields = [
+    ordering_fields = (
         "name",
         "duration",
         "estimated_time",
         "remaining_effort",
-    ]
+    )
     ordering = ("name",)
-    permission_classes = [
-        # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser) & IsAuthenticated
-    ]
+    permission_classes = (
+        (
+            # internal employees or super users may read all customer statistics
+            (IsInternal | IsSuperUser) & IsAuthenticated
+        ),
+    )
 
     def get_queryset(self):
         return StatisticQueryset(model=Task, catch_prefixes="tasks__")
@@ -204,25 +215,27 @@ class UserStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
 
     serializer_class = serializers.UserStatisticSerializer
     filterset_class = ReportFilterSet
-    ordering_fields = ("user__username", "duration")
+    ordering_fields = (
+        "user__username",
+        "duration",
+    )
     ordering = ("user__username",)
-    permission_classes = [
-        # internal employees or super users may read all customer statistics
-        (IsInternal | IsSuperUser) & IsAuthenticated
-    ]
+    permission_classes = (
+        (
+            # internal employees or super users may read all customer statistics
+            (IsInternal | IsSuperUser) & IsAuthenticated
+        ),
+    )
 
     def get_queryset(self):
         queryset = Report.objects.all()
         queryset = queryset.values("user")
         queryset = queryset.annotate(duration=Sum("duration"))
-        queryset = queryset.annotate(pk=F("user"))
-
-        return queryset
+        return queryset.annotate(pk=F("user"))
 
 
 class WorkReportViewSet(GenericViewSet):
-    """
-    Build a ods work report of reports with given filters.
+    """Build a ods work report of reports with given filters.
 
     It creates one work report per project. If given filters results
     in several projects work reports will be returned as zip.
@@ -261,8 +274,7 @@ class WorkReportViewSet(GenericViewSet):
         return form.cleaned_data
 
     def _clean_filename(self, name):
-        """
-        Clean name so it can be used in file paths.
+        """Clean name so it can be used in file paths.
 
         To accomplish this it will remove all special chars and
         replace spaces with underscores
@@ -271,23 +283,21 @@ class WorkReportViewSet(GenericViewSet):
         return re.sub(r"\s+", "_", escaped)
 
     def _generate_workreport_name(self, from_date, today, project):
-        """
-        Generate workreport name.
+        """Generate workreport name.
 
         Name is in format: YYMM-YYYYMMDD-$Customer-$Project.ods
         whereas YYMM is year and month of from_date and YYYYMMDD
         is date when work reports gets created.
         """
-        return "{0}-{1}-{2}-{3}.ods".format(
+        return "{}-{}-{}-{}.ods".format(
             from_date.strftime("%y%m"),
             today.strftime("%Y%m%d"),
             self._clean_filename(project.customer.name),
             self._clean_filename(project.name),
         )
 
-    def _create_workreport(self, from_date, to_date, today, project, reports, user):
-        """
-        Create ods workreport.
+    def _create_workreport(self, from_date, to_date, today, project, reports, user):  # noqa: PLR0913
+        """Create ods workreport.
 
         :rtype: tuple
         :return: tuple where as first value is name and second ezodf document
@@ -359,9 +369,9 @@ class WorkReportViewSet(GenericViewSet):
             )
 
         # calculate location of total hours as insert rows moved it
-        table[13 + len(reports) + len(tasks), 2].formula = "of:=SUM(C13:C{0})".format(
-            str(13 + len(reports) - 1)
-        )
+        table[
+            13 + len(reports) + len(tasks), 2
+        ].formula = f"of:=SUM(C13:C{13 + len(reports) - 1!s})"
 
         # calculate location of total not billable hours as insert rows moved it
         table[
@@ -390,9 +400,7 @@ class WorkReportViewSet(GenericViewSet):
             and queryset.count() > settings.WORK_REPORTS_EXPORT_MAX_COUNT
         ):
             return Response(
-                "Your request exceeds the maximum allowed entries ({0})".format(
-                    settings.WORK_REPORTS_EXPORT_MAX_COUNT
-                ),
+                f"Your request exceeds the maximum allowed entries ({settings.WORK_REPORTS_EXPORT_MAX_COUNT})",
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

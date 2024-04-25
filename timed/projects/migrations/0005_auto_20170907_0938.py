@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name="billingtype", options={"ordering": ["name"]}
+            name="billingtype", options={"ordering": ("name",)}
         ),
         migrations.RemoveIndex(
             model_name="customer", name="projects_cu_name_e0e97a_idx"

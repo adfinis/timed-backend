@@ -21,7 +21,7 @@ class CustomerViewSet(ReadOnlyModelViewSet):
 
     serializer_class = serializers.CustomerSerializer
     filterset_class = filters.CustomerFilterSet
-    ordering = "name"
+    ordering = ("name",)
 
     def get_queryset(self):
         """Prefetch related data.
@@ -53,13 +53,15 @@ class CustomerViewSet(ReadOnlyModelViewSet):
 
 class BillingTypeViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.BillingTypeSerializer
-    ordering = "name"
-    permission_classes = [
-        # superuser may edit all billing types
-        IsSuperUser
-        # internal employees may read all billing types
-        | IsAuthenticated & (IsInternal | IsCustomer) & IsReadOnly
-    ]
+    ordering = ("name",)
+    permission_classes = (
+        (
+            # superuser may edit all billing types
+            IsSuperUser
+            # internal employees may read all billing types
+            | IsAuthenticated & (IsInternal | IsCustomer) & IsReadOnly
+        ),
+    )
 
     def get_queryset(self):
         """Get billing types depending on the user's role.
@@ -85,26 +87,26 @@ class BillingTypeViewSet(ReadOnlyModelViewSet):
                     projects__customer__customer_assignees__is_customer=True,
                 )
             return queryset
-        else:
-            if models.CustomerAssignee.objects.filter(
-                user=user, is_customer=True
-            ).exists():
-                return queryset.filter(
-                    projects__customer_visible=True,
-                    projects__customer__customer_assignees__user=user,
-                    projects__customer__customer_assignees__is_customer=True,
-                )
+        if models.CustomerAssignee.objects.filter(user=user, is_customer=True).exists():
+            return queryset.filter(
+                projects__customer_visible=True,
+                projects__customer__customer_assignees__user=user,
+                projects__customer__customer_assignees__is_customer=True,
+            )
+        return None  # pragma: no cover
 
 
 class CostCenterViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.CostCenterSerializer
-    ordering = "name"
-    permission_classes = [
-        # superuser may edit all cost centers
-        IsSuperUser
-        # internal employees may read all cost centers
-        | IsAuthenticated & IsInternal & IsReadOnly
-    ]
+    ordering = ("name",)
+    permission_classes = (
+        (
+            # superuser may edit all cost centers
+            IsSuperUser
+            # internal employees may read all cost centers
+            | IsAuthenticated & IsInternal & IsReadOnly
+        ),
+    )
 
     def get_queryset(self):
         return models.CostCenter.objects.all()
@@ -115,19 +117,24 @@ class ProjectViewSet(ModelViewSet):
 
     serializer_class = serializers.ProjectSerializer
     filterset_class = filters.ProjectFilterSet
-    ordering_fields = ("customer__name", "name")
-    ordering = "name"
+    ordering_fields = (
+        "customer__name",
+        "name",
+    )
+    ordering = ("name",)
     queryset = models.Project.objects.all()
-    permission_classes = [
-        # superuser may edit all projects
-        IsSuperUser
-        # accountants may edit all projects
-        | IsAccountant
-        # managers may edit only assigned projects
-        | IsManager & IsUpdateOnly
-        # all authenticated users may read all tasks
-        | IsAuthenticated & IsReadOnly
-    ]
+    permission_classes = (
+        (
+            # superuser may edit all projects
+            IsSuperUser
+            # accountants may edit all projects
+            | IsAccountant
+            # managers may edit only assigned projects
+            | IsManager & IsUpdateOnly
+            # all authenticated users may read all tasks
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
 
     def get_queryset(self):
         """Get only assigned projects, if an employee is external."""
@@ -161,15 +168,17 @@ class TaskViewSet(ModelViewSet):
     serializer_class = serializers.TaskSerializer
     filterset_class = filters.TaskFilterSet
     queryset = models.Task.objects.select_related("project", "cost_center")
-    ordering = "name"
-    permission_classes = [
-        # superuser may edit all tasks
-        IsSuperUser
-        # managers may edit all tasks
-        | IsManager
-        # all authenticated users may read all tasks
-        | IsAuthenticated & IsReadOnly
-    ]
+    ordering = ("name",)
+    permission_classes = (
+        (
+            # superuser may edit all tasks
+            IsSuperUser
+            # managers may edit all tasks
+            | IsManager
+            # all authenticated users may read all tasks
+            | IsAuthenticated & IsReadOnly
+        ),
+    )
 
     def filter_queryset(self, queryset):
         """Specific filter queryset options."""

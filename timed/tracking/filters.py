@@ -45,7 +45,7 @@ class ActivityActiveFilter(Filter):
     """
 
     @boolean_filter
-    def filter(self, qs, value):
+    def filter(self, qs, _value):
         """Filter the queryset.
 
         :param QuerySet qs: The queryset to filter
@@ -66,7 +66,10 @@ class ActivityFilterSet(FilterSet):
         """Meta information for the activity filter set."""
 
         model = models.Activity
-        fields = ["active", "day"]
+        fields = (
+            "active",
+            "day",
+        )
 
 
 class AttendanceFilterSet(FilterSet):
@@ -76,7 +79,7 @@ class AttendanceFilterSet(FilterSet):
         """Meta information for the attendance filter set."""
 
         model = models.Attendance
-        fields = ["date"]
+        fields = ("date",)
 
 
 class ReportFilterSet(FilterSet):
@@ -101,7 +104,7 @@ class ReportFilterSet(FilterSet):
     cost_center = NumberFilter(method="filter_cost_center")
     rejected = NumberFilter(field_name="rejected")
 
-    def filter_has_reviewer(self, queryset, name, value):
+    def filter_has_reviewer(self, queryset, _name, value):
         if not value:  # pragma: no cover
             return queryset
 
@@ -155,7 +158,7 @@ class ReportFilterSet(FilterSet):
             | reports_task_assignee_is_reviewer
         )
 
-    def filter_editable(self, queryset, name, value):
+    def filter_editable(self, queryset, _name, value):
         """Filter reports whether they are editable by current user.
 
         When set to `1` filter all results to what is editable by current
@@ -186,25 +189,22 @@ class ReportFilterSet(FilterSet):
             if user.is_superuser:
                 # superuser may edit all reports
                 return queryset
-            elif user.is_accountant:
+            if user.is_accountant:
                 return queryset.filter(unfinished_filter)
             # only owner, reviewer or supervisor may change unverified reports
-            queryset = queryset.filter(editable_filter).distinct()
+            return queryset.filter(editable_filter).distinct()
 
-            return queryset
-        else:  # not editable
-            if user.is_superuser:
-                # no reports which are not editable
-                return queryset.none()
-            elif user.is_accountant:
-                return queryset.exclude(unfinished_filter)
+        # not editable
+        if user.is_superuser:
+            # no reports which are not editable
+            return queryset.none()
+        if user.is_accountant:
+            return queryset.exclude(unfinished_filter)
 
-            queryset = queryset.exclude(editable_filter)
-            return queryset
+        return queryset.exclude(editable_filter)
 
-    def filter_cost_center(self, queryset, name, value):
-        """
-        Filter report by cost center.
+    def filter_cost_center(self, queryset, _name, value):
+        """Filter report by cost center.
 
         Cost center on task has higher priority over project cost
         center.
@@ -243,4 +243,9 @@ class AbsenceFilterSet(FilterSet):
         """Meta information for the absence filter set."""
 
         model = models.Absence
-        fields = ["date", "from_date", "to_date", "user"]
+        fields = (
+            "date",
+            "from_date",
+            "to_date",
+            "user",
+        )

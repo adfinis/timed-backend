@@ -11,7 +11,7 @@ from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.parametrize(
-    "is_employed, is_customer_assignee, is_customer, expected, status_code",
+    ("is_employed", "is_customer_assignee", "is_customer", "expected", "status_code"),
     [
         (False, True, False, 1, status.HTTP_403_FORBIDDEN),
         (False, True, True, 1, status.HTTP_403_FORBIDDEN),
@@ -93,12 +93,12 @@ def test_task_statistic_list(
 
 
 @pytest.mark.parametrize(
-    "filter, expected_result",
+    ("filter", "expected_result"),
     [("from_date", 5), ("customer", 3), ("cost_center", 3), ("reviewer", 3)],
 )
 def test_task_statistic_filtered(
     auth_client,
-    filter,
+    filter,  # noqa: A002
     expected_result,
 ):
     user = auth_client.user

@@ -85,8 +85,6 @@ class Command(BaseCommand):
                 issue.save()
             except redminelib.exceptions.BaseRedmineError:
                 sys.stderr.write(
-                    "Project {0} has an invalid Redmine "
-                    "issue {1} assigned. Skipping".format(
-                        project.name, project.redmine_project.issue_id
-                    )
+                    f"Project {project.name} has an invalid Redmine "
+                    f"issue {project.redmine_project.issue_id} assigned. Skipping"
                 )

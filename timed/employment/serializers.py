@@ -1,6 +1,9 @@
 """Serializers for the employment app."""
 
+from __future__ import annotations
+
 from datetime import date, timedelta
+from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 from django.db.models import Max, Value
@@ -18,9 +21,12 @@ from rest_framework_json_api.serializers import (
 from timed.employment import models
 from timed.tracking.models import Absence, Report
 
+if TYPE_CHECKING:
+    from typing import ClassVar
+
 
 class UserSerializer(ModelSerializer):
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "supervisors": "timed.employment.serializers.UserSerializer",
         "supervisees": "timed.employment.serializers.UserSerializer",
     }
@@ -29,7 +35,7 @@ class UserSerializer(ModelSerializer):
         """Meta information for the user serializer."""
 
         model = get_user_model()
-        fields = [
+        fields = (
             "email",
             "first_name",
             "is_active",
@@ -42,8 +48,8 @@ class UserSerializer(ModelSerializer):
             "username",
             "is_reviewer",
             "is_accountant",
-        ]
-        read_only_fields = [
+        )
+        read_only_fields = (
             "first_name",
             "is_active",
             "is_staff",
@@ -54,7 +60,7 @@ class UserSerializer(ModelSerializer):
             "username",
             "is_reviewer",
             "is_accountant",
-        ]
+        )
 
 
 class WorktimeBalanceSerializer(Serializer):
@@ -94,7 +100,9 @@ class WorktimeBalanceSerializer(Serializer):
         _, _, balance = instance.id.calculate_worktime(start, balance_date)
         return duration_string(balance)
 
-    included_serializers = {"user": "timed.employment.serializers.UserSerializer"}
+    included_serializers: ClassVar[dict[str, str]] = {
+        "user": "timed.employment.serializers.UserSerializer"
+    }
 
     class Meta:
         resource_name = "worktime-balances"
@@ -123,8 +131,7 @@ class AbsenceBalanceSerializer(Serializer):
         return date(instance.date.year, 1, 1)
 
     def get_credit(self, instance):
-        """
-        Calculate how many days are approved for given absence type.
+        """Calculate how many days are approved for given absence type.
 
         For absence types which fill worktime this will be None.
         """
@@ -143,8 +150,7 @@ class AbsenceBalanceSerializer(Serializer):
         return instance["credit"]
 
     def get_used_days(self, instance):
-        """
-        Calculate how many days are used of given absence type.
+        """Calculate how many days are used of given absence type.
 
         For absence types which fill worktime this will be None.
         """
@@ -163,8 +169,7 @@ class AbsenceBalanceSerializer(Serializer):
         return instance["used_days"]
 
     def get_used_duration(self, instance):
-        """
-        Calculate duration of absence type.
+        """Calculate duration of absence type.
 
         For absence types which fill worktime this will be None.
         """
@@ -217,7 +222,7 @@ class AbsenceBalanceSerializer(Serializer):
 
         return self.get_credit(instance) - self.get_used_days(instance)
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "absence_type": "timed.employment.serializers.AbsenceTypeSerializer",
         "absence_credits": "timed.employment.serializers.AbsenceCreditSerializer",
     }
@@ -227,20 +232,16 @@ class AbsenceBalanceSerializer(Serializer):
 
 
 class EmploymentSerializer(ModelSerializer):
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "user": "timed.employment.serializers.UserSerializer",
         "location": "timed.employment.serializers.LocationSerializer",
     }
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         """Validate the employment as a whole.
 
         Ensure the end date is after the start date and there is only one
         active employment per user and there are no overlapping employments.
-
-        :throws: django.core.exceptions.ValidationError
-        :return: validated data
-        :rtype:  dict
         """
         instance = self.instance
         start_date = data.get("start_date", instance and instance.start_date)
@@ -258,7 +259,7 @@ class EmploymentSerializer(ModelSerializer):
         if instance:
             employments = employments.exclude(id=instance.id)
 
-        if any([e.start_date <= end_date and start_date <= e.end for e in employments]):
+        if any(e.start_date <= end_date and start_date <= e.end for e in employments):
             raise ValidationError(
                 _("A user can't have multiple employments at the same time")
             )
@@ -267,7 +268,7 @@ class EmploymentSerializer(ModelSerializer):
 
     class Meta:
         model = models.Employment
-        fields = [
+        fields = (
             "user",
             "location",
             "percentage",
@@ -275,7 +276,7 @@ class EmploymentSerializer(ModelSerializer):
             "start_date",
             "end_date",
             "is_external",
-        ]
+        )
 
 
 class LocationSerializer(ModelSerializer):
@@ -285,7 +286,10 @@ class LocationSerializer(ModelSerializer):
         """Meta information for the location serializer."""
 
         model = models.Location
-        fields = ["name", "workdays"]
+        fields = (
+            "name",
+            "workdays",
+        )
 
 
 class PublicHolidaySerializer(ModelSerializer):
@@ -293,7 +297,7 @@ class PublicHolidaySerializer(ModelSerializer):
 
     location = relations.ResourceRelatedField(read_only=True)
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "location": "timed.employment.serializers.LocationSerializer"
     }
 
@@ -301,7 +305,11 @@ class PublicHolidaySerializer(ModelSerializer):
         """Meta information for the public holiday serializer."""
 
         model = models.PublicHoliday
-        fields = ["name", "date", "location"]
+        fields = (
+            "name",
+            "date",
+            "location",
+        )
 
 
 class AbsenceTypeSerializer(ModelSerializer):
@@ -311,13 +319,16 @@ class AbsenceTypeSerializer(ModelSerializer):
         """Meta information for the absence type serializer."""
 
         model = models.AbsenceType
-        fields = ["name", "fill_worktime"]
+        fields = (
+            "name",
+            "fill_worktime",
+        )
 
 
 class AbsenceCreditSerializer(ModelSerializer):
     """Absence credit serializer."""
 
-    included_serializers = {
+    included_serializers: ClassVar[dict[str, str]] = {
         "absence_type": "timed.employment.serializers.AbsenceTypeSerializer"
     }
 
@@ -325,10 +336,23 @@ class AbsenceCreditSerializer(ModelSerializer):
         """Meta information for the absence credit serializer."""
 
         model = models.AbsenceCredit
-        fields = ["user", "absence_type", "date", "days", "comment", "transfer"]
+        fields = (
+            "user",
+            "absence_type",
+            "date",
+            "days",
+            "comment",
+            "transfer",
+        )
 
 
 class OvertimeCreditSerializer(ModelSerializer):
     class Meta:
         model = models.OvertimeCredit
-        fields = ["user", "date", "duration", "comment", "transfer"]
+        fields = (
+            "user",
+            "date",
+            "duration",
+            "comment",
+            "transfer",
+        )

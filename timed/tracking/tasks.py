@@ -3,9 +3,8 @@ from django.core.mail import EmailMessage, get_connection
 from django.template.loader import get_template
 
 
-def _send_notification_emails(changes, reviewer, rejected=False):
+def _send_notification_emails(changes, reviewer, rejected=False):  # noqa: FBT002
     """Send email for each user."""
-
     if rejected:
         subject = "[Timed] Your reports have been rejected"
         template = get_template("mail/notify_user_rejected_reports.tmpl", using="text")
@@ -47,7 +46,7 @@ def _get_report_changeset(report, fields):
         "report": report,
         "changes": {
             key: {"old": getattr(report, key), "new": fields[key]}
-            for key in fields.keys()
+            for key in fields
             # skip if field is not changed or just a reviewer field
             if getattr(report, key) != fields[key]
             and key in settings.TRACKING_REPORT_VERIFIED_CHANGES
@@ -93,10 +92,10 @@ def notify_user_changed_reports(queryset, fields, reviewer):
 
 def notify_user_rejected_report(report, reviewer):
     user_changes = {"user": report.user, "changes": [{"report": report}]}
-    _send_notification_emails([user_changes], reviewer, True)
+    _send_notification_emails([user_changes], reviewer, rejected=True)
 
 
-def notify_user_rejected_reports(queryset, fields, reviewer):
+def notify_user_rejected_reports(queryset, _fields, reviewer):
     users = [report.user for report in queryset.order_by("user").distinct("user")]
     user_changes = []
 
@@ -107,4 +106,4 @@ def notify_user_rejected_reports(queryset, fields, reviewer):
             changes.append(changeset)
         user_changes.append({"user": user, "changes": changes})
 
-    _send_notification_emails(user_changes, reviewer, True)
+    _send_notification_emails(user_changes, reviewer, rejected=True)

@@ -1,5 +1,4 @@
-"""
-WSGI config for timed project.
+"""WSGI config for timed project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

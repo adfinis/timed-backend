@@ -7,7 +7,7 @@ from timed.projects.factories import CustomerAssigneeFactory
 
 
 @pytest.mark.parametrize(
-    "is_employed, is_external, is_customer_assignee, is_customer, expected",
+    ("is_employed", "is_external", "is_customer_assignee", "is_customer", "expected"),
     [
         (False, False, True, False, 0),
         (False, False, True, True, 0),

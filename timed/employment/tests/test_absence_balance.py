@@ -47,7 +47,7 @@ def test_absence_balance_full_day(auth_client, django_assert_num_queries):
     assert len(json["data"]) == 1
     entry = json["data"][0]
 
-    assert entry["id"] == "{0}_{1}_2017-03-01".format(user.id, absence_type.id)
+    assert entry["id"] == f"{user.id}_{absence_type.id}_2017-03-01"
     assert entry["attributes"]["credit"] == 5
     assert entry["attributes"]["used-days"] == 2
     assert entry["attributes"]["used-duration"] is None
@@ -92,7 +92,7 @@ def test_absence_balance_fill_worktime(auth_client, django_assert_num_queries):
     assert len(json["data"]) == 1
     entry = json["data"][0]
 
-    assert entry["id"] == "{0}_{1}_2017-03-01".format(user.id, absence_type.id)
+    assert entry["id"] == f"{user.id}_{absence_type.id}_2017-03-01"
 
     assert entry["attributes"]["credit"] is None
     assert entry["attributes"]["balance"] is None
@@ -105,7 +105,7 @@ def test_absence_balance_detail(auth_client):
     absence_type = AbsenceTypeFactory.create()
     url = reverse(
         "absence-balance-detail",
-        args=["{0}_{1}_2017-03-01".format(user.id, absence_type.id)],
+        args=[f"{user.id}_{absence_type.id}_2017-03-01"],
     )
 
     result = auth_client.get(url)
@@ -139,7 +139,7 @@ def test_absence_balance_detail_none_supervisee(auth_client):
 
     url = reverse(
         "absence-balance-detail",
-        args=["{0}_{1}_2017-03-01".format(unrelated_user.id, absence_type.id)],
+        args=[f"{unrelated_user.id}_{absence_type.id}_2017-03-01"],
     )
 
     result = auth_client.get(url)
