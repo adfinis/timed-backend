@@ -1,6 +1,9 @@
 """Viewsets for the employment app."""
 
+from __future__ import annotations
+
 import datetime
+from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 from django.db.models import CharField, DateField, IntegerField, Q, Value
@@ -27,6 +30,9 @@ from timed.permissions import (
 )
 from timed.projects.models import CustomerAssignee, Task
 from timed.tracking.models import Absence, Report
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 
 class UserViewSet(ModelViewSet):
@@ -57,7 +63,7 @@ class UserViewSet(ModelViewSet):
         "last_name",
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.User]:
         user = self.request.user
         queryset = get_user_model().objects.prefetch_related(
             "employments", "supervisees", "supervisors"
@@ -114,7 +120,7 @@ class UserViewSet(ModelViewSet):
         It will skip any credits if a credit already exists on the first
         of the new year.
         """
-        user = self.get_object()
+        user: models.User = self.get_object()
 
         year = datetime.date.today().year
         start_year = datetime.date(year, 1, 1)
@@ -325,7 +331,7 @@ class EmploymentViewSet(ModelViewSet):
         ),
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Employment]:
         """Get queryset of employments.
 
         Following rules apply:
@@ -350,7 +356,7 @@ class LocationViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.LocationSerializer
     ordering = ("name",)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Location]:
         """Don't show locations to customers."""
         user = self.request.user
 
@@ -368,13 +374,10 @@ class PublicHolidayViewSet(ReadOnlyModelViewSet):
     filterset_class = filters.PublicHolidayFilterSet
     ordering = ("date",)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.PublicHoliday]:
         """Prefetch the related data.
 
         Don't show public holidays to customers.
-
-        :return: The public holidays
-        :rtype:  QuerySet
         """
         user = self.request.user
 
@@ -393,7 +396,7 @@ class AbsenceTypeViewSet(ReadOnlyModelViewSet):
     filterset_class = filters.AbsenceTypeFilterSet
     ordering = ("name",)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.AbsenceType]:
         """Don't show absence types to customers."""
         user = self.request.user
 
@@ -418,7 +421,7 @@ class AbsenceCreditViewSet(ModelViewSet):
         ),
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.AbsenceCredit]:
         """Get queryset of absence credits.
 
         Following rules apply:
@@ -450,7 +453,7 @@ class OvertimeCreditViewSet(ModelViewSet):
         ),
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.OvertimeCredit]:
         """Get queryset of overtime credits.
 
         Following rules apply:

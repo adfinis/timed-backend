@@ -1,5 +1,9 @@
 """Viewsets for the projects app."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -15,6 +19,9 @@ from timed.permissions import (
 )
 from timed.projects import filters, models, serializers
 
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+
 
 class CustomerViewSet(ReadOnlyModelViewSet):
     """Customer view set."""
@@ -23,13 +30,10 @@ class CustomerViewSet(ReadOnlyModelViewSet):
     filterset_class = filters.CustomerFilterSet
     ordering = ("name",)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Customer]:
         """Prefetch related data.
 
         If an employee is external, get only assigned customers.
-
-        :return: The customers
-        :rtype:  QuerySet
         """
         user = self.request.user
         queryset = models.Customer.objects.prefetch_related("projects")
@@ -63,7 +67,7 @@ class BillingTypeViewSet(ReadOnlyModelViewSet):
         ),
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.BillingType] | None:
         """Get billing types depending on the user's role.
 
         Internal employees should see all billing types.
@@ -108,7 +112,7 @@ class CostCenterViewSet(ReadOnlyModelViewSet):
         ),
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.CostCenter]:
         return models.CostCenter.objects.all()
 
 
@@ -136,7 +140,7 @@ class ProjectViewSet(ModelViewSet):
         ),
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Project]:
         """Get only assigned projects, if an employee is external."""
         user = self.request.user
         queryset = (
@@ -180,7 +184,7 @@ class TaskViewSet(ModelViewSet):
         ),
     )
 
-    def filter_queryset(self, queryset):
+    def filter_queryset(self, queryset: QuerySet[models.Task]) -> QuerySet[models.Task]:
         """Specific filter queryset options."""
         # my most frequent filter uses LIMIT so default ordering
         # needs to be disabled to avoid exception
@@ -190,7 +194,7 @@ class TaskViewSet(ModelViewSet):
 
         return super().filter_queryset(queryset)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Task]:
         """Get only assigned tasks, if an employee is external."""
         user = self.request.user
         queryset = super().get_queryset().select_related("project", "cost_center")
@@ -218,7 +222,7 @@ class TaskAsssigneeViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.TaskAssigneeSerializer
     filterset_class = filters.TaskAssigneeFilterSet
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.TaskAssignee]:
         """Don't show task assignees to customers."""
         user = self.request.user
 
@@ -234,7 +238,7 @@ class ProjectAsssigneeViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.ProjectAssigneeSerializer
     filterset_class = filters.ProjectAssigneeFilterSet
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.ProjectAssignee]:
         """Don't show project assignees to customers."""
         user = self.request.user
 
@@ -250,7 +254,7 @@ class CustomerAsssigneeViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.CustomerAssigneeSerializer
     filterset_class = filters.CustomerAssigneeFilterSet
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.CustomerAssignee]:
         """Don't show customer assignees to customers."""
         user = self.request.user
 
