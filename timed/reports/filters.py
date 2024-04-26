@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db.models import DurationField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django_filters.rest_framework import (
@@ -9,9 +13,16 @@ from django_filters.rest_framework import (
 
 from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssignee
 
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+
+    from timed.tracking.models import Report
+
 
 class StatisticFiltersetBase:
-    def filter_has_reviewer(self, queryset, _name, value):
+    def filter_has_reviewer(
+        self, queryset: QuerySet[Report], _name: str, value: int
+    ) -> QuerySet[Report]:
         if not value:  # pragma: no cover
             return queryset
 
@@ -37,7 +48,9 @@ class StatisticFiltersetBase:
         )
         return queryset.filter_aggregate(the_filter).filter_base(the_filter)
 
-    def filter_cost_center(self, queryset, _name, value):
+    def filter_cost_center(
+        self, queryset: QuerySet[Report], _name: str, value: int
+    ) -> QuerySet[Report]:
         """Filter report by cost center.
 
         The filter behaves slightly different depending on what the
@@ -73,7 +86,7 @@ class StatisticFiltersetBase:
         # Project or task: Filter both to get the correct result
         return queryset.filter_base(filter_q).filter_aggregate(filter_q)
 
-    def filter_queryset(self, queryset):
+    def filter_queryset(self, queryset: QuerySet[Report]) -> QuerySet[Report]:
         qs = super().filter_queryset(queryset)
 
         duration_ref = self._refs["reports_ref"] + "__duration"
@@ -88,7 +101,9 @@ class StatisticFiltersetBase:
         return full_qs.values()
 
 
-def statistic_filterset_builder(name, reports_ref, project_ref, customer_ref, task_ref):
+def statistic_filterset_builder(
+    name: str, reports_ref: str, project_ref: str, customer_ref: str, task_ref: str
+) -> type[StatisticFiltersetBase, FilterSet]:
     reports_prefix = f"{reports_ref}__" if reports_ref else ""
     project_prefix = f"{project_ref}__" if project_ref else ""
     customer_prefix = f"{customer_ref}__" if customer_ref else ""

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db.models import Q
 from django_filters.constants import EMPTY_VALUES
 from django_filters.rest_framework import DateFilter, Filter, FilterSet, NumberFilter
@@ -5,11 +9,18 @@ from django_filters.rest_framework import DateFilter, Filter, FilterSet, NumberF
 from timed.employment import models
 from timed.employment.models import User
 
+if TYPE_CHECKING:
+    from typing import TypeVar
+
+    from django.db.models import QuerySet
+
+    T = TypeVar("T", QuerySet)
+
 
 class YearFilter(Filter):
     """Filter to filter a queryset by year."""
 
-    def filter(self, qs, value):
+    def filter(self, qs: T, value: int) -> T:
         if value in EMPTY_VALUES:
             return qs
 
@@ -54,15 +65,21 @@ class UserFilterSet(FilterSet):
     is_accountant = NumberFilter(field_name="is_accountant")
     is_external = NumberFilter(method="filter_is_external")
 
-    def filter_is_external(self, queryset, _name, value):
+    def filter_is_external(
+        self, queryset: QuerySet[models.User], _name: str, value: int
+    ) -> QuerySet[models.User]:
         return queryset.filter(employments__is_external=value)
 
-    def filter_is_reviewer(self, queryset, _name, value):
+    def filter_is_reviewer(
+        self, queryset: QuerySet[models.User], _name: str, value: int
+    ) -> QuerySet[models.User]:
         if value:
             return queryset.filter(pk__in=User.objects.all_reviewers())
         return queryset.exclude(pk__in=User.objects.all_reviewers())
 
-    def filter_is_supervisor(self, queryset, _name, value):
+    def filter_is_supervisor(
+        self, queryset: QuerySet[models.User], _name: str, value: int
+    ) -> QuerySet[models.User]:
         if value:
             return queryset.filter(pk__in=User.objects.all_supervisors())
         return queryset.exclude(pk__in=User.objects.all_supervisors())
@@ -81,7 +98,9 @@ class UserFilterSet(FilterSet):
 class EmploymentFilterSet(FilterSet):
     date = DateFilter(method="filter_date")
 
-    def filter_date(self, queryset, _name, value):
+    def filter_date(
+        self, queryset: QuerySet[models.Employment], _name: str, value: int
+    ) -> QuerySet[models.Employment]:
         return queryset.filter(
             Q(start_date__lte=value)
             & Q(Q(end_date__gte=value) | Q(end_date__isnull=True))

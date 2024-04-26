@@ -1,6 +1,9 @@
 """Filters for filtering the data of the tracking app endpoints."""
 
+from __future__ import annotations
+
 from functools import wraps
+from typing import TYPE_CHECKING
 
 from django.db.models import Q
 from django_filters.constants import EMPTY_VALUES
@@ -16,8 +19,16 @@ from django_filters.rest_framework import (
 from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssignee
 from timed.tracking import models
 
+if TYPE_CHECKING:
+    from typing import Callable, TypeVar
 
-def boolean_filter(func):
+    from django.db.models import QuerySet
+
+    T = TypeVar("T")  # used for self
+    G = TypeVar("G", QuerySet)  # used for qs
+
+
+def boolean_filter(func: Callable[[T, G, str], G]) -> Callable[[T, G, bool], G]:
     """Cast the passed query parameter into a boolean.
 
     :param function func: The function to decorate
@@ -45,14 +56,12 @@ class ActivityActiveFilter(Filter):
     """
 
     @boolean_filter
-    def filter(self, qs, _value):
-        """Filter the queryset.
-
-        :param QuerySet qs: The queryset to filter
-        :param bool  value: Whether the activities should be active
-        :return:            The filtered queryset
-        :rtype:             QuerySet
-        """
+    def filter(
+        self,
+        qs: QuerySet[models.Activity],
+        _value: bool,  # noqa: FBT001
+    ) -> QuerySet[models.Activity]:
+        """Filter the queryset."""
         return qs.filter(to_time__exact=None).distinct()
 
 
@@ -104,7 +113,9 @@ class ReportFilterSet(FilterSet):
     cost_center = NumberFilter(method="filter_cost_center")
     rejected = NumberFilter(field_name="rejected")
 
-    def filter_has_reviewer(self, queryset, _name, value):
+    def filter_has_reviewer(
+        self, queryset: QuerySet[models.Report], _name: str, value: int
+    ) -> QuerySet[models.Report]:
         if not value:  # pragma: no cover
             return queryset
 
@@ -158,7 +169,9 @@ class ReportFilterSet(FilterSet):
             | reports_task_assignee_is_reviewer
         )
 
-    def filter_editable(self, queryset, _name, value):
+    def filter_editable(
+        self, queryset: QuerySet[models.Report], _name: str, value: int
+    ) -> QuerySet[models.Report]:
         """Filter reports whether they are editable by current user.
 
         When set to `1` filter all results to what is editable by current
@@ -203,7 +216,9 @@ class ReportFilterSet(FilterSet):
 
         return queryset.exclude(editable_filter)
 
-    def filter_cost_center(self, queryset, _name, value):
+    def filter_cost_center(
+        self, queryset: QuerySet[models.Report], _name: str, value: int
+    ) -> QuerySet[models.Report]:
         """Filter report by cost center.
 
         Cost center on task has higher priority over project cost
