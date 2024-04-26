@@ -1,12 +1,18 @@
 """Filters for filtering the data of the projects app endpoints."""
 
+from __future__ import annotations
+
 from datetime import date, timedelta
+from typing import TYPE_CHECKING
 
 from django.db.models import Count, Q
 from django_filters.constants import EMPTY_VALUES
 from django_filters.rest_framework import BaseInFilter, Filter, FilterSet, NumberFilter
 
 from timed.projects import models
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 
 class NumberInFilter(BaseInFilter, NumberFilter):
@@ -36,7 +42,9 @@ class ProjectFilterSet(FilterSet):
     has_reviewer = NumberFilter(method="filter_has_reviewer")
     customer = NumberInFilter(field_name="customer")
 
-    def filter_has_manager(self, queryset, _name, value):
+    def filter_has_manager(
+        self, queryset: QuerySet[models.Project], _name: str, value: int
+    ) -> QuerySet[models.Project]:
         if not value:  # pragma: no cover
             return queryset
         return queryset.filter(
@@ -52,7 +60,9 @@ class ProjectFilterSet(FilterSet):
             )
         )
 
-    def filter_has_reviewer(self, queryset, _name, value):
+    def filter_has_reviewer(
+        self, queryset: QuerySet[models.Project], _name: str, value: int
+    ) -> QuerySet[models.Project]:
         if not value:  # pragma: no cover
             return queryset
         return queryset.filter(
@@ -88,17 +98,14 @@ class MyMostFrequentTaskFilter(Filter):
     # would be more desirable to assign an ordering field frecency and to
     # limit by use paging.  This is way harder to implement therefore on hold.
 
-    def filter(self, qs, value):
+    def filter(
+        self, qs: QuerySet[models.Task], value: int | str | tuple | list | None
+    ) -> QuerySet[models.Task]:
         """Filter for given most frequently used tasks.
 
         Most frequently used tasks are only counted within last
         few months as older tasks are not relevant anymore
         for today's usage.
-
-        :param QuerySet qs: The queryset to filter
-        :param int   value: number of most frequent items
-        :return:            The filtered queryset
-        :rtype:             QuerySet
         """
         if value in EMPTY_VALUES:
             return qs
