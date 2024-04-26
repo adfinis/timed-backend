@@ -1,6 +1,9 @@
 """Viewsets for the tracking app."""
 
+from __future__ import annotations
+
 from datetime import date
+from typing import TYPE_CHECKING
 
 import django_excel
 from django.conf import settings
@@ -34,6 +37,9 @@ from timed.tracking import filters, models, serializers
 
 from . import tasks
 
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+
 
 class ActivityViewSet(ModelViewSet):
     """Activity view set."""
@@ -50,12 +56,8 @@ class ActivityViewSet(ModelViewSet):
         ),
     )
 
-    def get_queryset(self):
-        """Filter the queryset by the user of the request.
-
-        :return: The filtered activities
-        :rtype:  QuerySet
-        """
+    def get_queryset(self) -> QuerySet[models.Activity]:
+        """Filter the queryset by the user of the request."""
         return models.Activity.objects.select_related(
             "task", "user", "task__project", "task__project__customer"
         ).filter(user=self.request.user)
@@ -77,12 +79,8 @@ class AttendanceViewSet(ModelViewSet):
         ),
     )
 
-    def get_queryset(self):
-        """Filter the queryset by the user of the request.
-
-        :return: The filtered attendances
-        :rtype:  QuerySet
-        """
+    def get_queryset(self) -> QuerySet[models.Attendance]:
+        """Filter the queryset by the user of the request."""
         return models.Attendance.objects.select_related("user").filter(
             user=self.request.user
         )
@@ -128,7 +126,7 @@ class ReportViewSet(ModelViewSet):
         "rejected",
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Report]:
         """Get filtered reports for external employees."""
         user = self.request.user
         queryset = super().get_queryset()
@@ -375,7 +373,7 @@ class AbsenceViewSet(ModelViewSet):
         ),
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Absence]:
         """Get absences only for internal employees.
 
         User should be able to create an absence on a public holiday if the

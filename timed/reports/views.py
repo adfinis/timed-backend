@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import re
 from collections import defaultdict
 from datetime import date
 from io import BytesIO
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 from django.conf import settings
@@ -22,6 +25,13 @@ from timed.tracking.models import Report
 from timed.tracking.views import ReportViewSet
 
 from . import filters
+
+if TYPE_CHECKING:
+    from typing import Iterable
+
+    from ezodf.document import FlatXMLDocument, PackagedDocument
+
+    from timed.employment.models import User
 
 
 class YearStatisticViewSet(AggregateQuerysetMixin, ReadOnlyModelViewSet):
@@ -273,7 +283,7 @@ class WorkReportViewSet(GenericViewSet):
         form.is_valid()
         return form.cleaned_data
 
-    def _clean_filename(self, name):
+    def _clean_filename(self, name: str) -> str:
         """Clean name so it can be used in file paths.
 
         To accomplish this it will remove all special chars and
@@ -282,7 +292,7 @@ class WorkReportViewSet(GenericViewSet):
         escaped = re.sub(r"[^\w\s-]", "", name)
         return re.sub(r"\s+", "_", escaped)
 
-    def _generate_workreport_name(self, from_date, project):
+    def _generate_workreport_name(self, from_date: date, project: Project) -> str:
         """Generate workreport name.
 
         Name is in format: YYMM-YYYYMMDD-$Customer-$Project.ods
@@ -296,7 +306,14 @@ class WorkReportViewSet(GenericViewSet):
             self._clean_filename(project.name),
         )
 
-    def _create_workreport(self, from_date, to_date, project, reports, user):  # noqa: PLR0913
+    def _create_workreport(  # noqa: PLR0913
+        self,
+        from_date: date,
+        to_date: date,
+        project: Project,
+        reports: Iterable[Report],
+        user: User,
+    ) -> tuple[str, PackagedDocument | FlatXMLDocument]:
         """Create ods workreport.
 
         :rtype: tuple
@@ -312,7 +329,7 @@ class WorkReportViewSet(GenericViewSet):
         )
 
         tmpl = settings.WORK_REPORT_PATH
-        doc = opendoc(tmpl)
+        doc: PackagedDocument | FlatXMLDocument = opendoc(tmpl)
         table = doc.sheets[0]
         tasks = defaultdict(int)
         date_style = table["C5"].style_name

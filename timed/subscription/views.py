@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db.models import Q
 from rest_framework import decorators, exceptions, response, status, viewsets
 from rest_framework_json_api.serializers import ValidationError
@@ -16,6 +20,9 @@ from timed.projects.models import CustomerAssignee, Project
 
 from . import filters, models, serializers
 
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+
 
 class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
     """Subscription specific project view.
@@ -31,7 +38,7 @@ class SubscriptionProjectViewSet(viewsets.ReadOnlyModelViewSet):
         "id",
     )
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Project]:
         user = self.request.user
         queryset = Project.objects.filter(archived=False, customer_visible=True)
         current_employment = user.get_active_employment()
@@ -53,7 +60,7 @@ class PackageViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.PackageSerializer
     filterset_class = filters.PackageFilter
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Package]:
         return models.Package.objects.select_related("billing_type")
 
 
@@ -111,7 +118,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         return response.Response(status=status.HTTP_204_NO_CONTENT)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[models.Order]:
         return models.Order.objects.select_related("project")
 
     def destroy(self, _request, pk=None):  # noqa: ARG002
