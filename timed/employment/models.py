@@ -1,6 +1,9 @@
 """Models for the employment app."""
 
+from __future__ import annotations
+
 from datetime import date, timedelta
+from typing import TYPE_CHECKING
 
 from dateutil import rrule
 from django.conf import settings
@@ -12,7 +15,10 @@ from django.utils.translation import gettext_lazy as _
 
 from timed.models import WeekdaysField
 from timed.projects.models import CustomerAssignee, ProjectAssignee, TaskAssignee
-from timed.tracking.models import Absence
+from timed.tracking.models import Absence, Report
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 
 class Location(models.Model):
@@ -76,7 +82,7 @@ class AbsenceType(models.Model):
         """Represent the model as a string."""
         return self.name
 
-    def calculate_credit(self, user, start, end):
+    def calculate_credit(self, user: User, start: date, end: date) -> int | None:
         """Calculate approved days of type for user in given time frame.
 
         For absence types which fill worktime this will be None.
@@ -90,7 +96,7 @@ class AbsenceType(models.Model):
         data = credits.aggregate(credit=Sum("days"))
         return data["credit"] or 0
 
-    def calculate_used_days(self, user, start, end):
+    def calculate_used_days(self, user: User, start: date, end: date) -> int | None:
         """Calculate used days of type for user in given time frame.
 
         For absence types which fill worktime this will be None.
@@ -157,7 +163,7 @@ class OvertimeCredit(models.Model):
 class EmploymentManager(models.Manager):
     """Custom manager for employments."""
 
-    def get_at(self, user, date):
+    def get_at(self, user: User, date: date) -> Employment:
         """Get employment of user at given date.
 
         :param User user: The user of the searched employments
@@ -170,7 +176,7 @@ class EmploymentManager(models.Manager):
             user=user,
         )
 
-    def for_user(self, user, start, end):
+    def for_user(self, user: User, start: date, end: date) -> QuerySet[Employment]:
         """Get employments in given time frame for current user.
 
         This includes overlapping employments.
@@ -228,7 +234,9 @@ class Employment(models.Model):
             self.end_date.strftime("%d.%m.%Y") if self.end_date else "today",
         )
 
-    def calculate_worktime(self, start, end):
+    def calculate_worktime(
+        self, start: date, end: date
+    ) -> tuple[timedelta, timedelta, timedelta]:
         """Calculate reported, expected and balance for employment.
 
         1. It shortens the time frame so it is within given employment
@@ -245,13 +253,8 @@ class Employment(models.Model):
         7. The balance is the reported time plus the absences plus the
             overtime credit minus the expected worktime
 
-        :param start: calculate worktime starting on given day.
-        :param end:   calculate worktime till given day
-        :returns:     tuple of 3 values reported, expected and delta in given
-                      time frame
+        Return a tuple with 3 timedeltas of reported, expected and the delta.
         """
-        from timed.tracking.models import Absence, Report
-
         # shorten time frame to employment
         start = max(start, self.start_date)
         end = min(self.end_date or date.today(), end)
@@ -303,13 +306,13 @@ class Employment(models.Model):
 
 
 class UserManager(UserManager):
-    def all_supervisors(self):
+    def all_supervisors(self) -> QuerySet[User]:
         objects = self.model.objects.annotate(
             supervisees_count=models.Count("supervisees")
         )
         return objects.filter(supervisees_count__gt=0)
 
-    def all_reviewers(self):
+    def all_reviewers(self) -> QuerySet[User]:
         return self.all().filter(
             models.Q(
                 pk__in=TaskAssignee.objects.filter(is_reviewer=True).values("user")
@@ -322,7 +325,7 @@ class UserManager(UserManager):
             )
         )
 
-    def all_supervisees(self):
+    def all_supervisees(self) -> QuerySet[User]:
         objects = self.model.objects.annotate(
             supervisors_count=models.Count("supervisors")
         )
@@ -352,7 +355,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     @property
-    def is_reviewer(self):
+    def is_reviewer(self) -> bool:
         return (
             TaskAssignee.objects.filter(user=self, is_reviewer=True).exists()
             or ProjectAssignee.objects.filter(user=self, is_reviewer=True).exists()
@@ -360,20 +363,19 @@ class User(AbstractUser):
         )
 
     @property
-    def user_id(self):
+    def user_id(self) -> int:
         """Map to id to be able to use generic permissions."""
         return self.id
 
-    def calculate_worktime(self, start, end):
+    def calculate_worktime(
+        self, start: date, end: date
+    ) -> tuple[timedelta, timedelta, timedelta]:
         """Calculate reported, expected and balance for user.
 
         This calculates summarizes worktime for all employments of users which
         are in given time frame.
 
-        :param start: calculate worktime starting on given day.
-        :param end:   calculate worktime till given day
-        :returns:     tuple of 3 values reported, expected and delta in given
-                      time frame
+        Return a tuple with 3 timedeltas of reported, expected and balance.
         """
         employments = Employment.objects.for_user(self, start, end).select_related(
             "location"
@@ -389,7 +391,7 @@ class User(AbstractUser):
 
         return (reported, expected, balance)
 
-    def get_active_employment(self):
+    def get_active_employment(self) -> Employment | None:
         """Get current employment of the user.
 
         Get current active employment of the user.
