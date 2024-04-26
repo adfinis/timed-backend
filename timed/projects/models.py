@@ -36,7 +36,7 @@ class Customer(models.Model):
 
         ordering = ("name",)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Represent the model as a string."""
         return self.name
 
@@ -50,7 +50,8 @@ class CostCenter(models.Model):
     class Meta:
         ordering = ("name",)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Represent the model as a string."""
         return self.name
 
 
@@ -63,7 +64,7 @@ class BillingType(models.Model):
     class Meta:
         ordering = ("name",)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Represent the model as a string."""
         return self.name
 

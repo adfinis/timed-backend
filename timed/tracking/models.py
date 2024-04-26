@@ -1,9 +1,15 @@
 """Models for the tracking app."""
 
+from __future__ import annotations
+
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import models
+
+if TYPE_CHECKING:
+    from timed.employment.models import Employment
 
 
 class Activity(models.Model):
@@ -104,7 +110,7 @@ class Report(models.Model):
         """Represent the model as a string."""
         return f"{self.user}: {self.task}"
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:  # noqa: ANN002,ANN003
         """Save the report with some custom functionality.
 
         This rounds the duration of the report to the nearest 15 minutes.
@@ -149,7 +155,7 @@ class Absence(models.Model):
             self.comment,
         )
 
-    def calculate_duration(self, employment):
+    def calculate_duration(self, employment: Employment) -> timedelta:
         """Calculate duration of absence with given employment.
 
         For fullday absences duration is equal worktime per day of employment
