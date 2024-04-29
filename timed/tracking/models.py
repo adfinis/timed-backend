@@ -65,12 +65,7 @@ class Attendance(models.Model):
 
     def __str__(self) -> str:
         """Represent the model as a string."""
-        return "{}: {} {} - {}".format(
-            self.user,
-            self.date.strftime("%Y-%m-%d"),
-            self.from_time.strftime("%H:%M"),
-            self.to_time.strftime("%H:%M"),
-        )
+        return f"{self.user}: {self.date:%Y-%m-%d} {self.from_time:%H:%M} - {self.to_time:%H:%M}"
 
 
 class Report(models.Model):
@@ -149,11 +144,7 @@ class Absence(models.Model):
 
     def __str__(self) -> str:
         """Represent the model as a string."""
-        return "{}: {} {}".format(
-            self.user,
-            self.date.strftime("%Y-%m-%d"),
-            self.comment,
-        )
+        return f"{self.user}: {self.date:%Y-%m-%d} {self.comment}"
 
     def calculate_duration(self, employment: Employment) -> timedelta:
         """Calculate duration of absence with given employment.

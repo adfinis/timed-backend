@@ -299,12 +299,7 @@ class WorkReportViewSet(GenericViewSet):
         whereas YYMM is year and month of from_date and YYYYMMDD
         is date when work reports gets created.
         """
-        return "{}-{}-{}-{}.ods".format(
-            from_date.strftime("%y%m"),
-            date.today().strftime("%Y%m%d"),
-            self._clean_filename(project.customer.name),
-            self._clean_filename(project.name),
-        )
+        return f"{from_date:%y%m}-{date.today():%Y%m%d}-{self._clean_filename(project.customer.name)}-{self._clean_filename(project.name)}.ods"
 
     def _create_workreport(  # noqa: PLR0913
         self,
