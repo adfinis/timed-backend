@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db.models import F, Q, QuerySet, Sum
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.http import HttpResponse
+from django.utils.http import content_disposition_header
 from ezodf import Cell, opendoc
 from rest_framework import status
 from rest_framework.response import Response
@@ -436,7 +437,9 @@ class WorkReportViewSet(GenericViewSet):
                 doc.tobytes(),
                 content_type="application/vnd.oasis.opendocument.spreadsheet",
             )
-            response["Content-Disposition"] = f"attachment; filename={name}"
+            response["Content-Disposition"] = content_disposition_header(
+                as_attachment=True, filename=name
+            )
             return response
 
         # zip multiple work reports
@@ -445,7 +448,7 @@ class WorkReportViewSet(GenericViewSet):
             for name, doc in docs:
                 zf.writestr(name, doc.tobytes())
         response = HttpResponse(buf.getvalue(), content_type="application/zip")
-        response["Content-Disposition"] = (
-            f"attachment; filename={date.today():%Y%m%d}-WorkReports.zip"
+        response["Content-Disposition"] = content_disposition_header(
+            as_attachment=True, filename=f"{date.today():%Y%m%d}-WorkReports.zip"
         )
         return response
