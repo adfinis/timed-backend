@@ -51,9 +51,11 @@ If you have existing users from the previous LDAP authentication, you want to ad
 DJANGO_OIDC_USERNAME_CLAIM=preferred_username
 ```
 
-The test data includes 3 users admin, fritzm and alexs with you can log into [http://timed.local](http://timed.local)
-
-The username and password are identical.
+Import some development fixtures to get started:
+```bash
+make loaddata
+```
+The test data includes 3 users: `admin`, `fritzm` and `axels` with which you can log into [http://timed.local](http://timed.local). Their passwords are identical to the username.
 
 To access the Django admin interface you will have to change the admin password in Django directly:
 
