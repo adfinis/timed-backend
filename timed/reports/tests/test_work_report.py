@@ -135,6 +135,7 @@ def test_work_report_empty(auth_client):
     assert res.status_code == status.HTTP_400_BAD_REQUEST
 
 
+@pytest.mark.freeze_time("2017-08-18")
 @pytest.mark.django_db()
 @pytest.mark.parametrize(
     ("customer_name", "project_name", "expected"),
@@ -153,7 +154,7 @@ def test_generate_work_report_name(customer_name, project_name, expected):
     # slashes should be dropped from file name
     project = ProjectFactory.create(customer=customer, name=project_name)
 
-    name = view._generate_workreport_name(test_date, test_date, project)  # noqa: SLF001
+    name = view._generate_workreport_name(test_date, project)  # noqa: SLF001
     assert name == expected
 
 

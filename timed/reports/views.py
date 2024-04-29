@@ -282,7 +282,7 @@ class WorkReportViewSet(GenericViewSet):
         escaped = re.sub(r"[^\w\s-]", "", name)
         return re.sub(r"\s+", "_", escaped)
 
-    def _generate_workreport_name(self, from_date, today, project):
+    def _generate_workreport_name(self, from_date, project):
         """Generate workreport name.
 
         Name is in format: YYMM-YYYYMMDD-$Customer-$Project.ods
@@ -291,12 +291,12 @@ class WorkReportViewSet(GenericViewSet):
         """
         return "{}-{}-{}-{}.ods".format(
             from_date.strftime("%y%m"),
-            today.strftime("%Y%m%d"),
+            date.today().strftime("%Y%m%d"),
             self._clean_filename(project.customer.name),
             self._clean_filename(project.name),
         )
 
-    def _create_workreport(self, from_date, to_date, today, project, reports, user):  # noqa: PLR0913
+    def _create_workreport(self, from_date, to_date, project, reports, user):  # noqa: PLR0913
         """Create ods workreport.
 
         :rtype: tuple
@@ -350,7 +350,7 @@ class WorkReportViewSet(GenericViewSet):
         table["C4"] = Cell(project and project.name)
         table["C5"] = Cell(from_date, style_name=date_style, value_type="date")
         table["C6"] = Cell(to_date, style_name=date_style, value_type="date")
-        table["C8"] = Cell(today, style_name=date_style, value_type="date")
+        table["C8"] = Cell(date.today(), style_name=date_style, value_type="date")
         table["C9"] = Cell(user.get_full_name())
         table["C10"] = Cell(", ".join(verifiers))
 
@@ -380,7 +380,7 @@ class WorkReportViewSet(GenericViewSet):
             str(13 + len(reports) - 1)
         )
 
-        name = self._generate_workreport_name(from_date, today, project)
+        name = self._generate_workreport_name(from_date, project)
         return (name, doc)
 
     def list(self, request, *args, **kwargs):
@@ -408,16 +408,13 @@ class WorkReportViewSet(GenericViewSet):
 
         from_date = params.get("from_date")
         to_date = params.get("to_date")
-        today = date.today()
 
         reports_by_project = defaultdict(list)
         for report in queryset:
             reports_by_project[report.task.project].append(report)
 
         docs = [
-            self._create_workreport(
-                from_date, to_date, today, project, reports, request.user
-            )
+            self._create_workreport(from_date, to_date, project, reports, request.user)
             for project, reports in reports_by_project.items()
         ]
 
@@ -437,6 +434,6 @@ class WorkReportViewSet(GenericViewSet):
                 zf.writestr(name, doc.tobytes())
         response = HttpResponse(buf.getvalue(), content_type="application/zip")
         response["Content-Disposition"] = "attachment; filename=%s-WorkReports.zip" % (
-            today.strftime("%Y%m%d")
+            date.today().strftime("%Y%m%d")
         )
         return response
