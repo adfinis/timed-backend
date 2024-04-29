@@ -441,7 +441,7 @@ class WorkReportViewSet(GenericViewSet):
                 doc.tobytes(),
                 content_type="application/vnd.oasis.opendocument.spreadsheet",
             )
-            response["Content-Disposition"] = "attachment; filename=%s" % name
+            response["Content-Disposition"] = f"attachment; filename={name}"
             return response
 
         # zip multiple work reports
@@ -450,7 +450,7 @@ class WorkReportViewSet(GenericViewSet):
             for name, doc in docs:
                 zf.writestr(name, doc.tobytes())
         response = HttpResponse(buf.getvalue(), content_type="application/zip")
-        response["Content-Disposition"] = "attachment; filename=%s-WorkReports.zip" % (
-            date.today().strftime("%Y%m%d")
+        response["Content-Disposition"] = (
+            f"attachment; filename={date.today():%Y%m%d}-WorkReports.zip"
         )
         return response

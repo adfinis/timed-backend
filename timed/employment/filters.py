@@ -24,7 +24,7 @@ class YearFilter(Filter):
         if value in EMPTY_VALUES:
             return qs
 
-        return qs.filter(**{"%s__year" % self.field_name: value})
+        return qs.filter(**{f"{self.field_name}__year": value})
 
 
 class PublicHolidayFilterSet(FilterSet):
