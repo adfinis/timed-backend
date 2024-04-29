@@ -4,10 +4,6 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from timed.conftest import setup_customer_and_employment_status
-from timed.employment.factories import EmploymentFactory
-from timed.tracking.factories import ReportFactory
-
 
 @pytest.mark.parametrize(
     ("is_employed", "is_customer_assignee", "is_customer", "expected"),
@@ -20,7 +16,13 @@ from timed.tracking.factories import ReportFactory
     ],
 )
 def test_year_statistic_list(
-    auth_client, is_employed, is_customer_assignee, is_customer, expected
+    auth_client,
+    is_employed,
+    is_customer_assignee,
+    is_customer,
+    expected,
+    setup_customer_and_employment_status,
+    report_factory,
 ):
     user = auth_client.user
     setup_customer_and_employment_status(
@@ -31,9 +33,9 @@ def test_year_statistic_list(
         is_external=False,
     )
 
-    ReportFactory.create(duration=timedelta(hours=1), date=date(2017, 1, 1))
-    ReportFactory.create(duration=timedelta(hours=1), date=date(2015, 2, 28))
-    ReportFactory.create(duration=timedelta(hours=1), date=date(2015, 12, 31))
+    report_factory(duration=timedelta(hours=1), date=date(2017, 1, 1))
+    report_factory(duration=timedelta(hours=1), date=date(2015, 2, 28))
+    report_factory(duration=timedelta(hours=1), date=date(2015, 12, 31))
 
     url = reverse("year-statistic-list")
     result = auth_client.get(url, data={"ordering": "year"})
@@ -64,11 +66,17 @@ def test_year_statistic_list(
         (False, status.HTTP_403_FORBIDDEN),
     ],
 )
-def test_year_statistic_detail(auth_client, is_employed, expected):
+def test_year_statistic_detail(
+    auth_client,
+    is_employed,
+    expected,
+    employment_factory,
+    report_factory,
+):
     if is_employed:
-        EmploymentFactory.create(user=auth_client.user)
-    ReportFactory.create(duration=timedelta(hours=1), date=date(2015, 2, 28))
-    ReportFactory.create(duration=timedelta(hours=1), date=date(2015, 12, 31))
+        employment_factory.create(user=auth_client.user)
+    report_factory.create(duration=timedelta(hours=1), date=date(2015, 2, 28))
+    report_factory.create(duration=timedelta(hours=1), date=date(2015, 12, 31))
 
     url = reverse("year-statistic-detail", args=[2015])
     result = auth_client.get(url, data={"ordering": "year"})

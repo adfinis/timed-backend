@@ -3,8 +3,6 @@
 from django.urls import reverse
 from rest_framework import status
 
-from timed.employment.factories import OvertimeCreditFactory, UserFactory
-
 
 def test_overtime_credit_create_authenticated(auth_client):
     url = reverse("overtime-credit-list")
@@ -31,9 +29,9 @@ def test_overtime_credit_create_superuser(superadmin_client):
     assert result.status_code == status.HTTP_201_CREATED
 
 
-def test_overtime_credit_get_authenticated(auth_client):
-    OvertimeCreditFactory.create_batch(2)
-    overtime_credit = OvertimeCreditFactory.create(user=auth_client.user)
+def test_overtime_credit_get_authenticated(auth_client, overtime_credit_factory):
+    overtime_credit_factory.create_batch(2)
+    overtime_credit = overtime_credit_factory(user=auth_client.user)
     url = reverse("overtime-credit-list")
 
     result = auth_client.get(url)
@@ -43,9 +41,9 @@ def test_overtime_credit_get_authenticated(auth_client):
     assert json["data"][0]["id"] == str(overtime_credit.id)
 
 
-def test_overtime_credit_get_superuser(superadmin_client):
-    OvertimeCreditFactory.create_batch(2)
-    OvertimeCreditFactory.create(user=superadmin_client.user)
+def test_overtime_credit_get_superuser(superadmin_client, overtime_credit_factory):
+    overtime_credit_factory.create_batch(2)
+    overtime_credit_factory(user=superadmin_client.user)
     url = reverse("overtime-credit-list")
 
     result = superadmin_client.get(url)
@@ -54,13 +52,12 @@ def test_overtime_credit_get_superuser(superadmin_client):
     assert len(json["data"]) == 3
 
 
-def test_overtime_credit_get_supervisor(auth_client):
-    user = UserFactory.create()
+def test_overtime_credit_get_supervisor(auth_client, user, overtime_credit_factory):
     auth_client.user.supervisees.add(user)
 
-    OvertimeCreditFactory.create_batch(1)
-    OvertimeCreditFactory.create(user=auth_client.user)
-    OvertimeCreditFactory.create(user=user)
+    overtime_credit_factory()
+    overtime_credit_factory(user=auth_client.user)
+    overtime_credit_factory(user=user)
     url = reverse("overtime-credit-list")
 
     result = auth_client.get(url)

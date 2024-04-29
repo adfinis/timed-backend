@@ -4,9 +4,6 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from timed.conftest import setup_customer_and_employment_status
-from timed.tracking.factories import ReportFactory
-
 
 @pytest.mark.parametrize(
     ("is_employed", "is_customer_assignee", "is_customer", "expected"),
@@ -19,7 +16,13 @@ from timed.tracking.factories import ReportFactory
     ],
 )
 def test_month_statistic_list(
-    auth_client, is_employed, is_customer_assignee, is_customer, expected
+    auth_client,
+    is_employed,
+    is_customer_assignee,
+    is_customer,
+    expected,
+    setup_customer_and_employment_status,
+    report_factory,
 ):
     user = auth_client.user
     setup_customer_and_employment_status(
@@ -30,9 +33,9 @@ def test_month_statistic_list(
         is_external=False,
     )
 
-    ReportFactory.create(duration=timedelta(hours=1), date=date(2016, 1, 1))
-    ReportFactory.create(duration=timedelta(hours=1), date=date(2015, 12, 4))
-    ReportFactory.create(duration=timedelta(hours=2), date=date(2015, 12, 31))
+    report_factory.create(duration=timedelta(hours=1), date=date(2016, 1, 1))
+    report_factory.create(duration=timedelta(hours=1), date=date(2015, 12, 4))
+    report_factory.create(duration=timedelta(hours=2), date=date(2015, 12, 31))
 
     url = reverse("month-statistic-list")
     result = auth_client.get(url, data={"ordering": "year,month"})

@@ -8,14 +8,6 @@ from django.urls import reverse
 from django.utils.duration import duration_string
 from rest_framework import status
 
-from timed.employment.factories import EmploymentFactory, UserFactory
-from timed.projects.factories import (
-    CustomerAssigneeFactory,
-    ProjectAssigneeFactory,
-    TaskAssigneeFactory,
-    TaskFactory,
-)
-
 
 def test_report_list(
     internal_employee_client,
@@ -272,20 +264,24 @@ def test_report_list_filter_id_empty(
 def test_report_list_filter_reviewer(
     internal_employee_client,
     report_factory,
+    project_assignee_factory,
+    task_factory,
+    user_factory,
+    task_assignee_factory,
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
 
     # add new task to the project
-    task2 = TaskFactory.create(project=report.task.project)
+    task2 = task_factory.create(project=report.task.project)
     report_factory.create(user=user, task=task2)
 
     # add task assignee with reviewer role to the new task
-    user2 = UserFactory.create()
-    TaskAssigneeFactory.create(user=user2, task=task2, is_reviewer=True)
+    user2 = user_factory.create()
+    task_assignee_factory.create(user=user2, task=task2, is_reviewer=True)
 
     url = reverse("report-list")
 
@@ -348,7 +344,10 @@ def test_report_list_filter_not_editable_owner(
 
 
 def test_report_list_filter_editable_reviewer(
-    internal_employee_client, report_factory, user_factory
+    internal_employee_client,
+    report_factory,
+    user_factory,
+    project_assignee_factory,
 ):
     user = internal_employee_client.user
     # not editable report
@@ -361,16 +360,16 @@ def test_report_list_filter_editable_reviewer(
     # reviewers and report is created by current user
     report = report_factory.create(user=user)
     other_user = user_factory.create()
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=other_user, project=report.task.project, is_reviewer=True
     )
     # 3rd case: report by other user and current user
     # is the reviewer
     reviewer_report = report_factory.create()
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=reviewer_report.task.project, is_reviewer=True
     )
 
@@ -382,8 +381,10 @@ def test_report_list_filter_editable_reviewer(
     assert len(json["data"]) == 3
 
 
-def test_report_list_filter_editable_superuser(superadmin_client, report_factory):
-    EmploymentFactory.create(user=superadmin_client.user)
+def test_report_list_filter_editable_superuser(
+    superadmin_client, report_factory, employment_factory
+):
+    employment_factory.create(user=superadmin_client.user)
     report = report_factory.create()
 
     url = reverse("report-list")
@@ -395,8 +396,10 @@ def test_report_list_filter_editable_superuser(superadmin_client, report_factory
     assert json["data"][0]["id"] == str(report.id)
 
 
-def test_report_list_filter_not_editable_superuser(superadmin_client, report_factory):
-    EmploymentFactory.create(user=superadmin_client.user)
+def test_report_list_filter_not_editable_superuser(
+    superadmin_client, report_factory, employment_factory
+):
+    employment_factory.create(user=superadmin_client.user)
     report_factory.create()
 
     url = reverse("report-list")
@@ -494,7 +497,9 @@ def test_report_detail(
         (False, False, True, False, status.HTTP_201_CREATED),
     ],
 )
-def test_report_create(auth_client, task_factory, task_assignee, is_external, expected):
+def test_report_create(
+    auth_client, task_factory, task_assignee, is_external, expected, employment_factory
+):
     """Should create a new report and automatically set the user."""
     user = auth_client.user
     task = task_factory.create()
@@ -502,10 +507,7 @@ def test_report_create(auth_client, task_factory, task_assignee, is_external, ex
     task_assignee.task = task
     task_assignee.save()
 
-    if is_external:
-        EmploymentFactory.create(user=user, is_external=True)
-    else:
-        EmploymentFactory.create(user=user, is_external=False)
+    employment_factory.create(user=user, is_external=is_external)
 
     data = {
         "data": {
@@ -611,9 +613,11 @@ def test_report_update_bulk_verify_non_reviewer(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_report_update_bulk_verify_superuser(superadmin_client, report_factory):
+def test_report_update_bulk_verify_superuser(
+    superadmin_client, report_factory, employment_factory
+):
     user = superadmin_client.user
-    EmploymentFactory.create(user=user)
+    employment_factory.create(user=user)
     report = report_factory.create(user=user)
 
     url = reverse("report-bulk")
@@ -630,12 +634,11 @@ def test_report_update_bulk_verify_superuser(superadmin_client, report_factory):
 
 
 def test_report_update_bulk_verify_reviewer(
-    internal_employee_client,
-    report_factory,
+    internal_employee_client, report_factory, project_assignee_factory
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
 
@@ -659,9 +662,11 @@ def test_report_update_bulk_verify_reviewer(
     assert report.comment == "some comment"
 
 
-def test_report_update_bulk_reset_verify(superadmin_client, report_factory):
+def test_report_update_bulk_reset_verify(
+    superadmin_client, report_factory, employment_factory
+):
     user = superadmin_client.user
-    EmploymentFactory.create(user=user)
+    employment_factory.create(user=user)
     report = report_factory.create(verified_by=user)
 
     url = reverse("report-bulk")
@@ -760,12 +765,11 @@ def test_report_update_owner(
 
 
 def test_report_update_date_reviewer(
-    internal_employee_client,
-    report_factory,
+    internal_employee_client, report_factory, project_assignee_factory
 ):
     user = internal_employee_client.user
     report = report_factory.create()
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
 
@@ -784,12 +788,11 @@ def test_report_update_date_reviewer(
 
 
 def test_report_update_duration_reviewer(
-    internal_employee_client,
-    report_factory,
+    internal_employee_client, report_factory, project_assignee_factory
 ):
     user = internal_employee_client.user
     report = report_factory.create(duration=timedelta(hours=2))
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
 
@@ -827,12 +830,11 @@ def test_report_update_by_user(
 
 
 def test_report_update_verified_and_review_reviewer(
-    internal_employee_client,
-    report_factory,
+    internal_employee_client, report_factory, project_assignee_factory
 ):
     user = internal_employee_client.user
     report = report_factory.create(duration=timedelta(hours=2))
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
 
@@ -876,13 +878,11 @@ def test_report_set_verified_by_user(
 
 
 def test_report_update_reviewer(
-    internal_employee_client,
-    report_factory,
-    mailoutbox,
+    internal_employee_client, report_factory, mailoutbox, project_assignee_factory
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
 
@@ -926,9 +926,11 @@ def test_report_update_supervisor(
     assert response.status_code == status.HTTP_200_OK
 
 
-def test_report_verify_other_user(superadmin_client, report_factory, user_factory):
+def test_report_verify_other_user(
+    superadmin_client, report_factory, user_factory, employment_factory
+):
     """Verify that superuser may not verify to other user."""
-    EmploymentFactory.create(user=superadmin_client.user)
+    employment_factory.create(user=superadmin_client.user)
     user = user_factory.create()
     report = report_factory.create()
 
@@ -950,12 +952,14 @@ def test_report_verify_other_user(superadmin_client, report_factory, user_factor
 def test_report_reset_verified_by_reviewer(
     internal_employee_client,
     report_factory,
+    user_factory,
+    project_assignee_factory,
 ):
     """Test that reviewer may not change verified report."""
     user = internal_employee_client.user
-    reviewer = UserFactory.create()
+    reviewer = user_factory.create()
     report = report_factory.create(user=user, verified_by=reviewer)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=reviewer, project=report.task.project, is_reviewer=True
     )
 
@@ -977,13 +981,12 @@ def test_report_reset_verified_by_reviewer(
 
 
 def test_report_reset_verified_and_billed_by_reviewer(
-    internal_employee_client,
-    report_factory,
+    internal_employee_client, report_factory, project_assignee_factory
 ):
     """Test that reviewer may not change verified and billed report."""
     user = internal_employee_client.user
     report = report_factory.create(user=user, verified_by=user)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
     # Billed is not set on create because the factory doesnt seem to work with that
@@ -1029,7 +1032,14 @@ def test_report_reset_verified_and_billed_by_reviewer(
     ],
 )
 def test_report_delete_own_report(
-    auth_client, report_factory, task_assignee, is_external, verified, expected
+    auth_client,
+    report_factory,
+    task_assignee,
+    is_external,
+    verified,
+    expected,
+    user_factory,
+    employment_factory,
 ):
     user = auth_client.user
     task_assignee.user = user
@@ -1037,13 +1047,10 @@ def test_report_delete_own_report(
     report = report_factory.create(user=user, task=task_assignee.task)
 
     if verified:
-        report.verified_by = UserFactory.create()
+        report.verified_by = user_factory.create()
         report.save()
 
-    if is_external:
-        EmploymentFactory.create(user=user, is_external=True)
-    else:
-        EmploymentFactory.create(user=user, is_external=False)
+    employment_factory.create(user=user, is_external=is_external)
 
     url = reverse("report-detail", args=[report.id])
     response = auth_client.delete(url)
@@ -1074,23 +1081,26 @@ def test_report_delete_own_report(
     ],
 )
 def test_report_delete_not_report_owner(
-    auth_client, report_factory, task_assignee, is_external, verified
+    auth_client,
+    report_factory,
+    task_assignee,
+    is_external,
+    verified,
+    user_factory,
+    employment_factory,
 ):
     user = auth_client.user
     task_assignee.user = user
     task_assignee.save()
 
-    user2 = UserFactory.create()
+    user2 = user_factory.create()
     report = report_factory.create(user=user2, task=task_assignee.task)
 
     if verified:
-        report.verified_by = UserFactory.create()
+        report.verified_by = user_factory.create()
         report.save()
 
-    if is_external:
-        EmploymentFactory.create(user=user, is_external=True)
-    else:
-        EmploymentFactory.create(user=user, is_external=False)
+    employment_factory.create(user=user, is_external=is_external)
 
     url = reverse("report-detail", args=[report.id])
     response = auth_client.delete(url)
@@ -1123,8 +1133,8 @@ def test_report_round_duration(report_factory):
     assert duration_string(report.duration) == "02:00:00"
 
 
-def test_report_list_no_result(admin_client):
-    EmploymentFactory.create(user=admin_client.user)
+def test_report_list_no_result(admin_client, employment_factory):
+    employment_factory.create(user=admin_client.user)
     url = reverse("report-list")
     res = admin_client.get(url)
 
@@ -1133,9 +1143,9 @@ def test_report_list_no_result(admin_client):
     assert json["meta"]["total-time"] == "00:00:00"
 
 
-def test_report_delete_superuser(superadmin_client, report_factory):
+def test_report_delete_superuser(superadmin_client, report_factory, employment_factory):
     """Test that superuser may not delete reports of other users."""
-    EmploymentFactory.create(user=superadmin_client.user)
+    employment_factory.create(user=superadmin_client.user)
     report = report_factory.create()
     url = reverse("report-detail", args=[report.id])
 
@@ -1273,9 +1283,10 @@ def test_report_update_bulk_verify_reviewer_multiple_notify(
     report_factory,
     user_factory,
     mailoutbox,
+    project_assignee_factory,
 ):
     reviewer = internal_employee_client.user
-    ProjectAssigneeFactory.create(user=reviewer, project=project, is_reviewer=True)
+    project_assignee_factory.create(user=reviewer, project=project, is_reviewer=True)
 
     user1, user2, user3 = user_factory.create_batch(3)
     report1_1 = report_factory(user=user1, task=task)
@@ -1338,6 +1349,8 @@ def test_report_update_reviewer_notify(
     different_attributes,
     verified,
     expected,
+    project_assignee_factory,
+    task_assignee_factory,
 ):
     reviewer = internal_employee_client.user
     user = user_factory()
@@ -1346,16 +1359,16 @@ def test_report_update_reviewer_notify(
         report = report_factory(user=reviewer, review=True)
     else:
         report = report_factory(user=user, review=True)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=reviewer, project=report.task.project, is_reviewer=True
     )
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
     new_task = task_factory(project=report.task.project)
     task = report.task
-    TaskAssigneeFactory.create(user=user, is_resource=True, task=task)
-    TaskAssigneeFactory.create(user=reviewer, is_reviewer=True, task=task)
+    task_assignee_factory.create(user=user, is_resource=True, task=task)
+    task_assignee_factory.create(user=reviewer, is_reviewer=True, task=task)
 
     data = {
         "data": {
@@ -1399,10 +1412,11 @@ def test_report_notify_rendering(
     task_factory,
     mailoutbox,
     snapshot,
+    project_assignee_factory,
 ):
     reviewer = internal_employee_client.user
     user = user_factory()
-    ProjectAssigneeFactory.create(user=reviewer, project=project, is_reviewer=True)
+    project_assignee_factory.create(user=reviewer, project=project, is_reviewer=True)
     task1, task2, task3 = task_factory.create_batch(3, project=project)
 
     report1 = report_factory(
@@ -1445,9 +1459,9 @@ def test_report_notify_rendering(
     ("report__review", "needs_review"), [(True, False), (False, True), (True, True)]
 )
 def test_report_update_bulk_review_and_verified(
-    superadmin_client, report, needs_review
+    superadmin_client, report, needs_review, employment_factory
 ):
-    EmploymentFactory.create(user=superadmin_client.user)
+    employment_factory.create(user=superadmin_client.user)
     data = {
         "data": {"type": "report-bulks", "id": None, "attributes": {"verified": True}}
     }
@@ -1477,12 +1491,11 @@ def test_report_update_bulk_bill_non_reviewer(
 
 
 def test_report_update_bulk_bill_reviewer(
-    internal_employee_client,
-    report_factory,
+    internal_employee_client, report_factory, project_assignee_factory
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
 
@@ -1621,10 +1634,12 @@ def test_report_update_billed(internal_employee_client, report_factory, task):
     assert not report.billed
 
 
-def test_report_update_bulk_billed(internal_employee_client, report_factory, task):
+def test_report_update_bulk_billed(
+    internal_employee_client, report_factory, task, project_assignee_factory
+):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=user, project=report.task.project, is_reviewer=True
     )
     task.project.billed = True
@@ -1652,10 +1667,12 @@ def test_report_update_bulk_billed(internal_employee_client, report_factory, tas
     assert report.billed
 
 
-def test_report_list_external_employee(external_employee_client, report_factory):
+def test_report_list_external_employee(
+    external_employee_client, report_factory, task_assignee_factory
+):
     user = external_employee_client.user
     report = report_factory.create(user=user, duration=timedelta(hours=1))
-    TaskAssigneeFactory.create(user=user, task=report.task, is_resource=True)
+    task_assignee_factory.create(user=user, task=report.task, is_resource=True)
     report_factory.create_batch(4)
     url = reverse("report-list")
 
@@ -1684,12 +1701,17 @@ def test_report_list_external_employee(external_employee_client, report_factory)
     [(True, 1, status.HTTP_200_OK), (False, 0, status.HTTP_403_FORBIDDEN)],
 )
 def test_report_list_no_employment(
-    auth_client, report_factory, is_assigned, expected, status_code
+    auth_client,
+    report_factory,
+    is_assigned,
+    expected,
+    status_code,
+    customer_assignee_factory,
 ):
     user = auth_client.user
     report = report_factory.create(user=user, duration=timedelta(hours=1))
     if is_assigned:
-        CustomerAssigneeFactory.create(
+        customer_assignee_factory.create(
             user=user, is_customer=True, customer=report.task.project.customer
         )
     report_factory.create_batch(4)
@@ -1724,12 +1746,14 @@ def test_report_reject(
     status_code,
     mail_count,
     mailoutbox,
+    user_factory,
+    project_assignee_factory,
 ):
     user = internal_employee_client.user
-    user2 = UserFactory.create()
+    user2 = user_factory.create()
     report = report_factory.create(user=user2 if not report_owner else user)
     if reviewer:
-        ProjectAssigneeFactory.create(
+        project_assignee_factory.create(
             user=user, is_reviewer=True, project=report.task.project
         )
 
@@ -1785,9 +1809,10 @@ def test_report_reject_multiple_notify(
     report_factory,
     user_factory,
     mailoutbox,
+    project_assignee_factory,
 ):
     reviewer = internal_employee_client.user
-    ProjectAssigneeFactory.create(user=reviewer, project=project, is_reviewer=True)
+    project_assignee_factory.create(user=reviewer, project=project, is_reviewer=True)
 
     user1, user2, user3 = user_factory.create_batch(3)
     report1_1 = report_factory(user=user1, task=task)
@@ -1848,14 +1873,18 @@ def test_report_automatic_unreject(internal_employee_client, report_factory, tas
 
 
 def test_report_bulk_automatic_unreject(
-    internal_employee_client, user_factory, report_factory, task
+    internal_employee_client,
+    user_factory,
+    report_factory,
+    task,
+    project_assignee_factory,
 ):
     reviewer = internal_employee_client.user
 
     user = user_factory.create()
 
     report = report_factory.create(user=user, rejected=True)
-    ProjectAssigneeFactory.create(
+    project_assignee_factory.create(
         user=reviewer, project=report.task.project, is_reviewer=True
     )
 
@@ -1897,9 +1926,10 @@ def test_report_set_remaining_effort(
     expected,
     is_superuser,
     report_factory,
+    employment_factory,
 ):
     user = auth_client.user
-    EmploymentFactory.create(user=user, is_external=is_external)
+    employment_factory.create(user=user, is_external=is_external)
     report = report_factory.create(user=user)
 
     if remaining_effort_active:
@@ -1979,12 +2009,11 @@ def test_report_create_remaining_effort(
 
 
 def test_report_remaining_effort_total(
-    internal_employee_client,
-    report_factory,
+    internal_employee_client, report_factory, task_factory
 ):
     user = internal_employee_client.user
     report = report_factory.create(user=user)
-    task_2 = TaskFactory.create(project=report.task.project)
+    task_2 = task_factory.create(project=report.task.project)
     report_2 = report_factory.create(user=user, task=task_2)
     report.task.project.remaining_effort_tracking = True
     report.task.project.save()

@@ -2,9 +2,6 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from timed.conftest import setup_customer_and_employment_status
-from timed.employment.factories import EmploymentFactory, LocationFactory
-
 
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("location")
@@ -19,7 +16,12 @@ from timed.employment.factories import EmploymentFactory, LocationFactory
     ],
 )
 def test_location_list(
-    auth_client, is_employed, is_customer_assignee, is_customer, expected
+    auth_client,
+    is_employed,
+    is_customer_assignee,
+    is_customer,
+    expected,
+    setup_customer_and_employment_status,
 ):
     setup_customer_and_employment_status(
         user=auth_client.user,
@@ -46,10 +48,11 @@ def test_location_list(
         (False, status.HTTP_404_NOT_FOUND),
     ],
 )
-def test_location_detail(auth_client, is_employed, expected):
-    location = LocationFactory.create()
+def test_location_detail(
+    auth_client, is_employed, expected, location, employment_factory
+):
     if is_employed:
-        EmploymentFactory.create(user=auth_client.user)
+        employment_factory.create(user=auth_client.user)
 
     url = reverse("location-detail", args=[location.id])
 
@@ -64,18 +67,14 @@ def test_location_create(auth_client):
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_location_update(auth_client):
-    location = LocationFactory.create()
-
+def test_location_update(auth_client, location):
     url = reverse("location-detail", args=[location.id])
 
     response = auth_client.patch(url)
     assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
-def test_location_delete(auth_client):
-    location = LocationFactory.create()
-
+def test_location_delete(auth_client, location):
     url = reverse("location-detail", args=[location.id])
 
     response = auth_client.delete(url)

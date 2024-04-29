@@ -2,12 +2,10 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from timed.tracking.factories import AttendanceFactory
 
-
-def test_attendance_list(internal_employee_client):
-    AttendanceFactory.create()
-    attendance = AttendanceFactory.create(user=internal_employee_client.user)
+def test_attendance_list(internal_employee_client, attendance_factory):
+    attendance_factory.create()
+    attendance = attendance_factory.create(user=internal_employee_client.user)
 
     url = reverse("attendance-list")
     response = internal_employee_client.get(url)
@@ -18,8 +16,8 @@ def test_attendance_list(internal_employee_client):
     assert json["data"][0]["id"] == str(attendance.id)
 
 
-def test_attendance_detail(internal_employee_client):
-    attendance = AttendanceFactory.create(user=internal_employee_client.user)
+def test_attendance_detail(internal_employee_client, attendance_factory):
+    attendance = attendance_factory.create(user=internal_employee_client.user)
 
     url = reverse("attendance-detail", args=[attendance.id])
     response = internal_employee_client.get(url)
@@ -69,9 +67,9 @@ def test_attendance_create(
         assert json["data"]["relationships"]["user"]["data"]["id"] == str(user.id)
 
 
-def test_attendance_update(internal_employee_client):
+def test_attendance_update(internal_employee_client, attendance_factory):
     user = internal_employee_client.user
-    attendance = AttendanceFactory.create(user=user)
+    attendance = attendance_factory.create(user=user)
 
     data = {
         "data": {
@@ -93,8 +91,8 @@ def test_attendance_update(internal_employee_client):
     )
 
 
-def test_attendance_delete(internal_employee_client):
-    attendance = AttendanceFactory.create(user=internal_employee_client.user)
+def test_attendance_delete(internal_employee_client, attendance_factory):
+    attendance = attendance_factory.create(user=internal_employee_client.user)
 
     url = reverse("attendance-detail", args=[attendance.id])
 

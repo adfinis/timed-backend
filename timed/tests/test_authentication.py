@@ -10,8 +10,6 @@ from rest_framework import exceptions, status
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.reverse import reverse
 
-from timed.employment.factories import UserFactory
-
 
 @pytest.mark.django_db()
 @pytest.mark.parametrize("is_id_token", [True, False])
@@ -91,9 +89,8 @@ def test_authentication_new_user(
 
 
 @pytest.mark.django_db()
-def test_authentication_update_user_data(rf, requests_mock, settings):
+def test_authentication_update_user_data(rf, requests_mock, settings, user):
     user_model = get_user_model()
-    user = UserFactory.create()
 
     userinfo = {
         "sub": user.username,
