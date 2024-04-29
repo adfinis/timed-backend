@@ -62,7 +62,7 @@ class PublicHoliday(models.Model):
 
     def __str__(self) -> str:
         """Represent the model as a string."""
-        return "{} {}".format(self.name, self.date.strftime("%Y"))
+        return f"{self.name} {self.date:%Y}"
 
 
 class AbsenceType(models.Model):
@@ -228,11 +228,7 @@ class Employment(models.Model):
 
     def __str__(self) -> str:
         """Represent the model as a string."""
-        return "{} ({} - {})".format(
-            self.user.username,
-            self.start_date.strftime("%d.%m.%Y"),
-            self.end_date.strftime("%d.%m.%Y") if self.end_date else "today",
-        )
+        return f"{self.user.username} ({self.start_date:%d.%m.%Y} - {(self.end_date or date.today()):%d.%m.%Y})"
 
     def calculate_worktime(
         self, start: date, end: date

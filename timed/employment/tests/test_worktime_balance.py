@@ -86,7 +86,7 @@ def test_worktime_balance_with_employments(auth_client, django_assert_num_querie
 
     url = reverse(
         "worktime-balance-detail",
-        args=["{}_{}".format(auth_client.user.id, end_date.strftime("%Y-%m-%d"))],
+        args=[f"{auth_client.user.id}_{end_date:%Y-%m-%d}"],
     )
 
     with django_assert_num_queries(11):
