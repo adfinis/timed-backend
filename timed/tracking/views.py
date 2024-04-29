@@ -353,7 +353,7 @@ class ReportViewSet(ModelViewSet):
 
         sheet = django_excel.pe.Sheet(content, name="Report", colnames=colnames)
         return django_excel.make_response(
-            sheet, file_type=file_type, file_name="report.%s" % file_type
+            sheet, file_type=file_type, file_name=f"report.{file_type}"
         )
 
 
