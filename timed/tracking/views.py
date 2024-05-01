@@ -266,8 +266,7 @@ class ReportViewSet(ModelViewSet):
         if "task" in fields:
             # unreject report if task has changed
             fields["rejected"] = False
-            if fields["task"].project.billed:
-                fields["billed"] = fields["task"].project.billed
+            fields["billed"] = True if fields["task"].project.billed else False
 
         if fields:
             # send notification if report was rejected
