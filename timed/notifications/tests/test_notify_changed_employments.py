@@ -3,22 +3,21 @@ from datetime import date
 import pytest
 from django.core.management import call_command
 
-from timed.employment.factories import EmploymentFactory
 from timed.notifications.models import Notification
 
 
 @pytest.mark.django_db()
-def test_notify_changed_employments(mailoutbox, freezer):
+def test_notify_changed_employments(mailoutbox, freezer, employment_factory):
     email = "test@example.net"
 
     # employments changed too far in the past
     freezer.move_to("2017-08-27")
-    EmploymentFactory.create_batch(2)
+    employment_factory.create_batch(2)
 
     # employments which should show up in report
     freezer.move_to("2017-09-03")
-    finished = EmploymentFactory.create(end_date=date(2017, 10, 10), percentage=80)
-    new = EmploymentFactory.create(percentage=100)
+    finished = employment_factory(end_date=date(2017, 10, 10), percentage=80)
+    new = employment_factory(percentage=100)
 
     freezer.move_to("2017-09-04")
     call_command("notify_changed_employments", email=email)

@@ -7,11 +7,7 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from timed.conftest import setup_customer_and_employment_status
-from timed.employment.factories import EmploymentFactory
-from timed.projects.factories import CustomerFactory, ProjectFactory, TaskFactory
 from timed.reports.views import WorkReportViewSet
-from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.freeze_time("2017-09-01")
@@ -33,6 +29,11 @@ def test_work_report_single_project(
     expected,
     status_code,
     django_assert_num_queries,
+    setup_customer_and_employment_status,
+    customer_factory,
+    project_factory,
+    task_factory,
+    report_factory,
 ):
     user = auth_client.user
     setup_customer_and_employment_status(
@@ -43,11 +44,11 @@ def test_work_report_single_project(
         is_external=False,
     )
     # spaces should be replaced with underscore
-    customer = CustomerFactory.create(name="Customer Name")
+    customer = customer_factory.create(name="Customer Name")
     # slashes should be dropped from file name
-    project = ProjectFactory.create(customer=customer, name="Project/")
-    task = TaskFactory.create(project=project)
-    ReportFactory.create_batch(
+    project = project_factory.create(customer=customer, name="Project/")
+    task = task_factory.create(project=project)
+    report_factory.create_batch(
         5,
         user=user,
         verified_by=user,
@@ -55,7 +56,7 @@ def test_work_report_single_project(
         date=date(2017, 8, 17),
         not_billable=True,
     )
-    ReportFactory.create_batch(
+    report_factory.create_batch(
         5,
         user=user,
         verified_by=user,
@@ -98,19 +99,28 @@ def test_work_report_single_project(
     ],
 )
 def test_work_report_multiple_projects(
-    auth_client, is_employed, status_code, expected, django_assert_num_queries
+    auth_client,
+    is_employed,
+    status_code,
+    expected,
+    django_assert_num_queries,
+    employment_factory,
+    customer_factory,
+    task_factory,
+    project_factory,
+    report_factory,
 ):
     num_projects = 2
 
     user = auth_client.user
     if is_employed:
-        EmploymentFactory.create(user=user)
-    customer = CustomerFactory.create(name="Customer")
+        employment_factory.create(user=user)
+    customer = customer_factory.create(name="Customer")
     report_date = date(2017, 8, 17)
     for i in range(num_projects):
-        project = ProjectFactory.create(customer=customer, name=f"Project{i}")
-        task = TaskFactory.create(project=project)
-        ReportFactory.create_batch(10, user=user, task=task, date=report_date)
+        project = project_factory.create(customer=customer, name=f"Project{i}")
+        task = task_factory.create(project=project)
+        report_factory.create_batch(10, user=user, task=task, date=report_date)
 
     url = reverse("work-report-list")
     with django_assert_num_queries(expected):
@@ -145,14 +155,16 @@ def test_work_report_empty(auth_client):
         ("Customer$Name", "Project", "1708-20170818-CustomerName-Project.ods"),
     ],
 )
-def test_generate_work_report_name(customer_name, project_name, expected):
+def test_generate_work_report_name(
+    customer_name, project_name, expected, customer_factory, project_factory
+):
     test_date = date(2017, 8, 18)
     view = WorkReportViewSet()
 
     # spaces should be replaced with underscore
-    customer = CustomerFactory.create(name=customer_name)
+    customer = customer_factory.create(name=customer_name)
     # slashes should be dropped from file name
-    project = ProjectFactory.create(customer=customer, name=project_name)
+    project = project_factory.create(customer=customer, name=project_name)
 
     name = view._generate_workreport_name(test_date, project)  # noqa: SLF001
     assert name == expected
@@ -169,17 +181,25 @@ def test_generate_work_report_name(customer_name, project_name, expected):
     ],
 )
 def test_work_report_count(
-    internal_employee_client, settings, settings_count, given_count, expected_status
+    internal_employee_client,
+    settings,
+    settings_count,
+    given_count,
+    expected_status,
+    customer_factory,
+    project_factory,
+    task_factory,
+    report_factory,
 ):
     user = internal_employee_client.user
-    customer = CustomerFactory.create(name="Customer")
+    customer = customer_factory.create(name="Customer")
     report_date = date(2017, 8, 17)
 
     settings.WORK_REPORTS_EXPORT_MAX_COUNT = settings_count
 
-    project = ProjectFactory.create(customer=customer)
-    task = TaskFactory.create(project=project)
-    ReportFactory.create_batch(given_count, user=user, task=task, date=report_date)
+    project = project_factory.create(customer=customer)
+    task = task_factory.create(project=project)
+    report_factory.create_batch(given_count, user=user, task=task, date=report_date)
 
     url = reverse("work-report-list")
     res = internal_employee_client.get(

@@ -4,12 +4,9 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from timed.employment.factories import EmploymentFactory
-from timed.tracking.factories import ActivityFactory
 
-
-def test_activity_list(internal_employee_client):
-    activity = ActivityFactory.create(user=internal_employee_client.user)
+def test_activity_list(internal_employee_client, activity_factory):
+    activity = activity_factory.create(user=internal_employee_client.user)
     url = reverse("activity-list")
 
     response = internal_employee_client.get(url)
@@ -20,8 +17,8 @@ def test_activity_list(internal_employee_client):
     assert json["data"][0]["id"] == str(activity.id)
 
 
-def test_activity_detail(internal_employee_client):
-    activity = ActivityFactory.create(user=internal_employee_client.user)
+def test_activity_detail(internal_employee_client, activity_factory):
+    activity = activity_factory.create(user=internal_employee_client.user)
 
     url = reverse("activity-detail", args=[activity.id])
 
@@ -43,10 +40,12 @@ def test_activity_detail(internal_employee_client):
         (False, True, False, status.HTTP_201_CREATED),
     ],
 )
-def test_activity_create(auth_client, is_external, task_assignee, expected):
+def test_activity_create(
+    auth_client, is_external, task_assignee, expected, employment_factory
+):
     """Should create a new activity and automatically set the user."""
     user = auth_client.user
-    employment = EmploymentFactory(user=user)
+    employment = employment_factory(user=user)
 
     if is_external:
         employment.is_external = True
@@ -79,9 +78,13 @@ def test_activity_create(auth_client, is_external, task_assignee, expected):
         assert int(json["data"]["relationships"]["user"]["data"]["id"]) == int(user.id)
 
 
-def test_activity_create_no_task_external_employee(auth_client, task_assignee):
+def test_activity_create_no_task_external_employee(
+    auth_client,
+    task_assignee,
+    employment_factory,
+):
     user = auth_client.user
-    EmploymentFactory(user=user)
+    employment_factory(user=user)
     task_assignee.user = user
     task_assignee.save()
 
@@ -120,12 +123,19 @@ def test_activity_create_no_task_external_employee(auth_client, task_assignee):
         (False, True, False, status.HTTP_200_OK),
     ],
 )
-def test_activity_update(auth_client, is_external, task_assignee, expected):
+def test_activity_update(
+    auth_client,
+    is_external,
+    task_assignee,
+    expected,
+    activity_factory,
+    employment_factory,
+):
     user = auth_client.user
-    activity = ActivityFactory.create(user=user, task=task_assignee.task)
+    activity = activity_factory.create(user=user, task=task_assignee.task)
     task_assignee.user = user
     task_assignee.save()
-    employment = EmploymentFactory(user=user)
+    employment = employment_factory(user=user)
 
     if is_external:
         employment.is_external = True
@@ -166,13 +176,20 @@ def test_activity_update(auth_client, is_external, task_assignee, expected):
         (False, True, False, status.HTTP_204_NO_CONTENT),
     ],
 )
-def test_activity_delete(auth_client, is_external, task_assignee, expected):
+def test_activity_delete(
+    auth_client,
+    is_external,
+    task_assignee,
+    expected,
+    activity_factory,
+    employment_factory,
+):
     user = auth_client.user
     task_assignee.user = user
     task_assignee.save()
-    activity = ActivityFactory.create(user=user, task=task_assignee.task)
+    activity = activity_factory.create(user=user, task=task_assignee.task)
 
-    employment = EmploymentFactory(user=user)
+    employment = employment_factory(user=user)
 
     if is_external:
         employment.is_external = True
@@ -184,10 +201,10 @@ def test_activity_delete(auth_client, is_external, task_assignee, expected):
     assert response.status_code == expected
 
 
-def test_activity_list_filter_active(internal_employee_client):
+def test_activity_list_filter_active(internal_employee_client, activity_factory):
     user = internal_employee_client.user
-    activity1 = ActivityFactory.create(user=user)
-    activity2 = ActivityFactory.create(user=user, to_time=None, task=activity1.task)
+    activity1 = activity_factory.create(user=user)
+    activity2 = activity_factory.create(user=user, to_time=None, task=activity1.task)
 
     url = reverse("activity-list")
 
@@ -198,11 +215,11 @@ def test_activity_list_filter_active(internal_employee_client):
     assert json["data"][0]["id"] == str(activity2.id)
 
 
-def test_activity_list_filter_day(internal_employee_client):
+def test_activity_list_filter_day(internal_employee_client, activity_factory):
     user = internal_employee_client.user
     day = date(2016, 2, 2)
-    ActivityFactory.create(date=day - timedelta(days=1), user=user)
-    activity = ActivityFactory.create(date=day, user=user)
+    activity_factory.create(date=day - timedelta(days=1), user=user)
+    activity = activity_factory.create(date=day, user=user)
 
     url = reverse("activity-list")
     response = internal_employee_client.get(url, data={"day": day.strftime("%Y-%m-%d")})
@@ -236,9 +253,9 @@ def test_activity_create_no_task(internal_employee_client):
     assert json["data"]["relationships"]["task"]["data"] is None
 
 
-def test_activity_active_unique(internal_employee_client):
+def test_activity_active_unique(internal_employee_client, activity_factory):
     """Should not be able to have two active blocks."""
-    ActivityFactory.create(user=internal_employee_client.user, to_time=None)
+    activity_factory.create(user=internal_employee_client.user, to_time=None)
 
     data = {
         "data": {
@@ -261,9 +278,9 @@ def test_activity_active_unique(internal_employee_client):
     assert json["errors"][0]["detail"] == ("A user can only have one active activity")
 
 
-def test_activity_to_before_from(internal_employee_client):
+def test_activity_to_before_from(internal_employee_client, activity_factory):
     """Test that to is not before from."""
-    activity = ActivityFactory.create(
+    activity = activity_factory.create(
         user=internal_employee_client.user, from_time=time(7, 30), to_time=None
     )
 
@@ -286,9 +303,9 @@ def test_activity_to_before_from(internal_employee_client):
     )
 
 
-def test_activity_not_editable(internal_employee_client):
+def test_activity_not_editable(internal_employee_client, activity_factory):
     """Test that transferred activities are read only."""
-    activity = ActivityFactory.create(
+    activity = activity_factory.create(
         user=internal_employee_client.user, transferred=True
     )
 
@@ -305,9 +322,9 @@ def test_activity_not_editable(internal_employee_client):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_activity_retrievable_not_editable(internal_employee_client):
+def test_activity_retrievable_not_editable(internal_employee_client, activity_factory):
     """Test that transferred activities are still retrievable."""
-    activity = ActivityFactory.create(
+    activity = activity_factory.create(
         user=internal_employee_client.user, transferred=True
     )
 
@@ -317,8 +334,8 @@ def test_activity_retrievable_not_editable(internal_employee_client):
     assert response.status_code == status.HTTP_200_OK
 
 
-def test_activity_active_update(internal_employee_client):
-    activity = ActivityFactory.create(user=internal_employee_client.user, to_time=None)
+def test_activity_active_update(internal_employee_client, activity_factory):
+    activity = activity_factory.create(user=internal_employee_client.user, to_time=None)
 
     data = {
         "data": {

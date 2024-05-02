@@ -4,23 +4,26 @@ import pytest
 from dateutil.rrule import DAILY, FR, MO, rrule
 from django.core.management import call_command
 
-from timed.employment.factories import EmploymentFactory, UserFactory
 from timed.notifications.models import Notification
-from timed.projects.factories import TaskFactory
-from timed.tracking.factories import ReportFactory
 
 
 @pytest.mark.django_db()
 @pytest.mark.freeze_time("2017-7-27")
-def test_notify_supervisors(mailoutbox):
+def test_notify_supervisors(
+    mailoutbox,
+    user_factory,
+    employment_factory,
+    task_factory,
+    report_factory,
+):
     """Test time range 2017-7-17 till 2017-7-23."""
     start = date(2017, 7, 14)
     # supervisee with short time
-    supervisee = UserFactory.create()
-    supervisor = UserFactory.create()
+    supervisee = user_factory.create()
+    supervisor = user_factory.create()
     supervisee.supervisors.add(supervisor)
 
-    EmploymentFactory.create(user=supervisee, start_date=start, percentage=100)
+    employment_factory.create(user=supervisee, start_date=start, percentage=100)
     workdays = rrule(
         DAILY,
         dtstart=start,
@@ -28,9 +31,9 @@ def test_notify_supervisors(mailoutbox):
         # range is excluding last
         byweekday=range(MO.weekday, FR.weekday + 1),
     )
-    task = TaskFactory.create()
+    task = task_factory.create()
     for dt in workdays:
-        ReportFactory.create(
+        report_factory.create(
             user=supervisee, date=dt, task=task, duration=timedelta(hours=7)
         )
 
@@ -50,10 +53,10 @@ def test_notify_supervisors(mailoutbox):
 
 
 @pytest.mark.django_db()
-def test_notify_supervisors_no_employment(mailoutbox):
+def test_notify_supervisors_no_employment(mailoutbox, user_factory):
     """Check that supervisees without employment do not notify supervisor."""
-    supervisee = UserFactory.create()
-    supervisor = UserFactory.create()
+    supervisee = user_factory.create()
+    supervisor = user_factory.create()
     supervisee.supervisors.add(supervisor)
 
     call_command("notify_supervisors_shorttime")

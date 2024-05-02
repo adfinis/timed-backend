@@ -5,7 +5,6 @@ from django.core.management import call_command
 from django.utils.timezone import now
 from redminelib.exceptions import ResourceNotFoundError
 
-from timed.notifications.factories import NotificationFactory
 from timed.notifications.models import Notification
 from timed.redmine.models import RedmineProject
 
@@ -16,7 +15,12 @@ from timed.redmine.models import RedmineProject
     [(1, 0, 0), (3, 0, 0), (4, 30, 1), (8, 70, 2), (0, 0, 0)],
 )
 def test_budget_check_1(
-    mocker, report_factory, duration, percentage_exceeded, notification_count
+    mocker,
+    report_factory,
+    duration,
+    percentage_exceeded,
+    notification_count,
+    notification_factory,
 ):
     """Test budget check."""
     redmine_instance = mocker.MagicMock()
@@ -36,7 +40,7 @@ def test_budget_check_1(
         report.delete()
 
     if percentage_exceeded == 70:
-        NotificationFactory(
+        notification_factory(
             project=project, notification_type=Notification.BUDGET_CHECK_30
         )
 
@@ -57,7 +61,9 @@ def test_budget_check_1(
 
 
 @pytest.mark.django_db()
-def test_budget_check_skip_notification(capsys, mocker, report_factory):
+def test_budget_check_skip_notification(
+    capsys, mocker, report_factory, notification_factory
+):
     redmine_instance = mocker.MagicMock()
     issue = mocker.MagicMock()
     redmine_instance.issue.get.return_value = issue
@@ -71,7 +77,7 @@ def test_budget_check_skip_notification(capsys, mocker, report_factory):
     project.cost_center.name = "DEV_BUILD"
     project.cost_center.save()
 
-    notification = NotificationFactory(
+    notification = notification_factory(
         project=project, notification_type=Notification.BUDGET_CHECK_30, sent_at=now()
     )
 

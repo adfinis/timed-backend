@@ -1,13 +1,10 @@
+import pytest
 from django.urls import reverse
 from rest_framework.status import HTTP_200_OK
 
-from timed.projects.factories import BillingTypeFactory, CustomerFactory, ProjectFactory
-from timed.subscription.factories import PackageFactory
 
-
+@pytest.mark.usefixtures("package")
 def test_subscription_package_list(auth_client):
-    PackageFactory.create()
-
     url = reverse("subscription-package-list")
 
     res = auth_client.get(url)
@@ -17,11 +14,11 @@ def test_subscription_package_list(auth_client):
     assert len(json["data"]) == 1
 
 
-def test_subscription_package_filter_customer(auth_client):
-    customer = CustomerFactory.create()
-    billing_type = BillingTypeFactory.create()
-    package = PackageFactory.create(billing_type=billing_type)
-    ProjectFactory.create_batch(2, billing_type=billing_type, customer=customer)
+def test_subscription_package_filter_customer(
+    auth_client, customer, billing_type, package_factory, project_factory
+):
+    package = package_factory.create(billing_type=billing_type)
+    project_factory.create_batch(2, billing_type=billing_type, customer=customer)
 
     url = reverse("subscription-package-list")
 

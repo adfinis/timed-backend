@@ -2,9 +2,6 @@ import pytest
 from django.urls import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 
-from timed.conftest import setup_customer_and_employment_status
-from timed.projects.factories import CostCenterFactory
-
 
 @pytest.mark.parametrize(
     ("is_employed", "is_customer_assignee", "is_customer", "status_code"),
@@ -17,10 +14,15 @@ from timed.projects.factories import CostCenterFactory
     ],
 )
 def test_cost_center_list(
-    auth_client, is_employed, is_customer_assignee, is_customer, status_code
+    auth_client,
+    is_employed,
+    is_customer_assignee,
+    is_customer,
+    status_code,
+    cost_center,
+    setup_customer_and_employment_status,
 ):
     user = auth_client.user
-    cost_center = CostCenterFactory.create()
     setup_customer_and_employment_status(
         user=user,
         is_assignee=is_customer_assignee,
