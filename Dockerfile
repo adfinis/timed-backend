@@ -43,11 +43,12 @@ WORKDIR /app
 RUN apk update --no-cache && \
  apk add gcc python3-dev musl-dev linux-headers wait4ports && \
  poetry config virtualenvs.create false && poetry install && \
- apk del gcc python3-dev musl-dev linux-headers --no-cache
+ apk del gcc python3-dev musl-dev linux-headers --no-cache && \
+ chmod 777 /var/www/static
 
 USER 1001
 
-CMD ["sh", "-c", "wait4ports -s 15 tcp://${DJANGO_DATABASE_HOST:db}:${DJANGO_DATABASE_PORT:5432}; manage.py migrate --no-input && ./cmd.sh --autoreload --static"]
+CMD ["sh", "-c", "wait4ports -s 15 tcp://${DJANGO_DATABASE_HOST:-db}:${DJANGO_DATABASE_PORT:-5432}; manage.py migrate --no-input && ./cmd.sh --autoreload --static"]
 
 FROM base as prod
 
