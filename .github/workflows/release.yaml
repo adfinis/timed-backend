@@ -77,7 +77,7 @@ jobs:
             ${{ steps.meta.outputs.labels }}
 
       - name: Sign image and attach SBOM attestation
-        uses: adfinis/container-scanning-action@v0.2.3
+        uses: adfinis/container-scanning-action@v0.2.6
         if: steps.semrel.outputs.version != ''
         with:
           image-ref: ghcr.io/adfinis/timed-backend
