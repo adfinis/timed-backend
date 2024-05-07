@@ -24,7 +24,7 @@ jobs:
       # needed for `cosign attest`
       id-token: write
     steps:
-      - uses: adfinis/container-scanning-action@v0.2.3
+      - uses: adfinis/container-scanning-action@v0.2.6
         with:
           image-ref: ghcr.io/adfinis/timed-backend
           attest: true
