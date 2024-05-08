@@ -507,13 +507,13 @@ tornado = ">=6.3.3,<7.0.0"
 
 [[package]]
 name = "django-money"
-version = "3.4.1"
+version = "3.5.2"
 description = "Adds support for using money and currency fields in django models and forms. Uses py-moneyed as the money implementation."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "django-money-3.4.1.tar.gz", hash = "sha256:aef49da4ae3ff27791d03204062f4a294bdb5dd8554dcd398866c46c54461486"},
-    {file = "django_money-3.4.1-py3-none-any.whl", hash = "sha256:0c15c957c4c1571c7492675608c2ce54d1d446bce9957d042669acca14b732c9"},
+    {file = "django_money-3.5.2-py3-none-any.whl", hash = "sha256:ef51437178e0e15fb1072776556614828ce6239a49ca5b3c3b9bf1370e46d03d"},
+    {file = "django_money-3.5.2.tar.gz", hash = "sha256:161f79dc523b1f57c21b5f46b345f5e5f5b9c5bb40965fd3f6cfe3e41d7dce35"},
 ]
 
 [package.dependencies]
@@ -523,7 +523,7 @@ setuptools = "*"
 
 [package.extras]
 exchange = ["certifi"]
-test = ["django-stubs", "mixer", "mypy", "pytest (>=3.1.0,<7.0)", "pytest-cov", "pytest-django", "pytest-pythonpath"]
+test = ["django-stubs", "mixer", "mypy", "pytest (>=8.2,<8.3)", "pytest-cov", "pytest-django"]
 
 [[package]]
 name = "django-multiselectfield"
@@ -1987,4 +1987,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "aea51de2bf2220300eb5876ce4a9feb8994b3429666a464b21b624596b7c1909"
+content-hash = "732e549ffc441959ce0f1f957a8c148a3cab45567c5b9d267f83cb9f8c3ed1c1"
