@@ -8,6 +8,9 @@
 
 Timed timetracking software REST API built with Django
 
+## Archived
+This Repository has been merged into a [monorepo](https://github.com/adfinis/timed) and is therefore archived.
+
 ## Installation
 
 **Requirements**
